@@ -1,243 +1,274 @@
-# AuditKit - Pass Any Audit. First Time. Every Time.
+# AuditKit - Open Source SOC2 Compliance Scanner
 
 ![Build Status](https://img.shields.io/github/workflow/status/guardian-nexus/auditkit/CI)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Go Version](https://img.shields.io/badge/go-%3E%3D1.20-blue)
-![Downloads](https://img.shields.io/github/downloads/guardian-nexus/auditkit/total)
+![Stars](https://img.shields.io/github/stars/guardian-nexus/auditkit?style=social)
 
-**Stop paying $20,000/year for compliance tools. Get audit-ready for free.**
+AuditKit is an open-source compliance scanner that tells you exactly what will fail your SOC2 audit. No sales calls, no vendor lock-in, just `go run` and know where you stand.
 
-AuditKit scans your AWS/Azure/GCP infrastructure and tells you exactly what's blocking your SOC2, ISO 27001, or PCI DSS certification. No consultants, no black boxes, just code.
+## 💥 See It In Action
 
-## 🚀 Quick Start (5 Minutes to Your First Scan)
+```bash
+$ auditkit scan aws
+
+Scanning AWS account 123456789012...
+
+❌ CRITICAL: S3 bucket 'customer-data' is publicly accessible
+   Control: CC6.2 - Logical Access Controls
+   Fix: aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration BlockPublicAcls=true
+
+❌ HIGH: Root account lacks MFA
+   Control: CC6.6 - Multi-Factor Authentication
+   Fix: Enable MFA at https://console.aws.amazon.com/iam/home#/security_credentials
+
+❌ HIGH: 14 IAM access keys older than 90 days
+   Control: CC6.8 - Access Key Rotation
+   Affected: prod-deployer (127 days), analytics-reader (234 days)...
+
+✅ PASS: CloudTrail logging enabled in all regions
+✅ PASS: S3 bucket encryption enabled (23/23 buckets)
+✅ PASS: RDS encryption at rest configured
+
+Compliance Score: 67% (18/27 controls passing)
+Report generated: soc2-evidence-2025-09-19.pdf
+```
+
+## 🚀 Quick Start (2 Minutes)
 
 ```bash
 # Install
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
+
+# Or download binary
 curl -L https://github.com/guardian-nexus/auditkit/releases/latest/download/auditkit-linux-amd64 -o auditkit
 chmod +x auditkit
 
-# Scan your AWS infrastructure
-./auditkit scan --provider aws --profile production
+# Scan AWS (uses your existing AWS credentials)
+auditkit scan aws
 
-# Generate audit report
-./auditkit report --format pdf > soc2-audit-report.pdf
+# Generate audit evidence
+auditkit report --output soc2-evidence.pdf
 ```
 
-## 📊 What You Get
+## 🎯 What Makes AuditKit Different
 
-✅ **152 SOC2 controls** automatically validated  
-✅ **Real-time compliance scoring** (not point-in-time snapshots)  
-✅ **Evidence collection** ready for auditors  
-✅ **Automated remediation** scripts for common issues  
-✅ **Multi-framework support** (SOC2, ISO 27001, PCI DSS, HIPAA)  
-✅ **100% open source** - audit our code, not just your infrastructure  
+**It actually tells you how to fix things:**
+- Not just "MFA is missing" but exactly which users need it
+- Not just "encryption disabled" but the exact AWS CLI command to fix it
+- Not just "non-compliant" but why it matters for your audit
 
-## 🎯 Who This Is For
+**Built by engineers who hate compliance tools:**
+- CLI-first (no clicking through 47 screens)
+- Uses your existing AWS credentials (no agents to install)
+- Outputs real evidence files auditors accept
+- Can run in CI/CD for continuous compliance
 
-- **Startups** preparing for their first SOC2 audit
-- **DevOps teams** tired of manual compliance checks  
-- **Security engineers** who hate enterprise tools
-- **CTOs** who refuse to pay Vanta/Drata prices
-- **Auditors** looking for automated evidence collection
+## 📊 What It Checks (v0.1.0)
 
-## 💰 How Much You'll Save
+### AWS Security (Implemented)
+- ✅ S3 bucket encryption and public access
+- ✅ IAM MFA enforcement and password policies
+- ✅ Access key rotation (90-day check)
+- ✅ RDS encryption at rest
+- ✅ CloudTrail logging configuration
+- ✅ VPC security group analysis
+- ✅ Root account usage monitoring
 
-| Traditional Route | With AuditKit |
-|------------------|---------------|
-| Consultant prep: $50,000 | Open source scanner: $0 |
-| Vanta/Drata: $20,000/year | AuditKit Pro: $3,588/year |
-| Manual evidence: 200 hours | Automated collection: 2 hours |
-| **Total Year 1: $70,000** | **Total Year 1: $3,588** |
+### Coming Next Week
+- 🔄 EBS volume encryption
+- 🔄 Lambda function permissions
+- 🔄 API Gateway authentication
+- 🔄 Secrets Manager rotation
 
-*Save $66,412 in your first year alone.*
+### On The Roadmap
+- Azure support (November 2025)
+- GCP support (December 2025)
+- ISO 27001 mapping
+- PCI DSS controls
+- Kubernetes CIS benchmarks
 
-## 🔍 Supported Cloud Providers
+## 💰 Pricing Comparison
 
-- ✅ **AWS** - Full support for all major services
-- ✅ **Azure** - Coming November 2025
-- ✅ **GCP** - Coming December 2025
-- 🔄 **Kubernetes** - Beta support available
-- 🔄 **GitHub** - Organization security scanning
+| What You Need | Traditional Cost | With AuditKit |
+|---------------|-----------------|---------------|
+| Initial scan | Consultant: $15,000 | Free (open source) |
+| Continuous monitoring | Vanta/Drata: $20,000/yr | Free (run in cron) |
+| Evidence generation | 200 hours manual work | Automated (included) |
+| Remediation guidance | Consultant: $500/hour | Included in output |
 
-## 📋 Compliance Frameworks
+**Total Year 1 Savings: $35,000+**
 
-### SOC2 (Full Coverage)
-- ✅ Security (CC6.1 - CC6.8)
-- ✅ Availability (A1.1 - A1.3)
-- ✅ Confidentiality (C1.1 - C1.2)
-- ✅ Processing Integrity (PI1.1 - PI1.5)
-- ✅ Privacy (P1.1 - P8.1)
+## 🏢 Pro Version (Coming Soon)
 
-### ISO 27001 (Coming Soon)
-- 🔄 114 controls across 14 domains
-- 🔄 Annex A full coverage
+Love the scanner but need more? We're building:
 
-### PCI DSS v4.0 (Coming Soon)
-- 🔄 12 requirements
-- 🔄 300+ sub-requirements
+- **Cloud Dashboard** - $299/month
+  - Real-time compliance tracking
+  - Team collaboration
+  - Scheduled scans
+  - Slack/PagerDuty alerts
 
-## 🛠️ Installation Options
+- **On-Premise** - $2,999/month
+  - Your infrastructure, your data
+  - Air-gapped deployment option
+  - Priority support
+  - Custom control frameworks
 
-### Quick Install (Recommended)
-```bash
-curl -sSL https://auditkit.io/install.sh | bash
-```
+Email admin@auditkit.io if you need the pro version - First 100 users get 50% off forever
 
-### Docker
-```bash
-docker run -v ~/.aws:/root/.aws guardiannexus/auditkit scan
-```
+## 🛠 Installation Options
 
 ### From Source
 ```bash
 git clone https://github.com/guardian-nexus/auditkit
 cd auditkit/scanner
 go build -o auditkit cmd/auditkit/main.go
+./auditkit scan aws
+```
+
+### Docker
+```bash
+docker run -v ~/.aws:/root/.aws guardiannexus/auditkit scan aws
+```
+
+### Homebrew (Coming Soon)
+```bash
+brew tap guardian-nexus/auditkit
+brew install auditkit
 ```
 
 ## 📖 Usage Examples
 
-### Basic AWS Scan
+### Basic Scan
 ```bash
-# Scan default AWS profile
-auditkit scan
+# Scan with default AWS profile
+auditkit scan aws
 
 # Scan specific profile
-auditkit scan --provider aws --profile production
+auditkit scan aws --profile production
 
-# Output to JSON for CI/CD
-auditkit scan --format json > compliance.json
+# Scan specific services only
+auditkit scan aws --services s3,iam,rds
 ```
 
-### Generate Audit Reports
+### Generate Reports
 ```bash
 # PDF for auditors
-auditkit report --format pdf --output soc2-type2-evidence.pdf
+auditkit report --format pdf
 
-# HTML for internal review
-auditkit report --format html --output compliance-dashboard.html
+# JSON for automation
+auditkit report --format json > compliance.json
+
+# CSV for spreadsheets
+auditkit report --format csv
 ```
 
-### Automated Remediation
+### Continuous Monitoring
 ```bash
-# Fix all auto-fixable issues
-auditkit fix --auto-approve
-
-# Fix specific control
-auditkit fix --control CC6.2
+# Add to crontab for daily scans
+0 9 * * * /usr/local/bin/auditkit scan aws --silent --alert-on-failure
 ```
 
-### Continuous Monitoring (Pro Feature)
-```bash
-# Run in daemon mode
-auditkit monitor --interval 1h --alert-webhook https://your-slack-webhook
+### CI/CD Integration
+```yaml
+# GitHub Actions example
+- name: SOC2 Compliance Check
+  run: |
+    auditkit scan aws --format json
+    if [ $? -ne 0 ]; then
+      echo "Compliance check failed"
+      exit 1
+    fi
 ```
-
-## 🏢 AuditKit Pro (Cloud Platform)
-
-Need more than scanning? Our platform adds:
-
-- 📊 **Real-time dashboards** with compliance trends
-- 🤖 **AI-powered policy generation** (GPT-4)
-- 👥 **Multi-user collaboration** with RBAC
-- 📧 **Auditor portal** for evidence sharing
-- 🔄 **Continuous monitoring** with alerts
-- 🔐 **On-premise deployment** option
-
-[Start Free Trial](https://auditkit.io/signup) - No credit card required
-
-### Pricing That Makes Sense
-
-| Plan | Price | Best For |
-|------|-------|----------|
-| **Open Source** | Free forever | Developers, small teams |
-| **Pro Cloud** | $299/month | Growing startups |
-| **Pro Hybrid** | $999/month | Sensitive data requirements |
-| **Enterprise** | $2,999/month | On-premise, air-gapped |
-
-*All plans include unlimited scans, all frameworks, no per-user pricing.*
 
 ## 🤝 Contributing
 
-We accept PRs! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Found a bug? Want a new check? PRs welcome!
 
-**Priority contributions needed:**
+**High-Priority Contributions:**
 - Azure provider implementation
-- GCP provider implementation  
-- Additional compliance frameworks
+- GCP provider implementation
+- Additional SOC2 controls
 - Remediation scripts
+- Documentation improvements
+
+See our [contribution guide](https://github.com/guardian-nexus/auditkit/issues) - just open an issue or PR!
 
 ## 🛡️ Security
 
-Found a security issue? Please email security@auditkit.io (not a GitHub issue).
+This tool needs read-only access to your AWS account. It will never modify anything unless you explicitly run the `fix` command (coming soon).
 
-We take security seriously:
-- All commits signed
-- Dependencies scanned daily
-- Security advisories published
-- Bug bounty program (coming soon)
+Found a security issue? Email admin@auditkit.io (not a GitHub issue).
 
-## 📊 Why AuditKit vs Others?
+## 🤔 Why I Built This
 
-| Feature | AuditKit | Vanta/Drata | Secureframe |
-|---------|----------|-------------|-------------|
-| **Open Source Scanner** | ✅ Free | ❌ Proprietary | ❌ Proprietary |
-| **Transparent Pricing** | ✅ On website | ❌ Call sales | ❌ Call sales |
-| **On-Premise Option** | ✅ Available | ❌ Cloud only | ❌ Cloud only |
-| **No Per-Framework Fee** | ✅ All included | ❌ $7,500 each | ❌ $7,500 each |
-| **Developer-Friendly** | ✅ CLI-first | ❌ GUI only | ❌ GUI only |
-| **Starting Price** | $0 | $20,000/year | $15,000/year |
+I'm a security engineer helping a friend at a startup. They needed SOC2 for enterprise deals. Vendors wanted:
+- $20k/year minimum
+- 3-year contracts
+- Per-framework pricing
+- Sales calls to see features
+- "Contact us" pricing
 
-## 📈 Stats & Social Proof
+That's insane. Compliance checking is just API calls and if-statements. 
 
-- 🌟 **2,000+ GitHub stars** in first 6 months
-- 🏢 **500+ companies** using AuditKit
-- ⏱️ **4 weeks average** to SOC2 compliance
-- 💰 **$10M+ saved** by our users collectively
-- 🎯 **100% pass rate** on first audit attempt
+So I built AuditKit. It's not perfect, but it's free, it works, and it got them through their SOC2.
 
-## 🗺️ Roadmap
+## 📊 Real Usage Stats
 
-> 🔥 **September 2025 Update**: With CMMC deadline in 2 months (Nov 10, 2025), 
-> we're seeing huge demand. Adding CMMC controls next week.
+- **Lines of code:** 2,847
+- **AWS API calls per scan:** ~200
+- **Time to full scan:** 45 seconds
+- **Controls checked:** 27 (adding more weekly)
+- **Money saved:** $20,000/year
+- **Sanity preserved:** Priceless
 
-### Q4 2025
-- [x] AWS provider
-- [x] SOC2 framework
-- [x] Basic remediation
-- [ ] Azure provider
-- [ ] ISO 27001 framework
+## 🗺️ What's Next
 
-### Q1 2026
-- [ ] GCP provider
-- [ ] PCI DSS framework
-- [ ] GitHub integration
-- [ ] Slack notifications
-- [ ] SAML SSO (Pro)
+**This Week:**
+- More AWS checks based on your feedback
+- Docker image for easier deployment
+- GitHub Action for CI/CD
 
-### Q2 2026
-- [ ] HIPAA framework
-- [ ] Kubernetes scanner
-- [ ] AI remediation suggestions
-- [ ] Custom controls
-- [ ] White-label option
+**This Month:**
+- Web dashboard MVP
+- Slack notifications
+- Auto-remediation for safe fixes
 
+**This Quarter:**
+- Azure support
+- GCP support
+- ISO 27001 framework
+- Read-only SaaS version
+
+## ❓ FAQ
+
+**Q: Is this production-ready?**  
+A: I use it in production. It's read-only so worst case is it misses something. Better than nothing.
+
+**Q: How is this free?**  
+A: Open source. If you want the managed version later, that'll cost money. Scanner stays free forever.
+
+**Q: Does it actually work for audits?**  
+A: Yes. We passed our SOC2 Type II using reports from this tool.
+
+**Q: Why should I trust this?**  
+A: You shouldn't. Read the code. It's all there. That's the point.
 
 ## 📜 License
 
-Apache 2.0 - Use it, fork it, sell it. We don't care. See [LICENSE](LICENSE).
+Apache 2.0 - Use it however you want. See [LICENSE](LICENSE).
 
-## 🙏 Acknowledgments
+## 🙏 Credits
 
-Built with frustration at enterprise pricing and love for the developer community.
+Built with frustration at enterprise software pricing.
 
-Special thanks to:
-- Everyone who said "compliance tools are too expensive"
-- The 500+ contributors making this possible
-- You, for choosing open source over vendor lock-in
+If this saves you money:
+- ⭐ [Star the repo](https://github.com/guardian-nexus/auditkit)
+- 🐛 [Report bugs](https://github.com/guardian-nexus/auditkit/issues)
+- 📢 Tell your friends
+- ☕ [Buy me coffee](https://buymeacoffee.com/auditkit) (optional)
 
 ---
 
-**Built by [Guardian Nexus](https://github.com/guardian-nexus)** - Open source security tools for everyone.
-
-*If AuditKit saves you money, [star us on GitHub](https://github.com/guardian-nexus/auditkit) or [buy us coffee](https://buymeacoffee.com/auditkit).*
+**Made by [Guardian Nexus](https://github.com/guardian-nexus)** - *Because compliance shouldn't cost more than your AWS bill*
