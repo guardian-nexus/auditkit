@@ -198,6 +198,9 @@ We take security seriously:
 
 ## 🗺️ Roadmap
 
+> 🔥 **September 2025 Update**: With CMMC deadline in 2 months (Nov 10, 2025), 
+> we're seeing huge demand. Adding CMMC controls next week.
+
 ### Q4 2025
 - [x] AWS provider
 - [x] SOC2 framework
@@ -219,9 +222,6 @@ We take security seriously:
 - [ ] Custom controls
 - [ ] White-label option
 
-## 💬 Support
-
-- 📖 [Documentation](https://docs.auditkit.io) - Comprehensive guides
 
 ## 📜 License
 
