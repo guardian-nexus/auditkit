@@ -1,33 +1,67 @@
-# Binaries
+# Binaries for programs and plugins
 *.exe
+*.exe~
 *.dll
 *.so
 *.dylib
 auditkit
+scanner/auditkit
 
-# Test binary
+# Test binary, built with `go test -c`
 *.test
 
-# Output
+# Output of the go coverage tool
 *.out
+
+# Go workspace file
+go.work
 
 # Dependency directories
 vendor/
 
-# Go workspace
-go.work
+# Go build cache
+.cache/
 
-# IDE
-.vscode/
+# IDE specific files
 .idea/
 *.swp
 *.swo
 *~
+.vscode/
+*.iml
 
-# OS
+# OS specific files
 .DS_Store
 Thumbs.db
 
-# Environment
+# Environment files
 .env
 .env.local
+
+# AWS credentials (NEVER commit these!)
+.aws/
+aws-credentials
+
+# Output files
+*.pdf
+*.html
+*.csv
+report-*.json
+soc2-evidence-*
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Test coverage
+coverage.txt
+coverage.html
