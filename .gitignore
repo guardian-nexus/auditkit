@@ -4,8 +4,8 @@
 *.dll
 *.so
 *.dylib
-auditkit
-scanner/auditkit
+/auditkit
+/scanner/auditkit
 
 # Test binary, built with `go test -c`
 *.test
