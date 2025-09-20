@@ -1,51 +1,91 @@
+<!-- Path: /home/dijital/Documents/auditkit/docs/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AuditKit - Open Source SOC2 Scanner</title>
+    <title>AuditKit - SOC2 Compliance Without the $50k Consultant</title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            line-height: 1.6;
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            line-height: 1.6; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #f8f9fa;
         }
-        h1 { color: #333; }
-        .cta {
-            background: #0066cc;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 5px;
-            display: inline-block;
-            margin: 1rem 0;
-        }
-        .cta:hover { background: #0052a3; }
-        code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
+        .hero { background: white; padding: 40px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+        .hero h1 { color: #2d3748; margin-bottom: 10px; }
+        .hero p { color: #4a5568; font-size: 18px; }
+        .cta { background: #3182ce; color: white; padding: 15px 30px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin: 10px; }
+        .stats { display: flex; justify-content: space-around; margin: 30px 0; }
+        .stat { text-align: center; }
+        .stat h3 { margin: 0; color: #3182ce; font-size: 24px; }
+        .features { background: white; padding: 30px; border-radius: 8px; }
+        .feature { margin: 20px 0; }
+        .social-proof { background: #e6fffa; padding: 20px; border-radius: 8px; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <h1>🔒 AuditKit</h1>
-    <h2>Open Source SOC2 Compliance Scanner</h2>
-    
-    <p>Stop paying $20,000/year for compliance tools. AuditKit scans your AWS infrastructure and tells you exactly what will fail your SOC2 audit.</p>
-    
-    <a href="https://github.com/guardian-nexus/auditkit" class="cta">View on GitHub →</a>
-    
-    <h3>Quick Install</h3>
-    <pre><code>go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest</code></pre>
-    
-    <h3>Pro Version Coming Soon</h3>
-    <p>Need a dashboard, continuous monitoring, and team collaboration?</p>
-    <p>Email <strong>admin@auditkit.io</strong> to get 50% off when we launch.</p>
-    
-    <hr>
-    <p><small>Built by <a href="https://github.com/guardian-nexus">Guardian Nexus</a> • 
-    Because compliance shouldn't cost more than your AWS bill</small></p>
+    <div class="hero">
+        <h1>SOC2 Compliance Without the $50k Consultant</h1>
+        <p>Free, open-source AWS security scanner that tells you exactly what evidence auditors need</p>
+        
+        <a href="https://github.com/guardian-nexus/auditkit" class="cta">Get AuditKit Free</a>
+        <a href="https://auditkit.substack.com" class="cta" style="background: #319795;">Join Newsletter</a>
+        
+        <div class="stats">
+            <div class="stat">
+                <h3>50k+</h3>
+                <p>Views on Reddit</p>
+            </div>
+            <div class="stat">
+                <h3>30+</h3>
+                <p>GitHub Stars</p>
+            </div>
+            <div class="stat">
+                <h3>$0</h3>
+                <p>Cost Forever</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="social-proof">
+        <h3>"Finally someone said it out loud"</h3>
+        <p>Top Reddit comment from 203-upvote post that reached 50k+ security professionals</p>
+    </div>
+
+    <div class="features">
+        <h2>What AuditKit Does</h2>
+        
+        <div class="feature">
+            <h3>🔍 Scans Your AWS Infrastructure</h3>
+            <p>Checks S3 buckets, IAM policies, security groups, CloudTrail, and 20+ other services for SOC2 compliance issues</p>
+        </div>
+        
+        <div class="feature">
+            <h3>📸 Evidence Collection Guide</h3>
+            <p>Tells you exactly which AWS console screenshots auditors need - no guessing, no missing evidence</p>
+        </div>
+        
+        <div class="feature">
+            <h3>📄 Audit-Ready Reports</h3>
+            <p>Generates PDF reports with findings, remediation steps, and evidence checklists that auditors actually want</p>
+        </div>
+        
+        <div class="feature">
+            <h3>⚡ Runs Offline</h3>
+            <p>Your sensitive data never leaves your network. Install locally, scan privately, generate reports securely</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <h2>Ready to Skip the $50k Consultant?</h2>
+        <a href="https://github.com/guardian-nexus/auditkit" class="cta">Download AuditKit Now</a>
+        <p style="margin-top: 10px; color: #666;">
+            <a href="https://auditkit.substack.com">Get weekly compliance insights</a> | 
+            <a href="https://www.buymeacoffee.com/auditkit">Support the project</a>
+        </p>
+    </div>
 </body>
 </html>
