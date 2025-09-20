@@ -2,381 +2,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AuditKit - Be 80% Ready Before Your SOC2 Audit</title>
+    <title>AuditKit - Open Source SOC2 Evidence Collection</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Free SOC2 readiness scanner that finds issues before expensive consultants do. Save $40K on audit prep.">
+    <meta name="description" content="The missing evidence collection layer for SOC2. Shows exactly what screenshots auditors need.">
     
-    <!-- Open Graph for social sharing -->
-    <meta property="og:title" content="AuditKit - SOC2 Prep That Doesn't Cost $50K">
-    <meta property="og:description" content="Find and fix SOC2 issues before auditors do. Free and open source.">
+    <meta property="og:title" content="AuditKit - Evidence Collection for SOC2">
+    <meta property="og:description" content="Stop guessing what auditors want to see. Free and open source.">
     <meta property="og:url" content="https://auditkit.io">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-            line-height: 1.6; 
-            color: #2d3748;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
         }
+        
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
         
-        /* Hero Section */
-        .hero {
-            background: white;
-            border-radius: 16px;
-            padding: 60px 40px;
-            text-align: center;
-            margin: 40px 0;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero .subtitle {
-            font-size: 24px;
-            color: #4a5568;
-            margin-bottom: 10px;
-        }
-        .hero .disclaimer {
-            font-size: 16px;
-            color: #718096;
-            font-style: italic;
-            margin-bottom: 30px;
-        }
-        
-        /* Warning Box */
-        .warning-box {
-            background: #fef5e7;
-            border: 2px solid #f39c12;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 30px 0;
-            text-align: left;
-        }
-        .warning-box h3 {
-            color: #f39c12;
-            margin-bottom: 10px;
-        }
-        
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-        .stat {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat .number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        .stat .label {
-            color: #718096;
-            margin-top: 5px;
-        }
-        
-        /* CTA Buttons */
-        .cta-group {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-        .cta {
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: inline-block;
-        }
-        .cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .cta-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .cta-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        /* Features */
-        .features {
-            background: white;
-            border-radius: 16px;
-            padding: 60px 40px;
-            margin: 40px 0;
-        }
-        .features h2 {
-            text-align: center;
-            font-size: 36px;
+        /* Header */
+        header {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 30px 0;
             margin-bottom: 40px;
-            color: #2d3748;
         }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        .feature {
-            padding: 20px;
-        }
-        .feature h3 {
-            color: #667eea;
+        
+        h1 {
+            font-size: 28px;
+            font-weight: normal;
             margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* Terminal Box */
+        .terminal {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .terminal .prompt {
+            color: #6a9955;
+        }
+        
+        .terminal .output {
+            color: #ce9178;
+            margin-left: 20px;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .warning-box {
+            background: #fffbf0;
+            border: 1px solid #f0ad4e;
+            border-left: 4px solid #f0ad4e;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        /* Main Content */
+        .section {
+            margin: 40px 0;
+        }
+        
+        h2 {
             font-size: 20px;
-        }
-        .feature p {
-            color: #4a5568;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
-        /* How It Works */
-        .how-it-works {
-            background: white;
-            border-radius: 16px;
-            padding: 60px 40px;
-            margin: 40px 0;
+        p {
+            margin-bottom: 15px;
+            line-height: 1.7;
         }
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+        
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
         }
-        .step {
-            text-align: center;
-            padding: 20px;
+        
+        li {
+            margin-bottom: 8px;
         }
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
+        
+        /* Code Block */
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+        }
+        
+        /* Buttons */
+        .buttons {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 auto 20px;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
         }
         
-        /* Testimonials */
-        .testimonials {
-            background: white;
-            border-radius: 16px;
-            padding: 60px 40px;
-            margin: 40px 0;
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0066cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
         }
-        .testimonial {
-            background: #f7fafc;
-            padding: 30px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
+        
+        .button:hover {
+            background: #0052a3;
         }
-        .testimonial-text {
-            font-size: 18px;
-            font-style: italic;
-            color: #4a5568;
-            margin-bottom: 10px;
+        
+        .button-secondary {
+            background: #fff;
+            color: #0066cc;
+            border: 1px solid #0066cc;
         }
-        .testimonial-author {
-            color: #718096;
+        
+        .button-secondary:hover {
+            background: #f0f8ff;
+        }
+        
+        /* Stats Table */
+        .stats {
+            display: flex;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0066cc;
+        }
+        
+        .stat-label {
+            color: #666;
             font-size: 14px;
         }
         
         /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px;
-            color: white;
+        footer {
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
         }
-        .footer a {
-            color: white;
-            margin: 0 10px;
+        
+        footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
         }
         
         /* Mobile */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 32px; }
-            .hero .subtitle { font-size: 18px; }
-            .cta-group { flex-direction: column; }
-            .cta { width: 100%; }
+            .container {
+                padding: 15px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .button {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
-<script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
+    <script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
     <div class="container">
-        <!-- Hero Section -->
-        <div class="hero">
-            <h1>Be 80% Ready Before Your SOC2 Audit</h1>
-            <p class="subtitle">Stop paying consultants $300/hour to tell you to enable MFA</p>
-            <p class="disclaimer">AuditKit is prep work, not a replacement for certified auditors</p>
-            
-            <div class="warning-box">
-                <h3>⚠️ Let's Be Clear</h3>
-                <p><strong>AuditKit DOES:</strong> Find obvious issues, collect evidence, reduce consultant hours from 200 to 50</p>
-                <p><strong>AuditKit DOESN'T:</strong> Replace CPAs, guarantee compliance, or provide legal certification</p>
-                <p><strong>Think of it as:</strong> Spell-check for compliance. You still need an editor, but at least you're not paying them to fix typos.</p>
-            </div>
-            
-            <div class="stats">
-                <div class="stat">
-                    <div class="number">$40K</div>
-                    <div class="label">Average savings</div>
-                </div>
-                <div class="stat">
-                    <div class="number">25+</div>
-                    <div class="label">SOC2 controls checked</div>
-                </div>
-                <div class="stat">
-                    <div class="number">217</div>
-                    <div class="label">Security pros upvoted</div>
-                </div>
-                <div class="stat">
-                    <div class="number">15min</div>
-                    <div class="label">To first report</div>
-                </div>
-            </div>
-            
-            <div class="cta-group">
-                <a href="https://github.com/guardian-nexus/auditkit" class="cta cta-primary">Get AuditKit Free</a>
-                <a href="https://auditkit.substack.com" class="cta cta-secondary">Weekly Updates</a>
-            </div>
+        <header>
+            <h1>AuditKit</h1>
+            <p class="tagline">The evidence collection layer your SOC2 scanner is missing</p>
+        </header>
+        
+        <div class="terminal">
+            <span class="prompt">$</span> auditkit scan<br>
+            <span class="output">Scanning AWS account 123456789...</span><br>
+            <span class="output">✗ CRITICAL: Root account missing MFA</span><br>
+            <span class="output">✗ HIGH: 3 S3 buckets allow public access</span><br>
+            <span class="output">✗ HIGH: Security group allows SSH from 0.0.0.0/0</span><br><br>
+            <span class="prompt">$</span> auditkit evidence<br>
+            <span class="output">Opening evidence checklist...</span><br>
+            <span class="output">Screenshot guide: exactly what your auditor needs to see</span>
         </div>
         
-        <!-- How It Works -->
-        <div class="how-it-works">
-            <h2>Turn a $50K Audit Into a $10K One</h2>
-            
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Run AuditKit</h3>
-                    <p>15-minute scan finds all the obvious issues</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Fix the Basics</h3>
-                    <p>Enable MFA, encrypt S3, close ports - the stuff you can do yourself</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Collect Evidence</h3>
-                    <p>Screenshot guides show exactly what auditors want to see</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Call Consultants</h3>
-                    <p>Now pay them for actual expertise, not finding obvious issues</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Features -->
-        <div class="features">
-            <h2>What You Actually Get</h2>
-            
-            <div class="feature-grid">
-                <div class="feature">
-                    <h3>🔍 Smart Scanning</h3>
-                    <p>Checks only the 25 controls auditors actually care about, not 400 generic checks like other tools</p>
-                </div>
-                <div class="feature">
-                    <h3>🎯 Priority Fixes</h3>
-                    <p>CRITICAL = audit fails, HIGH = major finding, MEDIUM = should fix. Know what matters.</p>
-                </div>
-                <div class="feature">
-                    <h3>📸 Evidence Templates</h3>
-                    <p>Exact console screenshots auditors need. No guessing, no missing evidence, no delays.</p>
-                </div>
-                <div class="feature">
-                    <h3>🔧 Fix Scripts</h3>
-                    <p>Copy-paste remediation commands for each issue. Fix in minutes, not hours.</p>
-                </div>
-                <div class="feature">
-                    <h3>📊 Progress Tracking</h3>
-                    <p>See your compliance score improve week by week. Show auditors you're serious.</p>
-                </div>
-                <div class="feature">
-                    <h3>🔒 100% Private</h3>
-                    <p>Runs locally on your machine. Your data never leaves your network. Ever.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Testimonials -->
-        <div class="testimonials">
-            <h2>From the Reddit Thread That Started It All</h2>
-            
-            <div class="testimonial">
-                <p class="testimonial-text">"Finally someone said what we're all thinking. Consultants charging $300/hour to run basic AWS checks is criminal."</p>
-                <p class="testimonial-author">- Top comment, 217 upvotes on r/cybersecurity</p>
-            </div>
-            
-            <div class="testimonial">
-                <p class="testimonial-text">"This won't replace auditors but it will definitely reduce their billable hours. That's a win in my book."</p>
-                <p class="testimonial-author">- Security architect with common sense</p>
-            </div>
-            
-            <div class="testimonial">
-                <p class="testimonial-text">"Ran this before our SOC2 audit. Fixed 15 issues ourselves. Consultant bill went from quoted $47K to actual $12K."</p>
-                <p class="testimonial-author">- Startup CTO (hypothetical but realistic)</p>
-            </div>
-        </div>
-        
-        <!-- Final CTA -->
-        <div class="hero">
-            <h2>Ready to Save $40K on Your SOC2?</h2>
-            <p class="subtitle">Join 50,000+ professionals who've seen AuditKit</p>
-            
-            <div class="cta-group">
-                <a href="https://github.com/guardian-nexus/auditkit" class="cta cta-primary">Download Now</a>
-                <a href="https://www.buymeacoffee.com/auditkit" class="cta cta-secondary">Support Development</a>
-            </div>
-            
-            <p style="margin-top: 20px; color: #718096;">
-                Questions? Check our <a href="https://github.com/guardian-nexus/auditkit/discussions">GitHub Discussions</a> |
-                Need help? <a href="https://github.com/guardian-nexus/auditkit/issues">Open an issue</a>
+        <div class="section">
+            <h2>The Problem</h2>
+            <p>
+                You run Prowler. It finds 400 issues. Your auditor wants screenshots of the AWS console 
+                showing you fixed them. But which screens? What exactly should be visible? What format?
+            </p>
+            <p>
+                You Google "SOC2 evidence examples" and find nothing useful. You hire consultants for $50K. 
+                They take the same screenshots you could have taken yourself—if you knew what to capture.
             </p>
         </div>
-    </div>
-    
-    <div class="footer">
-        <p>AuditKit is open source and free forever | Apache 2.0 License</p>
-        <p>
-            <a href="https://github.com/guardian-nexus/auditkit">GitHub</a> |
-            <a href="https://auditkit.substack.com">Newsletter</a> |
-            <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a>
-        </p>
-        <p style="margin-top: 20px; font-size: 14px;">
-            Made by engineers tired of compliance theater | Not legal advice | You still need real auditors
-        </p>
+        
+        <div class="warning-box">
+            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. You still need real auditors. 
+            But it will save you ~150 hours of consultant time by handling the mechanical evidence collection 
+            they charge $300/hour for.
+        </div>
+        
+        <div class="section">
+            <h2>What AuditKit Actually Does</h2>
+            <ul>
+                <li>Scans for the 25 controls auditors care about (not 400 generic checks)</li>
+                <li>Shows EXACTLY which AWS console screens to screenshot</li>
+                <li>Generates evidence labels auditors recognize</li>
+                <li>Tracks what you've collected vs. what's missing</li>
+                <li>Outputs PDF reports that look like what Big 4 firms produce</li>
+            </ul>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">32</div>
+                <div class="stat-label">GitHub Stars</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">217</div>
+                <div class="stat-label">Reddit Upvotes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">~50K</div>
+                <div class="stat-label">Views</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">$0</div>
+                <div class="stat-label">Cost Forever</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Installation</h2>
+            <div class="terminal">
+                <span class="prompt">#</span> Download binary (macOS/Linux)<br>
+                curl -L https://github.com/guardian-nexus/auditkit/releases/latest/download/auditkit -o auditkit<br>
+                chmod +x auditkit<br><br>
+                <span class="prompt">#</span> Or build from source<br>
+                git clone https://github.com/guardian-nexus/auditkit.git<br>
+                cd auditkit/scanner && go build ./cmd/auditkit<br><br>
+                <span class="prompt">#</span> Run your first scan<br>
+                ./auditkit scan -format pdf -output soc2-evidence.pdf
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data is sent anywhere. 
+            No telemetry, no analytics from the tool itself, no BS. Check the source code if you don't trust me.
+        </div>
+        
+        <div class="section">
+            <h2>Who Should Use This</h2>
+            <ul>
+                <li>Startups doing SOC2 for the first time</li>
+                <li>Companies who got quoted $50K+ for compliance prep</li>
+                <li>Engineers who prefer fixing things themselves</li>
+                <li>Teams who need evidence collection, not more scanning</li>
+            </ul>
+            
+            <h2 style="margin-top: 30px;">Who Should NOT Use This</h2>
+            <ul>
+                <li>If you need hand-holding through compliance</li>
+                <li>If you want someone else to do it for you</li>
+                <li>If you're looking for a silver bullet</li>
+                <li>If you need something "enterprise-grade"</li>
+            </ul>
+        </div>
+        
+        <div class="buttons">
+            <a href="https://github.com/guardian-nexus/auditkit" class="button">View on GitHub</a>
+            <a href="https://github.com/guardian-nexus/auditkit/releases" class="button button-secondary">Download Binary</a>
+            <a href="https://auditkit.substack.com" class="button button-secondary">Get Updates</a>
+        </div>
+        
+        <div class="section">
+            <h2>Current Status</h2>
+            <p>
+                <strong>v0.3.0</strong> shipped with evidence collection based on feedback from 39 security professionals. 
+                AWS is fully supported. Azure and GCP coming when someone actually needs them.
+            </p>
+            <p>
+                Telos Corporation (a $100M defense contractor) already forked this. 
+                So apparently we're onto something they charge $50K for.
+            </p>
+        </div>
+        
+        <footer>
+            <p>
+                Built by an engineer who went through SOC2 hell and lived to tell the tale.<br>
+                Apache 2.0 License. Fork it, improve it, sell it—I don't care.<br><br>
+                
+                <a href="https://github.com/guardian-nexus/auditkit">GitHub</a> · 
+                <a href="https://github.com/guardian-nexus/auditkit/issues">Report Bug</a> · 
+                <a href="https://github.com/guardian-nexus/auditkit/discussions">Discussions</a> · 
+                <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                We use privacy-friendly analytics (Plausible). No cookies, no tracking, just page views.
+            </p>
+        </footer>
     </div>
 </body>
 </html>
