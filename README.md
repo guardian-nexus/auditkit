@@ -7,6 +7,8 @@
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 ![Version](https://img.shields.io/badge/version-v0.3.0-green)
 
+> 🚀 **Weekend Update (Sept 20)**: Working on Azure support based on your feedback. Ships next Friday...or sooner! [Vote on features →](https://github.com/guardian-nexus/auditkit/discussions)
+
 ## ⚠️ Important Disclaimer
 
 **AuditKit is a PREPARATION tool, not a replacement for professional audit services:**
