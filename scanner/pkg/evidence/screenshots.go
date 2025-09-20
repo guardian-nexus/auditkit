@@ -1,40 +1,40 @@
 package evidence
 
 import (
-    "fmt"
-    "html/template"
-    "os"
+	"fmt"
+	"html/template"
+	"os"
 )
 
 type ScreenshotGuide struct {
-    ControlID   string
-    Service     string
-    Steps       []Step
-    ConsoleURL  string
-    Highlights  []Rectangle
+	ControlID  string
+	Service    string
+	Steps      []Step
+	ConsoleURL string
+	Highlights []Rectangle
 }
 
 type Step struct {
-    Number      int
-    Instruction string
-    Screenshot  string
+	Number      int
+	Instruction string
+	Screenshot  string
 }
 
 type Rectangle struct {
-    X      int
-    Y      int
-    Width  int
-    Height int
+	X      int
+	Y      int
+	Width  int
+	Height int
 }
 
 func GenerateHTMLGuide(controlID string, outputPath string) error {
-    guides := getGuides()
-    guide, exists := guides[controlID]
-    if !exists {
-        return fmt.Errorf("no guide for control %s", controlID)
-    }
-    
-    tmpl := `<!DOCTYPE html>
+	guides := getGuides()
+	guide, exists := guides[controlID]
+	if !exists {
+		return fmt.Errorf("no guide for control %s", controlID)
+	}
+
+	tmpl := `<!DOCTYPE html>
 <html>
 <head>
     <title>Evidence Collection Guide - {{.ControlID}}</title>
@@ -144,81 +144,81 @@ func GenerateHTMLGuide(controlID string, outputPath string) error {
     </div>
 </body>
 </html>`
-    
-    t, err := template.New("guide").Parse(tmpl)
-    if err != nil {
-        return err
-    }
-    
-    file, err := os.Create(outputPath)
-    if err != nil {
-        return err
-    }
-    defer file.Close()
-    
-    return t.Execute(file, guide)
+
+	t, err := template.New("guide").Parse(tmpl)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return t.Execute(file, guide)
 }
 
 func getGuides() map[string]ScreenshotGuide {
-    return map[string]ScreenshotGuide{
-        "CC6.6": {
-            ControlID:  "CC6.6",
-            Service:    "IAM - Root MFA",
-            ConsoleURL: "https://console.aws.amazon.com/iam/home#/security_credentials",
-            Steps: []Step{
-                {
-                    Number:      1,
-                    Instruction: "Sign in to AWS Console as the root user (use your root email, not IAM user)",
-                    Screenshot:  "",
-                },
-                {
-                    Number:      2,
-                    Instruction: "Click on your account name in top-right corner",
-                    Screenshot:  "",
-                },
-                {
-                    Number:      3,
-                    Instruction: "Select 'Security credentials' from the dropdown",
-                    Screenshot:  "",
-                },
-                {
-                    Number:      4,
-                    Instruction: "Find the 'Multi-factor authentication (MFA)' section",
-                    Screenshot:  "The entire MFA section showing 'MFA devices' with status",
-                },
-                {
-                    Number:      5,
-                    Instruction: "Screenshot must clearly show at least one MFA device assigned with 'Active' status",
-                    Screenshot:  "Device name, type, and identifier visible",
-                },
-            },
-        },
-        "CC6.2": {
-            ControlID:  "CC6.2",
-            Service:    "S3 - Public Access",
-            ConsoleURL: "https://s3.console.aws.amazon.com/s3/buckets",
-            Steps: []Step{
-                {
-                    Number:      1,
-                    Instruction: "Open S3 Console and click on the bucket name",
-                    Screenshot:  "",
-                },
-                {
-                    Number:      2,
-                    Instruction: "Click the 'Permissions' tab",
-                    Screenshot:  "",
-                },
-                {
-                    Number:      3,
-                    Instruction: "Scroll to 'Block public access (bucket settings)' section",
-                    Screenshot:  "All 4 settings showing 'On' status",
-                },
-                {
-                    Number:      4,
-                    Instruction: "Ensure all four options are enabled: Block all public access",
-                    Screenshot:  "The edit button and all toggles clearly visible",
-                },
-            },
-        },
-    }
+	return map[string]ScreenshotGuide{
+		"CC6.6": {
+			ControlID:  "CC6.6",
+			Service:    "IAM - Root MFA",
+			ConsoleURL: "https://console.aws.amazon.com/iam/home#/security_credentials",
+			Steps: []Step{
+				{
+					Number:      1,
+					Instruction: "Sign in to AWS Console as the root user (use your root email, not IAM user)",
+					Screenshot:  "",
+				},
+				{
+					Number:      2,
+					Instruction: "Click on your account name in top-right corner",
+					Screenshot:  "",
+				},
+				{
+					Number:      3,
+					Instruction: "Select 'Security credentials' from the dropdown",
+					Screenshot:  "",
+				},
+				{
+					Number:      4,
+					Instruction: "Find the 'Multi-factor authentication (MFA)' section",
+					Screenshot:  "The entire MFA section showing 'MFA devices' with status",
+				},
+				{
+					Number:      5,
+					Instruction: "Screenshot must clearly show at least one MFA device assigned with 'Active' status",
+					Screenshot:  "Device name, type, and identifier visible",
+				},
+			},
+		},
+		"CC6.2": {
+			ControlID:  "CC6.2",
+			Service:    "S3 - Public Access",
+			ConsoleURL: "https://s3.console.aws.amazon.com/s3/buckets",
+			Steps: []Step{
+				{
+					Number:      1,
+					Instruction: "Open S3 Console and click on the bucket name",
+					Screenshot:  "",
+				},
+				{
+					Number:      2,
+					Instruction: "Click the 'Permissions' tab",
+					Screenshot:  "",
+				},
+				{
+					Number:      3,
+					Instruction: "Scroll to 'Block public access (bucket settings)' section",
+					Screenshot:  "All 4 settings showing 'On' status",
+				},
+				{
+					Number:      4,
+					Instruction: "Ensure all four options are enabled: Block all public access",
+					Screenshot:  "The edit button and all toggles clearly visible",
+				},
+			},
+		},
+	}
 }

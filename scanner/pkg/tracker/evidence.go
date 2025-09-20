@@ -1,132 +1,132 @@
 package tracker
 
 import (
-    "encoding/json"
-    "fmt"
-    "os"
-    "path/filepath"
-    "time"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 type EvidenceItem struct {
-    ControlID       string    `json:"control_id"`
-    ControlName     string    `json:"control_name"`
-    Status          string    `json:"status"`
-    EvidenceCollected bool    `json:"evidence_collected"`
-    CollectedDate   *time.Time `json:"collected_date,omitempty"`
-    Notes           string    `json:"notes,omitempty"`
-    ScreenshotPath  string    `json:"screenshot_path,omitempty"`
+	ControlID         string     `json:"control_id"`
+	ControlName       string     `json:"control_name"`
+	Status            string     `json:"status"`
+	EvidenceCollected bool       `json:"evidence_collected"`
+	CollectedDate     *time.Time `json:"collected_date,omitempty"`
+	Notes             string     `json:"notes,omitempty"`
+	ScreenshotPath    string     `json:"screenshot_path,omitempty"`
 }
 
 type EvidenceTracker struct {
-    AccountID     string                  `json:"account_id"`
-    LastScan      time.Time               `json:"last_scan"`
-    LastUpdate    time.Time               `json:"last_update"`
-    Controls      map[string]EvidenceItem `json:"controls"`
-    TotalControls int                     `json:"total_controls"`
-    Collected     int                     `json:"collected"`
-    FilePath      string                  `json:"-"`
+	AccountID     string                  `json:"account_id"`
+	LastScan      time.Time               `json:"last_scan"`
+	LastUpdate    time.Time               `json:"last_update"`
+	Controls      map[string]EvidenceItem `json:"controls"`
+	TotalControls int                     `json:"total_controls"`
+	Collected     int                     `json:"collected"`
+	FilePath      string                  `json:"-"`
 }
 
 // NewTracker creates or loads an existing evidence tracker
 func NewTracker(accountID string) (*EvidenceTracker, error) {
-    homeDir, err := os.UserHomeDir()
-    if err != nil {
-        return nil, err
-    }
-    
-    // Create .auditkit directory if it doesn't exist
-    configDir := filepath.Join(homeDir, ".auditkit")
-    if err := os.MkdirAll(configDir, 0755); err != nil {
-        return nil, err
-    }
-    
-    filePath := filepath.Join(configDir, fmt.Sprintf("evidence_%s.json", accountID))
-    
-    tracker := &EvidenceTracker{
-        AccountID: accountID,
-        Controls:  make(map[string]EvidenceItem),
-        FilePath:  filePath,
-    }
-    
-    // Try to load existing file
-    if data, err := os.ReadFile(filePath); err == nil {
-        if err := json.Unmarshal(data, tracker); err != nil {
-            // If corrupt, start fresh
-            tracker.Controls = make(map[string]EvidenceItem)
-        }
-    }
-    
-    return tracker, nil
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create .auditkit directory if it doesn't exist
+	configDir := filepath.Join(homeDir, ".auditkit")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return nil, err
+	}
+
+	filePath := filepath.Join(configDir, fmt.Sprintf("evidence_%s.json", accountID))
+
+	tracker := &EvidenceTracker{
+		AccountID: accountID,
+		Controls:  make(map[string]EvidenceItem),
+		FilePath:  filePath,
+	}
+
+	// Try to load existing file
+	if data, err := os.ReadFile(filePath); err == nil {
+		if err := json.Unmarshal(data, tracker); err != nil {
+			// If corrupt, start fresh
+			tracker.Controls = make(map[string]EvidenceItem)
+		}
+	}
+
+	return tracker, nil
 }
 
 // UpdateControl updates the status of a control
 func (t *EvidenceTracker) UpdateControl(controlID, name, status string) {
-    item, exists := t.Controls[controlID]
-    if !exists {
-        item = EvidenceItem{
-            ControlID:   controlID,
-            ControlName: name,
-        }
-    }
-    
-    item.Status = status
-    t.Controls[controlID] = item
-    t.LastUpdate = time.Now()
+	item, exists := t.Controls[controlID]
+	if !exists {
+		item = EvidenceItem{
+			ControlID:   controlID,
+			ControlName: name,
+		}
+	}
+
+	item.Status = status
+	t.Controls[controlID] = item
+	t.LastUpdate = time.Now()
 }
 
 // MarkEvidenceCollected marks a control as having evidence collected
 func (t *EvidenceTracker) MarkEvidenceCollected(controlID string, notes string) error {
-    item, exists := t.Controls[controlID]
-    if !exists {
-        return fmt.Errorf("control %s not found", controlID)
-    }
-    
-    now := time.Now()
-    item.EvidenceCollected = true
-    item.CollectedDate = &now
-    item.Notes = notes
-    
-    t.Controls[controlID] = item
-    t.Collected = t.countCollected()
-    t.LastUpdate = now
-    
-    return t.Save()
+	item, exists := t.Controls[controlID]
+	if !exists {
+		return fmt.Errorf("control %s not found", controlID)
+	}
+
+	now := time.Now()
+	item.EvidenceCollected = true
+	item.CollectedDate = &now
+	item.Notes = notes
+
+	t.Controls[controlID] = item
+	t.Collected = t.countCollected()
+	t.LastUpdate = now
+
+	return t.Save()
 }
 
 // GetProgress returns current evidence collection progress
 func (t *EvidenceTracker) GetProgress() (int, int) {
-    total := len(t.Controls)
-    collected := t.countCollected()
-    return collected, total
+	total := len(t.Controls)
+	collected := t.countCollected()
+	return collected, total
 }
 
 func (t *EvidenceTracker) countCollected() int {
-    count := 0
-    for _, item := range t.Controls {
-        if item.EvidenceCollected {
-            count++
-        }
-    }
-    return count
+	count := 0
+	for _, item := range t.Controls {
+		if item.EvidenceCollected {
+			count++
+		}
+	}
+	return count
 }
 
 // Save persists the tracker to disk
 func (t *EvidenceTracker) Save() error {
-    t.TotalControls = len(t.Controls)
-    t.Collected = t.countCollected()
-    
-    data, err := json.MarshalIndent(t, "", "  ")
-    if err != nil {
-        return err
-    }
-    
-    return os.WriteFile(t.FilePath, data, 0644)
+	t.TotalControls = len(t.Controls)
+	t.Collected = t.countCollected()
+
+	data, err := json.MarshalIndent(t, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(t.FilePath, data, 0644)
 }
 
 // GenerateChecklistHTML creates an interactive HTML checklist
 func (t *EvidenceTracker) GenerateChecklistHTML(outputPath string) error {
-    html := `<!DOCTYPE html>
+	html := `<!DOCTYPE html>
 <html>
 <head>
     <title>AuditKit Evidence Collection Tracker</title>
@@ -217,28 +217,28 @@ func (t *EvidenceTracker) GenerateChecklistHTML(outputPath string) error {
         
         <h2>Controls Checklist</h2>
         <div id="controls">`
-    
-    // Add each control
-    for id, control := range t.Controls {
-        checked := ""
-        collected := ""
-        statusClass := "fail"
-        
-        if control.Status == "PASS" {
-            statusClass = "pass"
-        }
-        
-        if control.EvidenceCollected {
-            checked = "checked"
-            collected = "collected"
-        }
-        
-        notes := control.Notes
-        if notes == "" {
-            notes = "Add notes about evidence collected..."
-        }
-        
-        html += fmt.Sprintf(`
+
+	// Add each control
+	for id, control := range t.Controls {
+		checked := ""
+		collected := ""
+		statusClass := "fail"
+
+		if control.Status == "PASS" {
+			statusClass = "pass"
+		}
+
+		if control.EvidenceCollected {
+			checked = "checked"
+			collected = "collected"
+		}
+
+		notes := control.Notes
+		if notes == "" {
+			notes = "Add notes about evidence collected..."
+		}
+
+		html += fmt.Sprintf(`
         <div class="control %s %s" data-control="%s">
             <input type="checkbox" %s onchange="toggleEvidence(this, '%s')">
             <div class="control-info">
@@ -248,9 +248,9 @@ func (t *EvidenceTracker) GenerateChecklistHTML(outputPath string) error {
                 <input type="text" class="notes" placeholder="Notes..." value="%s" onblur="saveNotes(this, '%s')">
             </div>
         </div>`, statusClass, collected, id, checked, id, id, control.ControlName, control.Status, notes, id)
-    }
-    
-    html += `
+	}
+
+	html += `
         </div>
         
         <button onclick="exportProgress()">Export Progress</button>
@@ -342,6 +342,6 @@ func (t *EvidenceTracker) GenerateChecklistHTML(outputPath string) error {
     </div>
 </body>
 </html>`
-    
-    return os.WriteFile(outputPath, []byte(html), 0644)
+
+	return os.WriteFile(outputPath, []byte(html), 0644)
 }
