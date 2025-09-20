@@ -42,6 +42,11 @@ auditkit scan -format pdf -output soc2-report.pdf
 # Generate fix script
 auditkit fix -output fixes.sh
 ```
+## 📮 Get Updates
+
+Join engineers getting weekly SOC2 tips and AuditKit updates:
+
+**→ [auditkit.substack.com](https://auditkit.substack.com)**
 
 ## 📋 What AuditKit Checks (25+ SOC2 Controls)
 
@@ -248,5 +253,8 @@ Built by engineers who were quoted $50K for SOC2 prep and decided to build a fre
 - ⭐ Star this repo
 - 📣 Share your success on X/LinkedIn
 - 🤝 Contribute improvements back
+
+## The worst thing you could do is you could always buy me a beer..or erm, a coffee: 
+**[buymeacoffee.com/auditkit](https://buymeacoffee.com/auditkit)**
 
 *Remember: A scanner is not a replacement for proper security practices. This tool helps with technical controls (~30% of SOC2). You still need policies, procedures, and documentation for the other 70%.*
