@@ -1,258 +1,252 @@
 # AuditKit - Open Source SOC2 Compliance Scanner
 
-![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Go Version](https://img.shields.io/badge/go-%3E%3D1.20-blue)
-![Stars](https://img.shields.io/github/stars/guardian-nexus/auditkit?style=social)
+Pass SOC2 without paying consultants $50K. AuditKit scans your AWS infrastructure and tells you exactly what to fix.
 
-**A startup asked me to help with their SOC2 audit prep. Consultants wanted $50k just to tell them what to fix. I built this to automate the technical discovery part.**
+![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-v0.3.0-green)
 
-## ⚠️ Important: What This Tool Actually Does
+## 🎯 The Problem
 
-**AuditKit scans AWS infrastructure for SOC2 technical controls - roughly 30% of SOC2 compliance.** 
+- SOC2 consultants charge $50,000+ for compliance prep
+- Vanta/Drata cost $20,000+/year and are overkill for small companies  
+- Prowler has 400+ checks but doesn't tell you what SOC2 actually needs
+- You just need to know: **Will I pass? What do I fix first?**
 
-### ✅ What We Check
-- S3 bucket public access and encryption
-- IAM MFA, password policies, access key rotation
-- Security group configurations
-- CloudTrail logging
-- RDS encryption
+## ✨ The Solution
 
-### ❌ What We DON'T Check (The Other 70% of SOC2)
-- Organizational policies and procedures
-- Employee training and background checks
-- Vendor risk management
-- Physical security controls
-- Change management processes
-- Incident response procedures
-
-**This is NOT a complete SOC2 solution.** It's the technical scanner that consultants use on Day 1.
-
-## 💥 See It In Action
-
-```bash
-$ ./auditkit scan
-
-🔍 Starting aws compliance scan...
-
-AWS Account: 123456789012
-─────────────────────────────
-❌ [CRITICAL] CC6.2 - Network Security
-  Issue: 2 S3 buckets allow public access: customer-data, logs-backup
-  Fix: aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-
-❌ [CRITICAL] CC6.6 - Multi-Factor Authentication
-  Issue: Root account lacks MFA protection
-  Fix: Enable MFA: https://console.aws.amazon.com/iam/home#/security_credentials
-
-✅ CC6.1 - Logical Access Controls: No security groups expose sensitive ports to 0.0.0.0/0
-✅ CC7.1 - Security Monitoring: CloudTrail logging enabled (2 active trails)
-
-─────────────────────────────
-Score: 50.0% (2 passed, 2 failed)
-
-📋 Top Recommendations:
-  1. 🚨 CRITICAL: Enable MFA for root account immediately
-  2. 🚨 CRITICAL: Review and restrict public S3 bucket access
-  3. Enable AWS Config for continuous compliance monitoring
-```
+AuditKit is a free, open-source tool that:
+- ✅ Scans your AWS account for the 25+ controls auditors actually check
+- 🎯 Shows exactly what will fail your audit (with prioritization)
+- 📸 Tells you what screenshots to collect for evidence
+- 🔧 Generates fix scripts for critical issues
+- 📊 Tracks your progress over time
 
 ## 🚀 Quick Start
 
-### Prerequisites
 ```bash
-# 1. Install Go 1.20+
-wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
+# Install
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
 
-# 2. Configure AWS credentials
-aws configure
-# OR manually create:
-mkdir -p ~/.aws
-cat > ~/.aws/credentials << EOF
-[default]
-aws_access_key_id = YOUR_ACCESS_KEY
-aws_secret_access_key = YOUR_SECRET_KEY
-EOF
-```
-
-### Installation
-```bash
-# Clone the repo
-git clone https://github.com/guardian-nexus/auditkit
-cd auditkit/scanner
-
-# Build the binary
-go build -o auditkit cmd/auditkit/main.go
+# Or download binary
+wget https://github.com/guardian-nexus/auditkit/releases/latest/download/auditkit-linux-amd64
+chmod +x auditkit-linux-amd64
+sudo mv auditkit-linux-amd64 /usr/local/bin/auditkit
 
 # Run your first scan
-./auditkit scan
+auditkit scan
+
+# Generate PDF report for auditor
+auditkit scan -format pdf -output soc2-report.pdf
+
+# Generate fix script
+auditkit fix -output fixes.sh
 ```
 
-### Docker Alternative
+## 📋 What AuditKit Checks (25+ SOC2 Controls)
+
+### 🔥 Critical Controls (Fail These = Fail Audit)
+- [x] Root account MFA enabled
+- [x] No public S3 buckets  
+- [x] No open security groups (SSH/RDP/databases)
+- [x] CloudTrail logging active
+- [x] Access keys rotated < 90 days
+
+### ⚠️ High Priority Controls
+- [x] Password policy (14+ chars, complexity)
+- [x] EBS/RDS encryption enabled
+- [x] VPC Flow Logs enabled
+- [x] GuardDuty threat detection active
+- [x] Inactive users removed (>90 days)
+- [x] AWS Config recording changes
+
+### 📋 Additional Controls
+- [x] S3 versioning for backup/recovery
+- [x] Multi-region CloudTrail
+- [x] CloudWatch security alarms
+- [x] SNS topics for alerts
+- [x] Systems Manager patch compliance
+- [x] Auto-scaling for availability
+- [x] Service account security
+- [x] Excessive admin permissions
+
+## 🎯 Why AuditKit vs Others?
+
+| Tool | Price | What It Does | What It Doesn't |
+|------|-------|--------------|-----------------|
+| **Prowler** | Free | 400+ generic checks | No SOC2 mapping, no evidence guides |
+| **Vanta/Drata** | $20K+/year | Full compliance platform | Expensive, complex, overkill for SMBs |
+| **Consultants** | $50K+ | Human expertise | One-time snapshot, no automation |
+| **AuditKit** | **Free** | SOC2-specific + screenshot guides | Just what you need to pass |
+
+## 📸 Evidence Collection
+
+AuditKit doesn't just find issues - it tells you EXACTLY what screenshots auditors want:
+
+```
+🔥 CRITICAL: Root Account MFA
+Status: FAIL
+Evidence: Root account has NO MFA protection
+Fix: aws iam enable-mfa-device --device root
+Screenshot Guide:
+  1. Sign in to AWS as root user
+  2. Click account name → 'Security credentials'  
+  3. Screenshot 'Multi-factor authentication (MFA)' section
+  4. Must show at least one MFA device assigned
+Console URL: https://console.aws.amazon.com/iam/home#/security_credentials
+```
+
+## 🎯 Commands
+
 ```bash
-docker build -t auditkit .
-docker run -v ~/.aws:/root/.aws auditkit scan
+# Basic scan
+auditkit scan
+
+# Scan with specific profile
+auditkit scan -profile production
+
+# Generate PDF report
+auditkit scan -format pdf -output report.pdf
+
+# Generate HTML dashboard
+auditkit scan -format html -output dashboard.html
+
+# Track progress over time
+auditkit progress
+
+# Compare last two scans
+auditkit compare
+
+# Generate fix script
+auditkit fix -output remediation.sh
+
+# Check for updates
+auditkit update
 ```
 
-## 📖 Usage Examples
+## 📊 Progress Tracking
 
-### Basic Scanning
+See your compliance improve over time:
+
+```
+$ auditkit progress
+
+📊 Your SOC2 Journey Progress
+==============================
+Account: 123456789012
+First scan: Jan 2, 2025
+Total scans: 5
+Issues fixed: 12
+Score improvement: +35.2% (54.8% → 90.0%)
+
+Score Trend:
+Jan 02: ██████████ 54.8%
+Jan 09: ████████████ 62.3%
+Jan 16: ██████████████ 71.5%
+Jan 23: ████████████████ 85.2%
+Jan 30: ██████████████████ 90.0%
+```
+
+## 🔧 Auto-Fix Generation
+
+AuditKit generates safe remediation scripts:
+
 ```bash
-# Scan with default AWS profile
-./auditkit scan
+$ auditkit fix
+✅ Fix script generated: auditkit-fixes.sh
 
-# Use specific AWS profile
-./auditkit scan -profile production
+$ cat auditkit-fixes.sh
+#!/bin/bash
+# 🔥 CRITICAL FIXES (Do these first!)
+echo '[1/3] Enabling root MFA...'
+# Manual step required - see documentation
 
-# Scan specific services only
-./auditkit scan -services s3,iam
+echo '[2/3] Blocking public S3 access...'
+aws s3api put-public-access-block --bucket my-public-bucket \
+  --public-access-block-configuration BlockPublicAcls=true...
 
-# Output formats
-./auditkit scan -format json
-./auditkit scan -format html -output report.html
+echo '[3/3] Closing open security groups...'
+aws ec2 revoke-security-group-ingress --group-id sg-123456 \
+  --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
 
-### AWS IAM Permissions Required
-Create a read-only IAM user with this policy:
+## 🏗️ Architecture
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:ListAllMyBuckets",
-        "s3:GetBucketPublicAccessBlock",
-        "s3:GetBucketEncryption",
-        "s3:GetBucketLocation",
-        "iam:GetAccountSummary",
-        "iam:GetAccountPasswordPolicy",
-        "iam:ListUsers",
-        "iam:ListAccessKeys",
-        "ec2:DescribeSecurityGroups",
-        "ec2:DescribeInstances",
-        "cloudtrail:ListTrails",
-        "cloudtrail:GetTrailStatus",
-        "sts:GetCallerIdentity",
-        "rds:DescribeDBInstances"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
 ```
-
-### Continuous Monitoring
-```bash
-# Add to crontab for daily scans
-0 9 * * * /usr/local/bin/auditkit scan -format json -output /var/log/auditkit/$(date +\%Y\%m\%d).json
-
-# CI/CD Integration (GitHub Actions)
-- name: SOC2 Compliance Check
-  run: |
-    ./auditkit scan -format json
-    if [ $? -ne 0 ]; then
-      echo "Compliance issues found"
-      exit 1
-    fi
+AuditKit/
+├── scanner/           # Core scanning engine
+│   ├── pkg/aws/      # AWS service checks
+│   │   ├── checks/   # Modular SOC2 controls
+│   │   │   ├── s3.go
+│   │   │   ├── iam.go
+│   │   │   ├── ec2.go
+│   │   │   └── ...
+│   ├── pkg/report/   # PDF/HTML generation
+│   └── pkg/tracker/  # Progress tracking
+└── docs/             # Evidence guides
 ```
-
-## 📊 SOC2 Controls Mapped
-
-| Control | Description | What We Check |
-|---------|-------------|---------------|
-| **CC6.1** | Logical & Physical Access | Security groups, network ACLs |
-| **CC6.2** | Network Security | S3 public access, VPC configuration |
-| **CC6.3** | Encryption at Rest | S3 & RDS encryption settings |
-| **CC6.6** | Multi-Factor Authentication | Root & IAM user MFA status |
-| **CC6.7** | User Access Reviews | Password policies, user permissions |
-| **CC6.8** | Access Key Management | Key rotation, unused credentials |
-| **CC7.1** | Security Monitoring | CloudTrail, GuardDuty status |
-
-## 💰 Cost Comparison
-
-| Solution | Year 1 Cost | What You Get |
-|----------|-------------|--------------|
-| Big 4 Consultant | $50,000+ | One-time assessment + report |
-| Vanta/Drata | $20,000+/year | Full compliance platform |
-| Security Auditor | $15,000 | Technical infrastructure review |
-| **AuditKit** | **Free** | Technical controls scanning |
 
 ## 🤝 Contributing
 
-We need help! This is an MVP that covers basic AWS scanning. 
+We need help! Especially with:
+- [ ] Azure/GCP support
+- [ ] More SOC2 controls
+- [ ] Better remediation scripts
+- [ ] Evidence collection automation
 
-**High Priority Contributions:**
-- **More AWS checks**: EBS encryption, Lambda permissions, Secrets Manager
-- **Azure support**: Equivalent checks for Azure resources
-- **GCP support**: Google Cloud Platform scanning
-- **Better reporting**: PDF generation, Excel exports
-- **Auto-remediation**: Safe fixes that can be automated
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## 📊 Anonymous Telemetry
 
-## 🛡️ Security
+AuditKit collects anonymous usage data to improve the tool:
+- Version, OS, compliance score
+- Failed control types (no details)
+- No AWS account info, resource names, or IPs
 
-- **Read-only**: Never modifies your infrastructure
-- **No data storage**: Results only in memory/output files
-- **No telemetry**: Completely offline, no phone-home
-- **Open source**: Audit the code yourself
+Opt out: `export AUDITKIT_NO_TELEMETRY=1`
 
-Found a security issue? Email admin@auditkit.io (not a GitHub issue).
+## 🚨 Limitations
 
-## 🗺️ Roadmap
+- **Technical controls only** (~30% of SOC2)
+- Doesn't cover policies, procedures, or employee training
+- Can't review your disaster recovery documentation
+- Won't interview your employees about security practices
 
-### Currently Working (v0.1.0)
-- ✅ AWS S3 scanning
-- ✅ IAM configuration checks
-- ✅ Security group analysis
-- ✅ CloudTrail verification
-- ✅ Basic HTML/JSON reporting
+**You still need:**
+- Written security policies
+- Employee security training records
+- Vendor management documentation
+- Incident response procedures
 
-### Next Release (v0.2.0)
-- 🔄 EBS volume encryption checks
-- 🔄 Lambda function permissions
-- 🔄 RDS detailed configuration
-- 🔄 Secrets Manager rotation
-- 🔄 PDF report generation
+## 📈 Roadmap
 
-### Future (v1.0.0)
-- 🔮 Azure support
-- 🔮 GCP support
-- 🔮 Kubernetes scanning
-- 🔮 Auto-remediation for safe fixes
-- 🔮 Web dashboard
+- [x] AWS scanning (v0.1.0)
+- [x] PDF reports (v0.2.0)
+- [x] Progress tracking (v0.3.0)
+- [ ] Auto-remediation (v0.4.0)
+- [ ] Azure support (v0.5.0)
+- [ ] GCP support (v0.6.0)
+- [ ] CMMC compliance (v1.0.0)
 
-## ❓ FAQ
+## 💬 Support
 
-**Q: Is this enough for SOC2?**  
-A: No. This covers technical infrastructure (~30%). You need policies, procedures, and evidence of implementation for the other 70%.
-
-**Q: Can I use this for my audit?**  
-A: Yes, for the technical controls portion. Your auditor will still need evidence of policies, training, vendor management, etc.
-
-**Q: Why is this free?**  
-A: Because $50k for what amounts to API calls is ridiculous. If you want a managed version later, we'll charge for that.
-
-**Q: Does it work with AWS Organizations?**  
-A: Currently scans one account at a time. Multi-account support coming.
+- **Issues**: [GitHub Issues](https://github.com/guardian-nexus/auditkit/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/guardian-nexus/auditkit/discussions)
+- **Updates**: Watch this repo for updates
 
 ## 📜 License
 
-Apache 2.0 - See [LICENSE](LICENSE)
+Apache 2.0 - We chose Apache over MIT to give you patent protection. Use it, modify it, sell it - just help others pass SOC2 without going broke.
 
-## 🙏 Acknowledgments
+## 🙏 Credits
 
-Built with frustration at enterprise software pricing. 
-
-If this saves you money:
-- ⭐ Star the repo
-- 🐛 Report bugs
-- 📢 Tell others
-- 🍺 Buy me a coffee...or beer (optional) - https://buymeacoffee.com/auditkit
+Built by engineers who were quoted $50K for SOC2 prep and decided to build a free tool instead.
 
 ---
 
-**Remember:** This is a tool, not a complete solution. SOC2 requires documented policies, procedures, and evidence of implementation. This scanner helps with the technical part, but you still need the rest.
+**If AuditKit helps you pass SOC2, please:**
+- ⭐ Star this repo
+- 📣 Share your success on X/LinkedIn
+- 🤝 Contribute improvements back
+
+*Remember: A scanner is not a replacement for proper security practices. This tool helps with technical controls (~30% of SOC2). You still need policies, procedures, and documentation for the other 70%.*
