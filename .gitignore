@@ -1,67 +1,36 @@
-# Binaries for programs and plugins
+# Binaries
+auditkit
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
-/auditkit
-/scanner/auditkit
 
-# Test binary, built with `go test -c`
-*.test
+# Test data
+*.pdf
+*.html
+evidence-tracker.html
+auditkit-fixes.sh
+auditkit-report-*
 
-# Output of the go coverage tool
-*.out
-
-# Go workspace file
-go.work
-
-# Dependency directories
+# Go
 vendor/
+*.test
+*.out
+go.sum
 
-# Go build cache
-.cache/
-
-# IDE specific files
+# IDE
 .idea/
+.vscode/
 *.swp
 *.swo
-*~
-.vscode/
-*.iml
 
-# OS specific files
+# OS
 .DS_Store
 Thumbs.db
 
-# Environment files
+# Local data
+.auditkit/
+
+# Env
 .env
 .env.local
-
-# AWS credentials (NEVER commit these!)
-.aws/
-aws-credentials
-
-# Output files
-*.pdf
-*.html
-*.csv
-report-*.json
-soc2-evidence-*
-
-# Logs
-*.log
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Backup files
-*.backup
-*.bak
-*.old
-
-# Test coverage
-coverage.txt
-coverage.html
