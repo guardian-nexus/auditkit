@@ -7,7 +7,7 @@
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 ![Version](https://img.shields.io/badge/version-v0.4.0-green)
 
-> 🚀 **v0.4.0 MAJOR UPDATE**: Multi-framework support is HERE! Scan for SOC2, PCI-DSS, and HIPAA in one run. First open-source tool to do this. [See what's new →](#whats-new-in-v040)
+> 🚀 **v0.4.0 MAJOR UPDATE**: Multi-framework support is HERE! Scan for SOC2, PCI-DSS, and HIPAA in one run. First open-source tool to do this. 
 
 ## 🎯 The Problem We Actually Solve
 
@@ -331,7 +331,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 - **221+ upvotes** on r/cybersecurity (that never happens for compliance tools)
 - **50K+ views** from security professionals
 - **36 stars** in first weekend
-- **5 forks** (including from Telos - hi guys! 👋)
+- **5 forks**
 - **First open-source tool** to do multi-framework mapping properly
 
 ---
