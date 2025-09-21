@@ -242,20 +242,45 @@ Key Rotation:
 ```
 auditkit/
 ├── scanner/              
-│   ├── pkg/aws/         
-│   │   └── checks/      # Framework-aware control checks
-│   ├── pkg/frameworks/  # NEW: Framework mappings
-│   │   ├── soc2.go     # SOC2 TSC mappings
-│   │   ├── pci.go      # PCI-DSS requirement mappings
-│   │   ├── hipaa.go    # HIPAA safeguard mappings
-│   │   └── iso27001.go # ISO control mappings
-│   ├── pkg/report/      # Multi-framework reports
-│   └── pkg/evidence/    # Framework-specific evidence guides
-├── docs/                
-│   ├── framework-mappings/  # Control cross-references
-│   └── evidence-examples/   # Per-framework examples
-└── integrations/        
+│   ├── cmd/
+│   │   └── auditkit/    
+│   │       └── main.go      # CLI with multi-framework support
+│   ├── go.mod               # Dependencies
+│   └── pkg/             
+│       ├── aws/             # AWS provider
+│       │   ├── checks/      # S3, IAM, EC2, CloudTrail checks
+│       │   │   ├── s3.go
+│       │   │   ├── iam.go
+│       │   │   ├── ec2.go
+│       │   │   ├── cloudtrail.go
+│       │   │   ├── config.go
+│       │   │   └── types.go
+│       │   ├── scanner.go   # Orchestrates AWS checks
+│       │   └── priority.go  # Framework-specific priorities
+│       ├── azure/           # Azure provider (in progress)
+│       │   ├── checks/      # Storage, Identity checks
+│       │   ├── scanner.go   
+│       │   └── README.md    
+│       ├── cache/           
+│       │   └── results.go   # Caches scan results
+│       ├── evidence/        
+│       │   └── screenshots.go # Evidence collection guides
+│       ├── remediation/     
+│       │   └── scripts.go   # Fix script generation
+│       ├── report/          
+│       │   └── pdf.go       # Multi-framework reports
+│       ├── telemetry/       
+│       │   └── telemetry.go # Anonymous usage stats
+│       ├── tracker/         
+│       │   ├── evidence.go  # Evidence tracker
+│       │   └── progress.go  # Progress tracking
+│       └── updater/         
+│           └── updater.go   # Version checker
+├── docs/                    
+└── README.md               
 ```
+
+**Note:** The `/pkg/checks/` and `/pkg/soc2/` directories exist but are not currently used. They may be removed in a future cleanup.
 
 ## 📈 Roadmap
 
@@ -263,7 +288,7 @@ auditkit/
 - [x] v0.2: PDF reports (Sep 2025)
 - [x] v0.3: Evidence collection guides (Sep 2025)
 - [x] v0.4: Multi-framework support (Sep 2025) ← **We're here!**
-- [ ] v0.5: Azure support (Late Sep, Early Oct 2025)
+- [ ] v0.5: Azure support (Oct 2025)
 - [ ] v0.6: GCP support (Oct 2025)
 - [ ] v0.7: NIST 800-53 & FedRAMP (Nov 2025)
 - [ ] v0.8: CIS Controls & CMMC (Nov 2025)
@@ -331,7 +356,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 - **221+ upvotes** on r/cybersecurity (that never happens for compliance tools)
 - **50K+ views** from security professionals
 - **36 stars** in first weekend
-- **5 forks**
+- **5 forks** 
 - **First open-source tool** to do multi-framework mapping properly
 
 ---

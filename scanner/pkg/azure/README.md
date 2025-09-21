@@ -1,6 +1,6 @@
 # Azure Scanner
 
-Azure support coming next week! 
+Azure support coming next soon!
 
 ## Planned checks:
 - [ ] Azure AD MFA configuration
