@@ -426,7 +426,19 @@ func convertToTelemetryControls(controls []ControlResult) []telemetry.ControlRes
 func performScan(provider, profile string, verbose bool, services string) ComplianceResult {
 	// Check for non-AWS providers FIRST, before trying AWS initialization
 	if provider != "aws" {
-		return mockScan(provider)
+	    if provider == "azure" {
+	        fmt.Println("🚧 Azure support launching soon!")
+	        fmt.Println("\nPlanned Azure checks:")
+	        fmt.Println("  ✓ Azure AD MFA configuration")
+	        fmt.Println("  ✓ Storage account public access")
+	        fmt.Println("  ✓ Key Vault encryption")
+	        fmt.Println("  ✓ Network security groups")
+	        fmt.Println("  ✓ Azure SQL transparent encryption")
+	        fmt.Println("\n📧 Get notified when it's ready: https://auditkit.substack.com")
+	        fmt.Println("⭐ Star for updates: https://github.com/guardian-nexus/auditkit")
+	        os.Exit(0)
+	    }
+	    return mockScan(provider)
 	}
 
 	// Now safe to initialize AWS scanner since we know provider == "aws"
