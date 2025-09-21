@@ -1,4 +1,3 @@
-// /home/dijital/Documents/auditkit/scanner/cmd/auditkit/main.go
 package main
 
 import (
@@ -19,11 +18,12 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
 )
 
-const CurrentVersion = "v0.3.0"
+const CurrentVersion = "v0.4.0" // Updated for multi-framework support
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`
 	Provider        string          `json:"provider"`
+	Framework       string          `json:"framework"` // NEW: Which framework was scanned
 	AccountID       string          `json:"account_id,omitempty"`
 	Score           float64         `json:"score"`
 	TotalControls   int             `json:"total_controls"`
@@ -34,18 +34,19 @@ type ComplianceResult struct {
 }
 
 type ControlResult struct {
-	ID                string `json:"id"`
-	Name              string `json:"name"`
-	Category          string `json:"category"`
-	Severity          string `json:"severity,omitempty"`
-	Status            string `json:"status"` // PASS, FAIL, NOT_APPLICABLE
-	Evidence          string `json:"evidence"`
-	Remediation       string `json:"remediation,omitempty"`
-	RemediationDetail string `json:"remediation_detail,omitempty"`
-	Priority          string `json:"priority,omitempty"`
-	Impact            string `json:"impact,omitempty"`
-	ScreenshotGuide   string `json:"screenshot_guide,omitempty"`
-	ConsoleURL        string `json:"console_url,omitempty"`
+	ID                string            `json:"id"`
+	Name              string            `json:"name"`
+	Category          string            `json:"category"`
+	Severity          string            `json:"severity,omitempty"`
+	Status            string            `json:"status"` // PASS, FAIL, NOT_APPLICABLE
+	Evidence          string            `json:"evidence"`
+	Remediation       string            `json:"remediation,omitempty"`
+	RemediationDetail string            `json:"remediation_detail,omitempty"`
+	Priority          string            `json:"priority,omitempty"`
+	Impact            string            `json:"impact,omitempty"`
+	ScreenshotGuide   string            `json:"screenshot_guide,omitempty"`
+	ConsoleURL        string            `json:"console_url,omitempty"`
+	Frameworks        map[string]string `json:"frameworks,omitempty"` // NEW: Framework mappings
 }
 
 type ProgressData struct {
@@ -58,18 +59,20 @@ type ProgressData struct {
 }
 
 type ScorePoint struct {
-	Date  time.Time `json:"date"`
-	Score float64   `json:"score"`
+	Date      time.Time `json:"date"`
+	Score     float64   `json:"score"`
+	Framework string    `json:"framework"` // NEW: Track which framework
 }
 
 func main() {
 	var (
-		provider = flag.String("provider", "aws", "Cloud provider (aws, azure, gcp)")
-		profile  = flag.String("profile", "default", "AWS profile to use")
-		format   = flag.String("format", "text", "Output format (text, json, html, pdf)")
-		output   = flag.String("output", "", "Output file (default: stdout)")
-		verbose  = flag.Bool("verbose", false, "Verbose output")
-		services = flag.String("services", "all", "Comma-separated services to scan (s3,iam,ec2,rds,cloudtrail)")
+		provider  = flag.String("provider", "aws", "Cloud provider (aws, azure, gcp)")
+		profile   = flag.String("profile", "default", "AWS profile to use")
+		framework = flag.String("framework", "all", "Compliance framework (soc2, pci, hipaa, all)")
+		format    = flag.String("format", "text", "Output format (text, json, html, pdf)")
+		output    = flag.String("output", "", "Output file (default: stdout)")
+		verbose   = flag.Bool("verbose", false, "Verbose output")
+		services  = flag.String("services", "all", "Comma-separated services to scan (s3,iam,ec2,rds,cloudtrail)")
 	)
 
 	if len(os.Args) < 2 {
@@ -83,7 +86,7 @@ func main() {
 
 	switch command {
 	case "scan":
-		runScan(*provider, *profile, *format, *output, *verbose, *services)
+		runScan(*provider, *profile, *framework, *format, *output, *verbose, *services)
 	case "report":
 		generateReport(*format, *output)
 	case "evidence":
@@ -97,7 +100,7 @@ func main() {
 	case "update":
 		updater.CheckForUpdates()
 	case "version":
-		fmt.Printf("AuditKit %s - SOC2 compliance scanning with evidence collection\n", CurrentVersion)
+		fmt.Printf("AuditKit %s - Multi-framework compliance scanning (SOC2, PCI-DSS, HIPAA)\n", CurrentVersion)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		printUsage()
@@ -106,7 +109,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`AuditKit - Open Source SOC2 Compliance Scanner
+	fmt.Println(`AuditKit - Multi-Framework Compliance Scanner
 
 Usage:
   auditkit scan [options]     Scan infrastructure for compliance
@@ -119,6 +122,7 @@ Usage:
   auditkit version           Show version
 
 Options:
+  -framework string  Compliance framework (soc2, pci, hipaa, all) (default "all")
   -provider string   Cloud provider (aws, azure, gcp) (default "aws")
   -profile string    AWS profile to use (default "default")
   -format string     Output format (text, json, html, pdf) (default "text")
@@ -127,50 +131,65 @@ Options:
   -verbose          Verbose output
 
 Examples:
-  # Quick scan with text output
+  # Scan for all frameworks
   auditkit scan
 
-  # Generate PDF report with evidence checklist
-  auditkit scan -format pdf -output soc2-report.pdf
+  # PCI-DSS compliance only
+  auditkit scan -framework pci
 
-  # Generate fix script
-  auditkit fix -output fixes.sh
+  # HIPAA compliance check
+  auditkit scan -framework hipaa
 
-  # Show progress over time
-  auditkit progress
+  # Generate SOC2 PDF report
+  auditkit scan -framework soc2 -format pdf -output soc2-report.pdf
 
-  # Compare improvements
-  auditkit compare
+  # Generate multi-framework report
+  auditkit scan -framework all -format pdf -output compliance-report.pdf
 
 For more information: https://github.com/guardian-nexus/auditkit`)
 }
 
-func runScan(provider, profile, format, output string, verbose bool, services string) {
+func runScan(provider, profile, framework, format, output string, verbose bool, services string) {
 	startTime := time.Now()
 
-	if verbose {
-		fmt.Fprintf(os.Stderr, "🔍 Starting %s compliance scan with profile %s...\n", provider, profile)
+	// Validate framework
+	validFrameworks := map[string]bool{
+		"soc2":  true,
+		"pci":   true,
+		"hipaa": true,
+		"all":   true,
+	}
+	
+	if !validFrameworks[strings.ToLower(framework)] {
+		fmt.Fprintf(os.Stderr, "❌ Invalid framework: %s. Valid options: soc2, pci, hipaa, all\n", framework)
+		os.Exit(1)
 	}
 
-	result := performScan(provider, profile, verbose, services)
+	if verbose {
+		fmt.Fprintf(os.Stderr, "🔍 Starting %s compliance scan for %s with profile %s...\n", 
+			strings.ToUpper(framework), provider, profile)
+	}
+
+	result := performScan(provider, profile, framework, verbose, services)
 
 	// Track scan duration
 	duration := time.Since(startTime)
 
 	// Save progress for tracking
-	saveProgress(result.AccountID, result.Score, result.Controls)
+	saveProgress(result.AccountID, result.Score, result.Controls, framework)
 
 	// Send telemetry if opted in
 	telemetry.SendTelemetry(result.AccountID, result.Score, convertToTelemetryControls(result.Controls), duration)
 
 	// Success celebration for high scores
 	if result.Score >= 90 {
-		fmt.Printf("\n🎉 CONGRATULATIONS! %.1f%% compliance!\n", result.Score)
+		fmt.Printf("\n🎉 CONGRATULATIONS! %.1f%% %s compliance!\n", result.Score, strings.ToUpper(framework))
 		fmt.Println("\nShare your success:")
-		fmt.Printf("  Post on X: https://x.com/intent/tweet?text=Just%%20hit%%20%.0f%%%%20SOC2%%20compliance%%20using%%20AuditKit!%%20Free%%20tool:%%20github.com/guardian-nexus/auditkit\n", result.Score)
+		fmt.Printf("  Post on X: https://x.com/intent/tweet?text=Just%%20hit%%20%.0f%%%%20%s%%20compliance%%20using%%20AuditKit!%%20Free%%20tool:%%20github.com/guardian-nexus/auditkit\n", 
+			result.Score, strings.ToUpper(framework))
 		fmt.Println("  Star us: https://github.com/guardian-nexus/auditkit")
 	} else if result.Score >= 70 {
-		fmt.Printf("\n👍 Getting there! %.1f%% compliance.\n", result.Score)
+		fmt.Printf("\n👍 Getting there! %.1f%% %s compliance.\n", result.Score, strings.ToUpper(framework))
 		fmt.Println("Run 'auditkit compare' to see your progress over time.")
 	}
 
@@ -193,10 +212,13 @@ func runScan(provider, profile, format, output string, verbose bool, services st
 			FailedControls:  result.FailedControls,
 			Controls:        convertControlsForPDF(result.Controls),
 			Recommendations: result.Recommendations,
+			Framework:       result.Framework, // Pass framework to PDF
 		}
 
 		if output == "" {
-			output = fmt.Sprintf("auditkit-report-%s.pdf", time.Now().Format("2006-01-02-150405"))
+			output = fmt.Sprintf("auditkit-%s-report-%s.pdf", 
+				strings.ToLower(framework), 
+				time.Now().Format("2006-01-02-150405"))
 		}
 
 		err := report.GeneratePDF(pdfResult, output)
@@ -204,7 +226,7 @@ func runScan(provider, profile, format, output string, verbose bool, services st
 			fmt.Fprintf(os.Stderr, "❌ Error generating PDF: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("✅ PDF report saved to %s\n", output)
+		fmt.Printf("✅ %s PDF report saved to %s\n", strings.ToUpper(framework), output)
 		fmt.Printf("📸 Review failed controls for screenshot requirements\n")
 	case "json":
 		outputJSON(result, output)
@@ -216,7 +238,119 @@ func runScan(provider, profile, format, output string, verbose bool, services st
 	}
 }
 
-func saveProgress(accountID string, score float64, controls []ControlResult) error {
+func performScan(provider, profile, framework string, verbose bool, services string) ComplianceResult {
+	// Check for non-AWS providers FIRST, before trying AWS initialization
+	if provider != "aws" {
+		if provider == "azure" {
+			fmt.Println("🚧 Azure support launching soon!")
+			fmt.Println("\nPlanned Azure checks:")
+			fmt.Println("  ✓ Azure AD MFA configuration")
+			fmt.Println("  ✓ Storage account public access")
+			fmt.Println("  ✓ Key Vault encryption")
+			fmt.Println("  ✓ Network security groups")
+			fmt.Println("  ✓ Azure SQL transparent encryption")
+			fmt.Println("\n📧 Get notified when it's ready: https://auditkit.substack.com")
+			fmt.Println("⭐ Star for updates: https://github.com/guardian-nexus/auditkit")
+			os.Exit(0)
+		}
+		return mockScan(provider)
+	}
+
+	// Now safe to initialize AWS scanner since we know provider == "aws"
+	scanner, err := awsScanner.NewScanner(profile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ Error initializing AWS scanner: %v\n", err)
+		fmt.Fprintf(os.Stderr, "\nMake sure you have AWS credentials configured:\n")
+		fmt.Fprintf(os.Stderr, "  aws configure --profile %s\n", profile)
+		os.Exit(1)
+	}
+
+	// Get account ID
+	ctx := context.Background()
+	accountID := scanner.GetAccountID(ctx)
+
+	if verbose {
+		fmt.Fprintf(os.Stderr, "📊 Scanning AWS Account: %s\n", accountID)
+		fmt.Fprintf(os.Stderr, "🎯 Framework: %s\n", strings.ToUpper(framework))
+	}
+
+	// Parse services to scan
+	serviceList := strings.Split(services, ",")
+	if services == "all" {
+		serviceList = []string{"s3", "iam", "ec2", "cloudtrail", "rds"}
+	}
+
+	scanResults, err := scanner.ScanServices(ctx, serviceList, verbose)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "⚠️  Warning during scan: %v\n", err)
+	}
+
+	// Convert to ComplianceResult format with prioritization and framework filtering
+	controls := []ControlResult{}
+	passed := 0
+	failed := 0
+	critical := 0
+	high := 0
+
+	for _, result := range scanResults {
+		// Filter by framework if not "all"
+		if framework != "all" && result.Frameworks != nil {
+			if _, hasFramework := result.Frameworks[strings.ToUpper(framework)]; !hasFramework {
+				continue // Skip controls not relevant to this framework
+			}
+		}
+
+		priority, impact := getPriorityAndImpact(result.Control, result.Severity, result.Status, framework)
+
+		control := ControlResult{
+			ID:                result.Control,
+			Name:              getControlName(result.Control),
+			Category:          getControlCategory(result.Control),
+			Severity:          result.Severity,
+			Status:            result.Status,
+			Evidence:          result.Evidence,
+			Remediation:       result.Remediation,
+			RemediationDetail: result.RemediationDetail,
+			Priority:          priority,
+			Impact:            impact,
+			ScreenshotGuide:   result.ScreenshotGuide,
+			ConsoleURL:        result.ConsoleURL,
+			Frameworks:        result.Frameworks,
+		}
+		controls = append(controls, control)
+
+		if result.Status == "PASS" {
+			passed++
+		} else {
+			failed++
+			if result.Severity == "CRITICAL" {
+				critical++
+			} else if result.Severity == "HIGH" {
+				high++
+			}
+		}
+	}
+
+	score := 0.0
+	if len(controls) > 0 {
+		score = float64(passed) / float64(len(controls)) * 100
+	}
+
+	return ComplianceResult{
+		Timestamp:       time.Now(),
+		Provider:        provider,
+		Framework:       framework,
+		AccountID:       accountID,
+		Score:           score,
+		TotalControls:   len(controls),
+		PassedControls:  passed,
+		FailedControls:  failed,
+		Controls:        controls,
+		Recommendations: generatePrioritizedRecommendations(controls, critical, high, framework),
+	}
+}
+
+func saveProgress(accountID string, score float64, controls []ControlResult, framework string) error {
 	homeDir, _ := os.UserHomeDir()
 	dataPath := filepath.Join(homeDir, ".auditkit", accountID+".json")
 
@@ -240,8 +374,9 @@ func saveProgress(accountID string, score float64, controls []ControlResult) err
 	progress.LastScan = time.Now()
 	progress.ScanCount++
 	progress.ScoreHistory = append(progress.ScoreHistory, ScorePoint{
-		Date:  time.Now(),
-		Score: score,
+		Date:      time.Now(),
+		Score:     score,
+		Framework: framework,
 	})
 
 	// Track what's been fixed
@@ -279,8 +414,8 @@ func showProgress(profile string) {
 	var progress ProgressData
 	json.Unmarshal(data, &progress)
 
-	fmt.Println("\n📊 Your SOC2 Journey Progress")
-	fmt.Println("==============================")
+	fmt.Println("\n📊 Your Compliance Journey Progress")
+	fmt.Println("===================================")
 	fmt.Printf("Account: %s\n", progress.AccountID)
 	fmt.Printf("First scan: %s\n", progress.FirstScan.Format("Jan 2, 2006"))
 	fmt.Printf("Total scans: %d\n", progress.ScanCount)
@@ -295,7 +430,7 @@ func showProgress(profile string) {
 			fmt.Printf("Score improvement: +%.1f%% (%.1f%% → %.1f%%)\n", improvement, first, last)
 		}
 
-		// Show trend
+		// Show trend by framework
 		fmt.Println("\nScore Trend:")
 		startIdx := 0
 		if len(progress.ScoreHistory) > 5 {
@@ -304,14 +439,19 @@ func showProgress(profile string) {
 		for _, point := range progress.ScoreHistory[startIdx:] {
 			bars := int(point.Score / 5)
 			barString := strings.Repeat("█", bars)
-			fmt.Printf("%s: %s %.1f%%\n",
+			framework := point.Framework
+			if framework == "" {
+				framework = "SOC2"
+			}
+			fmt.Printf("%s [%s]: %s %.1f%%\n",
 				point.Date.Format("Jan 02"),
+				framework,
 				barString,
 				point.Score)
 		}
 	}
 
-	fmt.Println("\n💡 Tip: Run 'auditkit scan -format pdf' to generate evidence for your auditor")
+	fmt.Println("\n💡 Tip: Run 'auditkit scan -framework pci' to check PCI-DSS compliance")
 }
 
 func compareScan(profile string) {
@@ -349,8 +489,8 @@ func compareScan(profile string) {
 
 	fmt.Println("\n📊 Compliance Progress Report")
 	fmt.Println("============================")
-	fmt.Printf("Previous: %.1f%% (%s)\n", prev.Score, prev.Date.Format("Jan 2, 3:04 PM"))
-	fmt.Printf("Current:  %.1f%% (%s)\n", curr.Score, curr.Date.Format("Jan 2, 3:04 PM"))
+	fmt.Printf("Previous: %.1f%% [%s] (%s)\n", prev.Score, prev.Framework, prev.Date.Format("Jan 2, 3:04 PM"))
+	fmt.Printf("Current:  %.1f%% [%s] (%s)\n", curr.Score, curr.Framework, curr.Date.Format("Jan 2, 3:04 PM"))
 
 	improvement := curr.Score - prev.Score
 	if improvement > 0 {
@@ -384,7 +524,7 @@ func generateFixScript(profile, output string) {
 	services := []string{"s3", "iam", "ec2", "cloudtrail", "rds"}
 	scanResults, _ := scanner.ScanServices(ctx, services, false)
 
-	// Convert to ControlResult format
+	// Convert to remediation.ControlResult format
 	var controls []remediation.ControlResult
 	for _, result := range scanResults {
 		controls = append(controls, remediation.ControlResult{
@@ -411,120 +551,6 @@ func generateFixScript(profile, output string) {
 	fmt.Printf("   ./%s\n", output)
 }
 
-func convertToTelemetryControls(controls []ControlResult) []telemetry.ControlResult {
-	var result []telemetry.ControlResult
-	for _, c := range controls {
-		result = append(result, telemetry.ControlResult{
-			ID:       c.ID,
-			Status:   c.Status,
-			Severity: c.Severity,
-		})
-	}
-	return result
-}
-
-func performScan(provider, profile string, verbose bool, services string) ComplianceResult {
-	// Check for non-AWS providers FIRST, before trying AWS initialization
-	if provider != "aws" {
-	    if provider == "azure" {
-	        fmt.Println("🚧 Azure support launching soon!")
-	        fmt.Println("\nPlanned Azure checks:")
-	        fmt.Println("  ✓ Azure AD MFA configuration")
-	        fmt.Println("  ✓ Storage account public access")
-	        fmt.Println("  ✓ Key Vault encryption")
-	        fmt.Println("  ✓ Network security groups")
-	        fmt.Println("  ✓ Azure SQL transparent encryption")
-	        fmt.Println("\n📧 Get notified when it's ready: https://auditkit.substack.com")
-	        fmt.Println("⭐ Star for updates: https://github.com/guardian-nexus/auditkit")
-	        os.Exit(0)
-	    }
-	    return mockScan(provider)
-	}
-
-	// Now safe to initialize AWS scanner since we know provider == "aws"
-	scanner, err := awsScanner.NewScanner(profile)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Error initializing AWS scanner: %v\n", err)
-		fmt.Fprintf(os.Stderr, "\nMake sure you have AWS credentials configured:\n")
-		fmt.Fprintf(os.Stderr, "  aws configure --profile %s\n", profile)
-		os.Exit(1)
-	}
-
-	// Get account ID
-	ctx := context.Background()
-	accountID := scanner.GetAccountID(ctx)
-
-	if verbose {
-		fmt.Fprintf(os.Stderr, "📊 Scanning AWS Account: %s\n", accountID)
-	}
-
-	// Parse services to scan
-	serviceList := strings.Split(services, ",")
-	if services == "all" {
-		serviceList = []string{"s3", "iam", "ec2", "cloudtrail", "rds"}
-	}
-
-	scanResults, err := scanner.ScanServices(ctx, serviceList, verbose)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "⚠️  Warning during scan: %v\n", err)
-	}
-
-	// Convert to ComplianceResult format with prioritization
-	controls := []ControlResult{}
-	passed := 0
-	failed := 0
-	critical := 0
-	high := 0
-
-	for _, result := range scanResults {
-		priority, impact := getPriorityAndImpact(result.Control, result.Severity, result.Status)
-
-		control := ControlResult{
-			ID:                result.Control,
-			Name:              getControlName(result.Control),
-			Category:          getControlCategory(result.Control),
-			Severity:          result.Severity,
-			Status:            result.Status,
-			Evidence:          result.Evidence,
-			Remediation:       result.Remediation,
-			RemediationDetail: result.RemediationDetail,
-			Priority:          priority,
-			Impact:            impact,
-			ScreenshotGuide:   result.ScreenshotGuide,
-			ConsoleURL:        result.ConsoleURL,
-		}
-		controls = append(controls, control)
-
-		if result.Status == "PASS" {
-			passed++
-		} else {
-			failed++
-			if result.Severity == "CRITICAL" {
-				critical++
-			} else if result.Severity == "HIGH" {
-				high++
-			}
-		}
-	}
-
-	score := 0.0
-	if len(controls) > 0 {
-		score = float64(passed) / float64(len(controls)) * 100
-	}
-
-	return ComplianceResult{
-		Timestamp:       time.Now(),
-		Provider:        provider,
-		AccountID:       accountID,
-		Score:           score,
-		TotalControls:   len(controls),
-		PassedControls:  passed,
-		FailedControls:  failed,
-		Controls:        controls,
-		Recommendations: generatePrioritizedRecommendations(controls, critical, high),
-	}
-}
-
 func runEvidenceTracker(provider, profile, output string) {
 	fmt.Println("📸 Generating evidence collection tracker...")
 
@@ -544,7 +570,6 @@ func runEvidenceTracker(provider, profile, output string) {
 	scanResults, _ := scanner.ScanServices(ctx, services, false)
 
 	// Convert to tracker.ControlResult format
-	// Note: Using the actual field names from the tracker package
 	var controls []tracker.ControlResult
 	for _, result := range scanResults {
 		controls = append(controls, tracker.ControlResult{
@@ -553,7 +578,7 @@ func runEvidenceTracker(provider, profile, output string) {
 		})
 	}
 
-	// Generate a simple HTML evidence tracker since GenerateEvidenceTracker doesn't exist
+	// Generate a simple HTML evidence tracker
 	if output == "" {
 		output = "evidence-tracker.html"
 	}
@@ -666,20 +691,56 @@ func generateEvidenceTrackerHTML(controls []tracker.ControlResult, accountID str
 	return html
 }
 
-func getPriorityAndImpact(controlID, severity, status string) (string, string) {
+func convertToTelemetryControls(controls []ControlResult) []telemetry.ControlResult {
+	var result []telemetry.ControlResult
+	for _, c := range controls {
+		result = append(result, telemetry.ControlResult{
+			ID:       c.ID,
+			Status:   c.Status,
+			Severity: c.Severity,
+		})
+	}
+	return result
+}
+
+func getPriorityAndImpact(controlID, severity, status, framework string) (string, string) {
 	if status == "PASS" {
 		return "✅ PASSED", "Control is properly configured"
 	}
 
-	// Define critical controls that will fail audit
-	criticalControls := map[string]bool{
-		"CC6.6": true, // Root MFA
-		"CC6.2": true, // Public S3 buckets
-		"CC6.1": true, // Open security groups
+	// Framework-specific critical controls
+	criticalByFramework := map[string]map[string]bool{
+		"pci": {
+			"CC6.2": true, // No public access to cardholder data
+			"CC6.3": true, // Encryption required
+			"CC6.6": true, // MFA mandatory
+			"CC7.1": true, // Audit logging mandatory
+		},
+		"hipaa": {
+			"CC6.3": true, // Encryption required
+			"CC7.1": true, // Audit trails required
+			"CC6.6": true, // Access control
+		},
+		"soc2": {
+			"CC6.6": true, // Root MFA
+			"CC6.2": true, // Public S3 buckets
+			"CC6.1": true, // Open security groups
+		},
 	}
 
-	if criticalControls[controlID] && severity == "CRITICAL" {
-		return "🔥 CRITICAL", "AUDIT BLOCKER - Fix immediately or fail SOC2"
+	// Check if critical for specific framework
+	if framework != "all" && framework != "" {
+		if frameworkCritical, exists := criticalByFramework[strings.ToLower(framework)]; exists {
+			if frameworkCritical[controlID] && severity == "CRITICAL" {
+				return fmt.Sprintf("🔥 %s CRITICAL", strings.ToUpper(framework)), 
+					fmt.Sprintf("%s AUDIT BLOCKER - Fix immediately or fail %s", strings.ToUpper(framework), strings.ToUpper(framework))
+			}
+		}
+	}
+
+	// Default priority levels
+	if severity == "CRITICAL" {
+		return "🔥 CRITICAL", "AUDIT BLOCKER - Fix immediately or fail compliance"
 	} else if severity == "HIGH" {
 		return "⚠️ HIGH", "Major finding - Auditor will flag this"
 	} else if severity == "MEDIUM" {
@@ -691,9 +752,15 @@ func getPriorityAndImpact(controlID, severity, status string) (string, string) {
 
 func printTextSummary(result ComplianceResult) {
 	fmt.Printf("\n")
-	fmt.Printf("AuditKit SOC2 Compliance Scan Results\n")
+	frameworkLabel := "Multi-Framework"
+	if result.Framework != "" && result.Framework != "all" {
+		frameworkLabel = strings.ToUpper(result.Framework)
+	}
+	
+	fmt.Printf("AuditKit %s Compliance Scan Results\n", frameworkLabel)
 	fmt.Printf("=====================================\n")
 	fmt.Printf("AWS Account: %s\n", result.AccountID)
+	fmt.Printf("Framework: %s\n", frameworkLabel)
 	fmt.Printf("Scan Time: %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
 	fmt.Printf("\n")
 
@@ -736,15 +803,23 @@ func printTextSummary(result ComplianceResult) {
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && strings.Contains(control.Priority, "CRITICAL") {
 				if !hasCritical {
-					fmt.Printf("\033[31m🔥 CRITICAL - Fix These NOW or Fail SOC2:\033[0m\n")
+					fmt.Printf("\033[31m🔥 CRITICAL - Fix These NOW or Fail %s:\033[0m\n", frameworkLabel)
 					fmt.Printf("----------------------------------------\n")
 					hasCritical = true
 				}
-				fmt.Printf("\033[31m[%s]\033[0m %s - %s\n", control.Severity, control.ID, control.Name)
+				
+				// Show framework requirements if available
+				frameworkReq := ""
+				if control.Frameworks != nil && result.Framework != "all" && result.Framework != "" {
+					if req, ok := control.Frameworks[strings.ToUpper(result.Framework)]; ok {
+						frameworkReq = fmt.Sprintf(" [%s %s]", strings.ToUpper(result.Framework), req)
+					}
+				}
+				
+				fmt.Printf("\033[31m[%s]\033[0m %s - %s%s\n", control.Severity, control.ID, control.Name, frameworkReq)
 				fmt.Printf("  Issue: %s\n", control.Evidence)
 				fmt.Printf("  Impact: %s\n", control.Impact)
 				if control.Remediation != "" {
-					// Shorten long remediation commands for terminal
 					remediation := control.Remediation
 					if len(remediation) > 100 {
 						remediation = "See PDF report for full command"
@@ -813,8 +888,8 @@ func printTextSummary(result ComplianceResult) {
 	}
 
 	fmt.Printf("\n")
-	fmt.Printf("📄 For detailed report with evidence checklist:\n")
-	fmt.Printf("   auditkit scan -format pdf -output report.pdf\n")
+	fmt.Printf("📄 For detailed %s report with evidence checklist:\n", frameworkLabel)
+	fmt.Printf("   auditkit scan -framework %s -format pdf -output report.pdf\n", strings.ToLower(result.Framework))
 	fmt.Printf("\n")
 }
 
@@ -853,12 +928,24 @@ func getControlCategory(controlID string) string {
 	return "Security"
 }
 
-func generatePrioritizedRecommendations(controls []ControlResult, criticalCount, highCount int) []string {
+func generatePrioritizedRecommendations(controls []ControlResult, criticalCount, highCount int, framework string) []string {
 	recs := []string{}
 
-	// Start with impact summary
-	if criticalCount > 0 {
-		recs = append(recs, fmt.Sprintf("🔥 URGENT: Fix %d CRITICAL issues immediately - these WILL fail your audit", criticalCount))
+	// Framework-specific intro
+	if framework == "pci" {
+		if criticalCount > 0 {
+			recs = append(recs, fmt.Sprintf("🔥 PCI-DSS URGENT: Fix %d CRITICAL issues - QSA will fail your assessment", criticalCount))
+		}
+		recs = append(recs, "Document cardholder data flow and network segmentation")
+	} else if framework == "hipaa" {
+		if criticalCount > 0 {
+			recs = append(recs, fmt.Sprintf("🔥 HIPAA URGENT: Fix %d CRITICAL issues - violates Security Rule", criticalCount))
+		}
+		recs = append(recs, "Ensure all Business Associate Agreements (BAAs) are in place")
+	} else {
+		if criticalCount > 0 {
+			recs = append(recs, fmt.Sprintf("🔥 URGENT: Fix %d CRITICAL issues immediately - these WILL fail your audit", criticalCount))
+		}
 	}
 
 	// Analyze specific failures
@@ -888,12 +975,29 @@ func generatePrioritizedRecommendations(controls []ControlResult, criticalCount,
 		}
 	}
 
-	// Priority recommendations based on what will fail audit
+	// Priority recommendations based on framework
 	if hasNoMFA {
-		recs = append(recs, "🔥 CRITICAL: Enable MFA for root account TODAY - auditors check this first")
+		if framework == "pci" {
+			recs = append(recs, "🔥 PCI-DSS 8.3.1: Enable MFA for all console access immediately")
+		} else {
+			recs = append(recs, "🔥 CRITICAL: Enable MFA for root account TODAY - auditors check this first")
+		}
 	}
 	if hasPublicS3 {
-		recs = append(recs, "🔥 CRITICAL: Block public access on S3 buckets - data exposure = instant fail")
+		if framework == "pci" {
+			recs = append(recs, "🔥 PCI-DSS 1.2.1: No direct public access to cardholder data environment")
+		} else {
+			recs = append(recs, "🔥 CRITICAL: Block public access on S3 buckets - data exposure = instant fail")
+		}
+	}
+	if hasNoEncryption {
+		if framework == "pci" {
+			recs = append(recs, "⚠️ PCI-DSS 3.4: Encrypt all stored cardholder data")
+		} else if framework == "hipaa" {
+			recs = append(recs, "⚠️ HIPAA 164.312(a)(2)(iv): Implement encryption for ePHI")
+		} else {
+			recs = append(recs, "📋 MEDIUM: Enable encryption on all S3 buckets - best practice")
+		}
 	}
 	if hasOpenPorts {
 		recs = append(recs, "⚠️ HIGH: Close ports 22/3389/3306 from 0.0.0.0/0 - major security finding")
@@ -902,16 +1006,20 @@ func generatePrioritizedRecommendations(controls []ControlResult, criticalCount,
 		recs = append(recs, "⚠️ HIGH: Rotate access keys older than 90 days - compliance requirement")
 	}
 	if hasNoLogging {
-		recs = append(recs, "⚠️ HIGH: Enable CloudTrail in all regions - audit trail required")
-	}
-	if hasNoEncryption {
-		recs = append(recs, "📋 MEDIUM: Enable encryption on all S3 buckets - best practice")
+		if framework == "pci" {
+			recs = append(recs, "⚠️ PCI-DSS 10.1: Implement audit trails to link access to individual users")
+		} else {
+			recs = append(recs, "⚠️ HIGH: Enable CloudTrail in all regions - audit trail required")
+		}
 	}
 
 	// General recommendations
 	recs = append(recs, "Enable AWS Config for continuous compliance monitoring")
 	recs = append(recs, "Document your security policies and procedures")
 	recs = append(recs, "Set up automated alerting for security events")
+	if framework == "pci" {
+		recs = append(recs, "Schedule quarterly vulnerability scans (PCI-DSS 11.2)")
+	}
 	recs = append(recs, "Schedule quarterly access reviews")
 
 	return recs
@@ -930,6 +1038,7 @@ func convertControlsForPDF(controls []ControlResult) []report.ControlResult {
 			Remediation:     c.Remediation,
 			ScreenshotGuide: c.ScreenshotGuide,
 			ConsoleURL:      c.ConsoleURL,
+			Frameworks:      c.Frameworks,
 		})
 	}
 	return pdfControls
@@ -937,10 +1046,16 @@ func convertControlsForPDF(controls []ControlResult) []report.ControlResult {
 
 func outputTextToFile(result ComplianceResult, output string) {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("AuditKit Compliance Report\n"))
+	frameworkLabel := "Multi-Framework"
+	if result.Framework != "" && result.Framework != "all" {
+		frameworkLabel = strings.ToUpper(result.Framework)
+	}
+	
+	sb.WriteString(fmt.Sprintf("AuditKit %s Compliance Report\n", frameworkLabel))
 	sb.WriteString(fmt.Sprintf("==========================\n"))
 	sb.WriteString(fmt.Sprintf("Generated: %s\n", result.Timestamp.Format("2006-01-02 15:04:05")))
 	sb.WriteString(fmt.Sprintf("Provider: %s\n", result.Provider))
+	sb.WriteString(fmt.Sprintf("Framework: %s\n", frameworkLabel))
 	sb.WriteString(fmt.Sprintf("Account: %s\n\n", result.AccountID))
 	sb.WriteString(fmt.Sprintf("COMPLIANCE SCORE: %.1f%%\n", result.Score))
 	sb.WriteString(fmt.Sprintf("Controls Passed: %d/%d\n", result.PassedControls, result.TotalControls))
@@ -1009,11 +1124,15 @@ func outputHTML(result ComplianceResult, output string) {
 
 func generateHTML(result ComplianceResult) string {
 	scoreColor := getScoreColor(result.Score)
+	frameworkLabel := "Multi-Framework"
+	if result.Framework != "" && result.Framework != "all" {
+		frameworkLabel = strings.ToUpper(result.Framework)
+	}
 
 	return fmt.Sprintf(`<!DOCTYPE html>
 <html>
 <head>
-    <title>AuditKit SOC2 Compliance Report</title>
+    <title>AuditKit %s Compliance Report</title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
@@ -1165,11 +1284,11 @@ func generateHTML(result ComplianceResult) string {
     <div class="container">
         <div class="header">
             <div class="logo">AuditKit</div>
-            <div class="subtitle">SOC2 Compliance Report</div>
-            <div class="account-info">AWS Account: %s | Generated: %s</div>
+            <div class="subtitle">%s Compliance Report</div>
+            <div class="account-info">AWS Account: %s | Framework: %s | Generated: %s</div>
         </div>
         
-        <div class="score-label">Compliance Score</div>
+        <div class="score-label">%s Compliance Score</div>
         <div class="score">%.1f%%</div>
         
         <div class="stats">
@@ -1191,7 +1310,7 @@ func generateHTML(result ComplianceResult) string {
         
         <div class="evidence-note">
             <strong>📸 Evidence Collection Required:</strong> For each failed control below, you need to collect screenshots after fixing the issue. 
-            Generate a PDF report for a complete evidence checklist: <code>auditkit scan -format pdf</code>
+            Generate a PDF report for a complete evidence checklist: <code>auditkit scan -framework %s -format pdf</code>
         </div>
         
         <h2 style="margin-top: 40px;">Control Status Details</h2>
@@ -1216,20 +1335,24 @@ func generateHTML(result ComplianceResult) string {
         
         <div class="footer">
             <p>Generated by AuditKit on %s</p>
-            <p>Open source SOC2 compliance scanning that actually works</p>
+            <p>Multi-framework compliance scanning: SOC2 | PCI-DSS | HIPAA</p>
             <p><a href="https://auditkit.io" style="color: #0366d6;">auditkit.io</a> | <a href="https://github.com/guardian-nexus/auditkit" style="color: #0366d6;">GitHub</a></p>
         </div>
     </div>
 </body>
 </html>`,
 		scoreColor,
+		frameworkLabel,
 		result.AccountID,
+		frameworkLabel,
 		result.Timestamp.Format("January 2, 2006 at 3:04 PM"),
+		frameworkLabel,
 		result.Score,
 		result.PassedControls,
 		result.FailedControls,
 		result.TotalControls,
 		generateCriticalAlert(result.Controls),
+		strings.ToLower(result.Framework),
 		generateControlRows(result.Controls),
 		generateRecommendationHTML(result.Recommendations),
 		result.Timestamp.Format("January 2, 2006 at 3:04 PM"))
@@ -1247,7 +1370,7 @@ func generateCriticalAlert(controls []ControlResult) string {
 		return fmt.Sprintf(`
         <div class="critical-alert">
             <h3>🔥 CRITICAL ISSUES - Fix These Immediately!</h3>
-            <p>These issues WILL cause your SOC2 audit to fail:</p>
+            <p>These issues WILL cause your compliance audit to fail:</p>
             <ul>%s</ul>
         </div>`, strings.Join(criticalIssues, ""))
 	}
@@ -1352,6 +1475,7 @@ func mockScan(provider string) ComplianceResult {
 	return ComplianceResult{
 		Timestamp:       time.Now(),
 		Provider:        provider,
+		Framework:       "all",
 		Score:           50.0,
 		TotalControls:   2,
 		PassedControls:  1,

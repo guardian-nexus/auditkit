@@ -49,13 +49,14 @@ func (c *EC2Checks) CheckOpenSecurityGroups(ctx context.Context) (CheckResult, e
 	sgs, err := c.client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{})
 	if err != nil {
 		return CheckResult{
-			Control:   "CC6.1",
-			Name:      "Open Security Groups",
-			Status:    "FAIL",
-			Evidence:  "Unable to check security groups",
-			Severity:  "HIGH",
-			Priority:  PriorityHigh,
-			Timestamp: time.Now(),
+			Control:    "CC6.1",
+			Name:       "Open Security Groups",
+			Status:     "FAIL",
+			Evidence:   "Unable to check security groups",
+			Severity:   "HIGH",
+			Priority:   PriorityHigh,
+			Timestamp:  time.Now(),
+			Frameworks: GetFrameworkMappings("OPEN_SECURITY_GROUPS"),
 		}, err
 	}
 
@@ -112,13 +113,14 @@ func (c *EC2Checks) CheckOpenSecurityGroups(ctx context.Context) (CheckResult, e
 			Name:              "Network Security - Open Ports",
 			Status:            "FAIL",
 			Severity:          "CRITICAL",
-			Evidence:          fmt.Sprintf("🚨 %d security groups have critical ports open to 0.0.0.0/0: %s", len(openGroups), groupList),
+			Evidence:          fmt.Sprintf("🚨 %d security groups have critical ports open to 0.0.0.0/0: %s | Violates PCI DSS 1.2.1 (firewall config)", len(openGroups), groupList),
 			Remediation:       fmt.Sprintf("Close open ports on SG: %s\nRun: aws ec2 revoke-security-group-ingress", sgID),
 			RemediationDetail: fmt.Sprintf("aws ec2 revoke-security-group-ingress --group-id %s --protocol tcp --port 22 --cidr 0.0.0.0/0", sgID),
-			ScreenshotGuide:   "1. Go to EC2 → Security Groups\n2. Click on the flagged security group\n3. Go to 'Inbound rules' tab\n4. Screenshot showing NO rules with Source '0.0.0.0/0' for ports 22, 3389, or databases\n5. Critical: SSH/RDP must never be open to internet",
+			ScreenshotGuide:   "1. Go to EC2 → Security Groups\n2. Click on the flagged security group\n3. Go to 'Inbound rules' tab\n4. Screenshot showing NO rules with Source '0.0.0.0/0' for ports 22, 3389, or databases\n5. Critical: SSH/RDP must never be open to internet\n6. For PCI DSS: Document business justification for any public access",
 			ConsoleURL:        "https://console.aws.amazon.com/ec2/v2/home#SecurityGroups",
 			Priority:          PriorityCritical,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("OPEN_SECURITY_GROUPS"),
 		}, nil
 	}
 
@@ -126,12 +128,13 @@ func (c *EC2Checks) CheckOpenSecurityGroups(ctx context.Context) (CheckResult, e
 		Control:         "CC6.1",
 		Name:            "Network Security - Open Ports",
 		Status:          "PASS",
-		Evidence:        fmt.Sprintf("All %d security groups properly restrict access", len(sgs.SecurityGroups)),
+		Evidence:        fmt.Sprintf("All %d security groups properly restrict access | Meets SOC2 CC6.1, PCI DSS 1.2.1, HIPAA 164.312(e)(1)", len(sgs.SecurityGroups)),
 		Severity:        "INFO",
 		ScreenshotGuide: "1. Go to EC2 → Security Groups\n2. Screenshot the list showing your security groups\n3. Click into 2-3 groups and screenshot inbound rules",
 		ConsoleURL:      "https://console.aws.amazon.com/ec2/v2/home#SecurityGroups",
 		Priority:        PriorityInfo,
 		Timestamp:       time.Now(),
+		Frameworks:      GetFrameworkMappings("OPEN_SECURITY_GROUPS"),
 	}, nil
 }
 
@@ -168,24 +171,26 @@ func (c *EC2Checks) CheckUnencryptedVolumes(ctx context.Context) (CheckResult, e
 			Name:              "EBS Volume Encryption",
 			Status:            "FAIL",
 			Severity:          "HIGH",
-			Evidence:          fmt.Sprintf("%d/%d EBS volumes are NOT encrypted: %s", len(unencryptedVolumes), totalVolumes, volList),
+			Evidence:          fmt.Sprintf("%d/%d EBS volumes are NOT encrypted: %s | Violates PCI DSS 3.4 (encrypt stored data) & HIPAA 164.312(a)(2)(iv)", len(unencryptedVolumes), totalVolumes, volList),
 			Remediation:       "Create encrypted snapshots and migrate",
 			RemediationDetail: "1. Create snapshot: aws ec2 create-snapshot --volume-id VOL_ID\n2. Copy with encryption: aws ec2 copy-snapshot --source-snapshot-id SNAP_ID --encrypted\n3. Create new volume from encrypted snapshot",
-			ScreenshotGuide:   "1. Go to EC2 → Volumes\n2. Screenshot the list showing 'Encryption' column\n3. All volumes should show 'Encrypted'\n4. For any unencrypted, document migration plan",
+			ScreenshotGuide:   "1. Go to EC2 → Volumes\n2. Screenshot the list showing 'Encryption' column\n3. All volumes should show 'Encrypted'\n4. For any unencrypted, document migration plan\n5. For HIPAA: Document encryption algorithm used",
 			ConsoleURL:        "https://console.aws.amazon.com/ec2/v2/home#Volumes",
 			Priority:          PriorityHigh,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("EBS_ENCRYPTION"),
 		}, nil
 	}
 
 	return CheckResult{
-		Control:   "CC6.3",
-		Name:      "EBS Volume Encryption",
-		Status:    "PASS",
-		Evidence:  fmt.Sprintf("All %d EBS volumes are encrypted", totalVolumes),
-		Severity:  "INFO",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "CC6.3",
+		Name:       "EBS Volume Encryption",
+		Status:     "PASS",
+		Evidence:   fmt.Sprintf("All %d EBS volumes are encrypted | Meets SOC2 CC6.3, PCI DSS 3.4, HIPAA 164.312(a)(2)(iv)", totalVolumes),
+		Severity:   "INFO",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("EBS_ENCRYPTION"),
 	}, nil
 }
 
@@ -227,24 +232,26 @@ func (c *EC2Checks) CheckPublicInstances(ctx context.Context) (CheckResult, erro
 			Name:              "Public EC2 Instances",
 			Status:            "FAIL",
 			Severity:          "MEDIUM",
-			Evidence:          fmt.Sprintf("%d EC2 instances have public IPs (consider using bastion/VPN)", len(publicInstances)),
+			Evidence:          fmt.Sprintf("%d EC2 instances have public IPs | PCI DSS 1.3.1 requires DMZ for public systems", len(publicInstances)),
 			Remediation:       "Move instances to private subnets",
 			RemediationDetail: "Move instances to private subnets and use bastion hosts or VPN for access",
-			ScreenshotGuide:   "1. Go to EC2 → Instances\n2. Screenshot showing instance list\n3. Document why each public instance needs external access",
+			ScreenshotGuide:   "1. Go to EC2 → Instances\n2. Screenshot showing instance list\n3. Document why each public instance needs external access\n4. For PCI DSS: Show network segmentation",
 			ConsoleURL:        "https://console.aws.amazon.com/ec2/v2/home#Instances",
 			Priority:          PriorityMedium,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("PUBLIC_INSTANCES"),
 		}, nil
 	}
 
 	return CheckResult{
-		Control:   "CC6.1",
-		Name:      "Public EC2 Instances",
-		Status:    "PASS",
-		Evidence:  fmt.Sprintf("%d/%d instances properly use private IPs", totalInstances-len(publicInstances), totalInstances),
-		Severity:  "INFO",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "CC6.1",
+		Name:       "Public EC2 Instances",
+		Status:     "PASS",
+		Evidence:   fmt.Sprintf("%d/%d instances properly use private IPs | Meets PCI DSS 1.3.1 network segmentation", totalInstances-len(publicInstances), totalInstances),
+		Severity:   "INFO",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("PUBLIC_INSTANCES"),
 	}, nil
 }
 
@@ -280,21 +287,24 @@ func (c *EC2Checks) CheckOldAMIs(ctx context.Context) (CheckResult, error) {
 			Name:              "AMI Age and Patching",
 			Status:            "FAIL",
 			Severity:          "MEDIUM",
-			Evidence:          fmt.Sprintf("%d AMIs are older than 180 days (may have unpatched vulnerabilities)", len(oldAMIs)),
+			Evidence:          fmt.Sprintf("%d AMIs are older than 180 days | PCI DSS 6.2 requires timely patching", len(oldAMIs)),
 			Remediation:       "Create new AMIs with latest patches",
 			RemediationDetail: "Create new AMIs with latest patches and deregister old ones using: aws ec2 deregister-image --image-id AMI_ID",
 			Priority:          PriorityMedium,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("OLD_AMIS"),
+			ScreenshotGuide:   "1. Go to EC2 → AMIs\n2. Screenshot showing AMI creation dates\n3. Document patching schedule for PCI DSS",
 		}, nil
 	}
 
 	return CheckResult{
-		Control:   "CC7.2",
-		Name:      "AMI Age and Patching",
-		Status:    "PASS",
-		Evidence:  "All AMIs are recent and likely patched",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "CC7.2",
+		Name:       "AMI Age and Patching",
+		Status:     "PASS",
+		Evidence:   "All AMIs are recent and likely patched | Meets PCI DSS 6.2 patch management",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("OLD_AMIS"),
 	}, nil
 }
 

@@ -1,20 +1,32 @@
-# AuditKit - SOC2 Evidence Collection & Compliance Prep
+# AuditKit - Multi-Framework Compliance Scanner & Evidence Collection
 
-**Turn AWS Config findings into auditor-ready evidence. Be 80% ready BEFORE calling expensive consultants.**
+**SOC2, PCI-DSS, HIPAA, ISO 27001 - One scan, all frameworks. Turn compliance chaos into auditor-ready evidence.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
-![Version](https://img.shields.io/badge/version-v0.3.0-green)
+![Version](https://img.shields.io/badge/version-v0.4.0-green)
 
-> 🚀 **Weekend Update (Sept 20)**: Working on Azure support based on your feedback. Ships next Friday...or sooner! [Vote on features →](https://github.com/guardian-nexus/auditkit/discussions)
+> 🚀 **v0.4.0 MAJOR UPDATE**: Multi-framework support is HERE! Scan for SOC2, PCI-DSS, and HIPAA in one run. First open-source tool to do this. [See what's new →](#whats-new-in-v040)
+
+## 🎯 The Problem We Actually Solve
+
+**Every compliance framework wants the same shit:**
+- Is your S3 public? (SOC2: CC6.2, PCI: 2.1, HIPAA: §164.312(a)(1))
+- Got MFA enabled? (SOC2: CC6.6, PCI: 8.3, HIPAA: §164.312(a)(2)(i))
+- Encryption at rest? (SOC2: CC6.3, PCI: 3.4, HIPAA: §164.312(a)(2)(iv))
+
+**But every framework calls it something different.**
+
+AuditKit v0.4.0 maps your AWS controls to ALL frameworks simultaneously. One scan, multiple compliance reports. Plus evidence collection guides that auditors actually accept.
 
 ## ⚠️ Important Disclaimer
 
 **AuditKit is a PREPARATION tool, not a replacement for professional audit services:**
-- SOC2 audits require certified CPAs
+- SOC2 requires certified CPAs
+- PCI-DSS requires QSAs (Qualified Security Assessors)
+- HIPAA requires experienced compliance professionals
 - This tool identifies common issues but doesn't guarantee compliance
-- Always engage qualified professionals for actual certification
 - We help you be prepared, not certified
 
 **Think of us as the practice test, not the actual exam.**
@@ -35,7 +47,109 @@ Console URL: https://s3.console.aws.amazon.com/s3/buckets/...
 
 **This is what auditors actually want.** Not your tool's report. AWS Console screenshots.
 
-*Thanks to u/amw3000 on Reddit for this insight that changed everything in v0.3.0.*
+## 🚀 Quick Start
+
+```bash
+# Install
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
+
+# Scan for ALL frameworks (NEW in v0.4.0!)
+auditkit scan -framework all
+
+# Scan for specific framework
+auditkit scan -framework pci      # PCI-DSS only
+auditkit scan -framework soc2     # SOC2 only
+auditkit scan -framework hipaa    # HIPAA only
+
+# Generate multi-framework PDF report
+auditkit scan -framework all -format pdf -output compliance-evidence.pdf
+
+# Track your progress per framework
+auditkit progress -framework pci
+
+# Generate framework-specific evidence checklist
+auditkit evidence -framework hipaa
+```
+
+## 🎯 What's New in v0.4.0
+
+**BREAKING: First open-source tool with true multi-framework support**
+
+### One Scan, Multiple Frameworks
+```bash
+$ auditkit scan -framework all
+
+Scanning for: SOC2, PCI-DSS, HIPAA, ISO 27001
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CRITICAL ISSUES ACROSS FRAMEWORKS:
+🔥 Root MFA Missing
+   - SOC2: CC6.6 (CRITICAL)
+   - PCI: Requirement 8.3.1 (FAIL)
+   - HIPAA: §164.312(a)(2)(i) (REQUIRED)
+   - ISO: A.9.4.2 (MANDATORY)
+
+📊 Compliance Scores:
+   SOC2:  67% (20/30 controls)
+   PCI:   45% (14/31 requirements)
+   HIPAA: 72% (18/25 safeguards)
+   ISO:   69% (22/32 controls)
+```
+
+### Framework-Specific Requirements
+- **PCI-DSS**: 90-day key rotation (stricter than SOC2's 180)
+- **HIPAA**: Encryption mandatory (not just recommended)
+- **ISO 27001**: Documented ISMS requirements
+- **SOC2**: Trust Services Criteria mapping
+
+### Smart Priority Adjustment
+```
+Same issue, different severity:
+- Old access keys (120 days):
+  - SOC2: MEDIUM (180-day requirement)
+  - PCI: CRITICAL (90-day requirement)
+  - HIPAA: HIGH (access control required)
+```
+
+## 📊 The Math That Matters (Updated for Multi-Framework)
+
+| Without AuditKit | With AuditKit |
+|------------------|---------------|
+| SOC2 Consultant: $50K | |
+| PCI-DSS QSA: $40K | One scan finds issues for ALL |
+| HIPAA Consultant: $30K | Fix once, comply with multiple |
+| ISO 27001 Auditor: $45K | Evidence works for all frameworks |
+| **Total: $165,000** | **Total: $40,000** |
+
+**You save: $125,000** (and auditors love that you understand cross-framework requirements)
+
+## 🔍 What We Check (By Framework)
+
+### SOC2 Trust Services Criteria
+- **CC6.x**: Logical & Physical Access Controls
+- **CC7.x**: System Operations
+- **A1.x**: Availability
+- **C1.x**: Confidentiality
+- **PI1.x**: Privacy
+
+### PCI-DSS Requirements
+- **Req 1-2**: Network Security
+- **Req 3-4**: Cardholder Data Protection
+- **Req 7-8**: Access Control
+- **Req 10**: Logging and Monitoring
+- **Req 11**: Security Testing
+
+### HIPAA Safeguards
+- **§164.308**: Administrative (18 controls)
+- **§164.310**: Physical (9 controls)
+- **§164.312**: Technical (15 controls)
+
+### ISO 27001 Controls
+- **A.5**: Information Security Policies
+- **A.9**: Access Control
+- **A.10**: Cryptography
+- **A.12**: Operations Security
+- **A.16**: Incident Management
 
 ## 🤝 Works With Your Existing Tools
 
@@ -43,236 +157,183 @@ Console URL: https://s3.console.aws.amazon.com/s3/buckets/...
 
 | Tool | What It Does | What AuditKit Adds |
 |------|--------------|-------------------|
-| **AWS Config** | Continuous compliance monitoring | Evidence collection guides |
-| **Prowler** | 400+ security checks | SOC2-specific remediation |
-| **Security Hub** | Centralized findings | Screenshot requirements |
-| **GuardDuty** | Threat detection | Audit trail evidence |
-| **ElectricEye** | Multi-cloud scanning | Evidence documentation |
+| **AWS Config** | Continuous compliance monitoring | Multi-framework mapping |
+| **Prowler** | 400+ security checks | Framework-specific priorities |
+| **Security Hub** | Centralized findings | Evidence requirements per framework |
+| **GuardDuty** | Threat detection | Compliance control mapping |
 
-**Better together:** Use Config/Prowler to find issues, AuditKit to prove you fixed them.
+**Better together:** Use Config/Prowler to find issues, AuditKit to map them to frameworks and collect evidence.
 
-## 🎯 What AuditKit Actually Does
+## 📸 Evidence Collection - Now Framework-Aware
 
-Most companies pay consultants $50K+ for SOC2 prep. Here's the dirty secret: **$40K of that is finding obvious issues** like:
-- No MFA on root account
-- Public S3 buckets
-- Unencrypted databases
-- No audit logging
-- 90+ day old access keys
-
-AuditKit finds these issues in 15 minutes, not 200 billable hours. But more importantly, it tells you EXACTLY how to document the fixes for your auditor.
-
-**The Result:** Your $50K audit becomes a $10K audit. Consultants handle actual compliance expertise, not basic AWS hygiene and evidence collection.
-
-## 🚀 Quick Start
-
-```bash
-# Install
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
-
-# Run scan with evidence collection
-auditkit scan
-
-# Generate PDF with screenshot guides
-auditkit scan -format pdf -output soc2-evidence.pdf
-
-# Track your progress
-auditkit progress
-
-# Generate evidence checklist
-auditkit evidence
-```
-
-## 📊 The Math That Matters
-
-| Without AuditKit | With AuditKit |
-|------------------|---------------|
-| Consultant finds 50 issues | You fix 40 obvious issues yourself |
-| 200 hours @ $300/hour = $60K | 50 hours @ $300/hour = $15K |
-| 3-month timeline | 1-month timeline |
-| Consultants collect evidence | You arrive with evidence ready |
-| **Total: $60,000** | **Total: $15,000** |
-
-**You save: $45,000** (and consultants actually like you because you're prepared)
-
-## 🔍 What We Check (The 25 Controls That Matter)
-
-### 🔥 CRITICAL - Fix These or Fail Audit
-- Root account MFA (with screenshot guide)
-- Public S3 buckets (with remediation steps)
-- Open SSH/RDP to internet (with console URLs)
-- No CloudTrail logging (with exact settings needed)
-- 180+ day old access keys (with rotation guide)
-
-### ⚠️ HIGH - Major Findings Auditors Flag
-- Weak password policy
-- Unencrypted EBS/RDS
-- No VPC Flow Logs
-- GuardDuty disabled
-- Inactive IAM users
-
-### 📋 MEDIUM - Best Practices
-- S3 versioning
-- Multi-region CloudTrail
-- CloudWatch alarms
-- AWS Config recording
-- Systems Manager patch compliance
-
-## 📸 Evidence Collection - The Secret Sauce
-
-v0.3.0's killer feature - for EVERY control, we tell you:
+v0.4.0's enhancement - evidence guides now specify framework requirements:
 
 ```yaml
-Control: Root Account MFA
-Status: FAIL
-Fix Command: aws iam enable-mfa-device --device arn:aws:iam::...
+Control: Access Key Rotation
+Frameworks Affected:
+  SOC2: CC6.8 (180-day requirement) - MEDIUM
+  PCI: 8.2.4 (90-day requirement) - CRITICAL
+  HIPAA: §164.308(a)(5)(ii)(D) - HIGH
+  
+Fix Command: aws iam create-access-key --user-name USERNAME
 Evidence Required:
-  Step 1: Sign in to AWS Console as root user
-  Step 2: Navigate to IAM → Security Credentials
-  Step 3: Screenshot showing:
-    - MFA section header visible
-    - At least one virtual MFA device
-    - Status showing "Activated"
-    - Account ID visible in top right
-  Step 4: Save as "SOC2_Evidence_CC6.6_Root_MFA.png"
-  Console URL: https://console.aws.amazon.com/iam/home#/security_credentials
+  For PCI: Screenshot must show ALL keys < 90 days
+  For SOC2: Screenshot must show keys < 180 days
+  For HIPAA: Document key rotation procedure
+  
+Console URL: https://console.aws.amazon.com/iam/home#/users
+Save As: 
+  - PCI_DSS_Req_8.2.4_Key_Rotation.png
+  - SOC2_CC6.8_Access_Management.png
+  - HIPAA_164.308_a_5_Access_Controls.png
 ```
-
-No more "what evidence do you need?" emails. No more audit delays.
 
 ## 🎯 Commands That Matter
 
 ```bash
-# Basic scan - find issues
-auditkit scan
+# Scan for everything
+auditkit scan -framework all
 
-# Generate PDF evidence guide - for auditors
-auditkit scan -format pdf -output evidence-guide.pdf
+# Generate framework-specific report
+auditkit scan -framework pci -format pdf -output pci-compliance.pdf
 
-# Track evidence collection progress
-auditkit evidence
+# Compare framework requirements
+auditkit compare-frameworks
 
-# Show compliance improvement
-auditkit progress
+# Show what's different between frameworks
+auditkit diff -framework1 soc2 -framework2 pci
 
-# Compare scans over time
-auditkit compare
+# Track evidence collection per framework
+auditkit evidence -framework hipaa
 
-# Generate fix scripts
-auditkit fix -output remediation.sh
+# Generate fix scripts with framework priorities
+auditkit fix -framework pci -output pci-remediation.sh
 ```
 
-## 📈 What's New in v0.3.0
+## 📈 Framework Comparison Dashboard
 
-Based on Reddit feedback from 217+ security professionals:
-- ✅ **Evidence Collection Guides** - Step-by-step screenshot instructions
-- ✅ **PDF Generation** - Requested by u/Glittering-Duck-634
-- ✅ **Progress Tracking** - Show improvement over time
-- ✅ **Fix Script Generation** - One-click remediation
-- ✅ **Modular Code Structure** - Better for contributors
+```
+$ auditkit compare-frameworks
 
-## 🤝 Who This Is Really For
+CONTROL COMPARISON ACROSS FRAMEWORKS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### ✅ Perfect For:
-- Startups preparing for first SOC2
-- Companies wanting to reduce consultant costs
-- Engineers who hate evidence collection
-- Teams using AWS Config who need evidence guides
-- MSPs helping multiple clients with compliance
+MFA Requirement:
+├── SOC2:  Required for privileged accounts
+├── PCI:   Required for ALL network access
+├── HIPAA: Required for ePHI access
+└── ISO:   Required per risk assessment
 
-### ❌ Not For:
-- Replacing certified auditors
-- Getting actual SOC2 certification
-- Companies needing 400+ security checks (use Prowler)
-- If you need continuous monitoring (use AWS Config)
+Encryption at Rest:
+├── SOC2:  Recommended (CC6.3)
+├── PCI:   MANDATORY (Req 3.4)
+├── HIPAA: REQUIRED (§164.312(a)(2)(iv))
+└── ISO:   Required for classified data
+
+Key Rotation:
+├── SOC2:  180 days
+├── PCI:   90 days (STRICTER!)
+├── HIPAA: "Reasonable" timeframe
+└── ISO:   Based on key usage
+```
 
 ## 🏗️ Technical Architecture
 
 ```
 auditkit/
-├── scanner/              # Core engine (Go)
-│   ├── pkg/aws/         # AWS SDK integration
-│   │   └── checks/      # Individual SOC2 controls
-│   ├── pkg/report/      # PDF/HTML generation
-│   ├── pkg/tracker/     # Progress tracking
-│   └── pkg/evidence/    # Screenshot guides
+├── scanner/              
+│   ├── pkg/aws/         
+│   │   └── checks/      # Framework-aware control checks
+│   ├── pkg/frameworks/  # NEW: Framework mappings
+│   │   ├── soc2.go     # SOC2 TSC mappings
+│   │   ├── pci.go      # PCI-DSS requirement mappings
+│   │   ├── hipaa.go    # HIPAA safeguard mappings
+│   │   └── iso27001.go # ISO control mappings
+│   ├── pkg/report/      # Multi-framework reports
+│   └── pkg/evidence/    # Framework-specific evidence guides
 ├── docs/                
-│   └── evidence-examples/ # Real screenshot examples
-└── integrations/        # Config/Prowler integration guides
+│   ├── framework-mappings/  # Control cross-references
+│   └── evidence-examples/   # Per-framework examples
+└── integrations/        
 ```
-
-Built in Go because:
-- Single binary deployment
-- No dependencies hell
-- Runs anywhere (even air-gapped)
-- Fast as hell
-- Your paranoid security team will actually run it
 
 ## 📈 Roadmap
 
-- [x] v0.1: AWS scanning (Jan 2025)
-- [x] v0.2: PDF reports (Jan 2025)
-- [x] v0.3: Evidence collection guides (Jan 2025) ← **Based on Reddit feedback!**
-- [ ] v0.4: AWS Config integration (Feb 2025)
-- [ ] v0.5: Azure support (Mar 2025)
-- [ ] v0.6: GCP support (Apr 2025)
-- [ ] v1.0: Multi-framework (SOC2/ISO/CMMC) (May 2025)
+- [x] v0.1: AWS scanning (Sep 2025)
+- [x] v0.2: PDF reports (Sep 2025)
+- [x] v0.3: Evidence collection guides (Sep 2025)
+- [x] v0.4: Multi-framework support (Sep 2025) ← **We're here!**
+- [ ] v0.5: Azure support (Late Sep, Early Oct 2025)
+- [ ] v0.6: GCP support (Oct 2025)
+- [ ] v0.7: NIST 800-53 & FedRAMP (Nov 2025)
+- [ ] v0.8: CIS Controls & CMMC (Nov 2025)
+- [ ] v1.0: Full automation suite (Dec 2025)
 
-## 🤔 FAQ (The Honest Answers)
+## 🤔 FAQ (The Really Honest Answers)
 
-**Q: Why not just use AWS Config + SOC2 Conformance Pack?**
-A: Great if you have AWS expertise. Most startups don't. Plus, Config doesn't tell you how to collect evidence for auditors. AuditKit bridges that gap.
+**Q: How do you map controls between frameworks?**
+A: Years of pain. We've mapped every control to its equivalent across frameworks. Sometimes it's 1:1, sometimes one PCI requirement covers 3 SOC2 controls.
 
-**Q: How is this different from Prowler/ElectricEye/Steampipe?**
-A: They're better scanners (400+ checks). We focus on evidence collection - the screenshot guides auditors actually want. Use them together.
+**Q: Which framework should I scan for?**
+A: All of them. Seriously. Fix the strictest requirement and you'll pass the others.
 
-**Q: Will this replace my $50K consultant?**
-A: No. But it'll reduce their bill to $10K. They handle actual compliance, not finding obvious issues or collecting basic evidence.
+**Q: Is PCI-DSS really that much stricter?**
+A: Yes. 90-day key rotation vs 180. Password length minimums. Network segmentation requirements. PCI doesn't fuck around.
 
-**Q: Is this legally sufficient for SOC2?**
-A: Hell no. You need a CPA for certification. This is prep work.
+**Q: Can this do CMMC?**
+A: Coming in v0.8. CMMC is... special. Like PCI had a baby with FedRAMP.
 
-**Q: Can I trust a free tool with my AWS credentials?**
-A: It's open source. Audit the code. Runs locally. Never phones home. Your credentials never leave your machine.
-
-**Q: Who maintains this?**
-A: Engineers who were quoted $50K for SOC2 prep and decided to build the evidence collection tool consultants don't want you to have.
+**Q: Why is the HIPAA score usually highest?**
+A: HIPAA is surprisingly vague. "Reasonable safeguards" can mean a lot of things. PCI gives you exact numbers.
 
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](https://github.com/guardian-nexus/auditkit/issues)
-- **Questions**: [GitHub Discussions](https://github.com/guardian-nexus/auditkit/discussions)
-- **Updates**: [Newsletter](https://auditkit.substack.com) (Weekly updates, no spam)
+- **Discussions**: [GitHub Discussions](https://github.com/guardian-nexus/auditkit/discussions)
+- **Updates**: [Newsletter](https://auditkit.substack.com) (Major releases only, no spam)
+- **Questions**: Open a discussion, not an issue
 
 ## ☕ Support Development
 
-If AuditKit saved you money:
+If AuditKit saved you from hiring separate consultants for each framework:
 
 <a href="https://www.buymeacoffee.com/auditkit"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=auditkit&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00" /></a>
 
-Seriously, if this saved you even $10K, throw us $50. We'll build that Azure support everyone's asking for.
+Seriously, if this saved you even $50K across frameworks, throw us $100. We'll add that CMMC support everyone in defense is begging for.
 
 ## 📜 License
 
-Apache 2.0 - Use it, modify it, sell it. Just help others avoid the $50K consultant trap.
+Apache 2.0 - Use it, modify it, sell it. Just help others navigate the compliance hellscape.
 
 ## 🙏 Contributing
 
-Want to help? Based on Reddit feedback, we need:
-- AWS Config import functionality
-- Azure/GCP support
-- More screenshot examples
-- Integration guides for other tools
-- Evidence automation scripts
+Want to help? Priority based on user requests:
+1. **Azure/GCP support** (everyone's multi-cloud now)
+2. **CMMC mappings** (defense contractors need this)
+3. **Kubernetes controls** (CIS Benchmarks)
+4. **Terraform compliance** (infrastructure as code)
+5. **Evidence automation** (screenshot via Selenium?)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## ⚡ The One-Liner That Matters
 
-**"It's spell-check for compliance. You still need an editor, but at least you're not paying them to fix typos."**
+**"It's Rosetta Stone for compliance frameworks. Same controls, different languages."**
 
 ---
 
-*Built by engineers who believe compliance evidence shouldn't cost more than your AWS bill.*
+*Built by engineers who realized every framework asks for the same 30 things with different names.*
 
-*Special thanks to r/cybersecurity for the honest feedback that shaped v0.3.0*
+*Special thanks to r/cybersecurity for the feedback that shaped this multi-framework approach*
+
+## 📊 Stats That Matter
+
+- **221+ upvotes** on r/cybersecurity (that never happens for compliance tools)
+- **50K+ views** from security professionals
+- **36 stars** in first weekend
+- **5 forks** (including from Telos - hi guys! 👋)
+- **First open-source tool** to do multi-framework mapping properly
+
+---
+
+*v0.4.0 - Because compliance frameworks are just different ways to ask "is your shit encrypted?"*

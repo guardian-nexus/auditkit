@@ -56,18 +56,20 @@ func (c *S3Checks) CheckPublicAccess(ctx context.Context) (CheckResult, error) {
 			Severity:  "HIGH",
 			Priority:  PriorityHigh,
 			Timestamp: time.Now(),
+			Frameworks: GetFrameworkMappings("S3_PUBLIC_ACCESS"),
 		}, err
 	}
 
 	if len(resp.Buckets) == 0 {
 		return CheckResult{
-			Control:   "CC6.2",
-			Name:      "S3 Public Access Block",
-			Status:    "PASS",
-			Evidence:  "No S3 buckets found",
-			Severity:  "INFO",
-			Priority:  PriorityInfo,
-			Timestamp: time.Now(),
+			Control:    "CC6.2",
+			Name:       "S3 Public Access Block",
+			Status:     "PASS",
+			Evidence:   "No S3 buckets found",
+			Severity:   "INFO",
+			Priority:   PriorityInfo,
+			Timestamp:  time.Now(),
+			Frameworks: GetFrameworkMappings("S3_PUBLIC_ACCESS"),
 		}, nil
 	}
 
@@ -112,13 +114,14 @@ func (c *S3Checks) CheckPublicAccess(ctx context.Context) (CheckResult, error) {
 			Name:              "S3 Public Access Block",
 			Status:            "FAIL",
 			Severity:          "CRITICAL",
-			Evidence:          fmt.Sprintf("🚨 %d/%d S3 buckets allow public access: %s", len(publicBuckets), checkedCount, bucketList),
+			Evidence:          fmt.Sprintf("🚨 %d/%d S3 buckets allow public access: %s | Violates PCI DSS 1.2.1 (no direct public access to cardholder data)", len(publicBuckets), checkedCount, bucketList),
 			Remediation:       fmt.Sprintf("Block public access on bucket: %s\nRun: aws s3api put-public-access-block", publicBuckets[0]),
 			RemediationDetail: fmt.Sprintf("aws s3api put-public-access-block --bucket %s --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true", publicBuckets[0]),
-			ScreenshotGuide:   "1. Open S3 Console\n2. Click on bucket '" + publicBuckets[0] + "'\n3. Go to 'Permissions' tab\n4. Screenshot 'Block public access' section\n5. All 4 options must show 'On'",
+			ScreenshotGuide:   "1. Open S3 Console\n2. Click on bucket '" + publicBuckets[0] + "'\n3. Go to 'Permissions' tab\n4. Screenshot 'Block public access' section\n5. All 4 options must show 'On'\n6. For PCI DSS: Document that cardholder data is NOT stored here",
 			ConsoleURL:        fmt.Sprintf("https://s3.console.aws.amazon.com/s3/buckets/%s?tab=permissions", publicBuckets[0]),
 			Priority:          PriorityCritical,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("S3_PUBLIC_ACCESS"),
 		}, nil
 	}
 
@@ -126,12 +129,13 @@ func (c *S3Checks) CheckPublicAccess(ctx context.Context) (CheckResult, error) {
 		Control:         "CC6.2",
 		Name:            "S3 Public Access Block",
 		Status:          "PASS",
-		Evidence:        fmt.Sprintf("All %d S3 buckets block public access", checkedCount),
+		Evidence:        fmt.Sprintf("All %d S3 buckets block public access | Meets SOC2 CC6.2, PCI DSS 1.2.1, HIPAA 164.312(a)(1)", checkedCount),
 		Severity:        "INFO",
 		ScreenshotGuide: "1. Open S3 Console\n2. Click any bucket\n3. Go to 'Permissions' tab\n4. Screenshot showing all 'Block public access' settings ON",
 		ConsoleURL:      "https://s3.console.aws.amazon.com/s3/buckets",
 		Priority:        PriorityInfo,
 		Timestamp:       time.Now(),
+		Frameworks:      GetFrameworkMappings("S3_PUBLIC_ACCESS"),
 	}, nil
 }
 
@@ -167,24 +171,26 @@ func (c *S3Checks) CheckEncryption(ctx context.Context) (CheckResult, error) {
 			Name:              "S3 Encryption at Rest",
 			Status:            "FAIL",
 			Severity:          "HIGH",
-			Evidence:          fmt.Sprintf("%d/%d S3 buckets lack encryption: %s", len(unencryptedBuckets), checkedCount, bucketList),
+			Evidence:          fmt.Sprintf("%d/%d S3 buckets lack encryption: %s | Violates PCI DSS 3.4 (encrypt stored cardholder data) & HIPAA 164.312(a)(2)(iv)", len(unencryptedBuckets), checkedCount, bucketList),
 			Remediation:       fmt.Sprintf("Enable encryption on: %s\nRun: aws s3api put-bucket-encryption", unencryptedBuckets[0]),
 			RemediationDetail: fmt.Sprintf("aws s3api put-bucket-encryption --bucket %s --server-side-encryption-configuration '{\"Rules\": [{\"ApplyServerSideEncryptionByDefault\": {\"SSEAlgorithm\": \"AES256\"}}]}'", unencryptedBuckets[0]),
-			ScreenshotGuide:   "1. Open S3 Console\n2. Click bucket '" + unencryptedBuckets[0] + "'\n3. Go to 'Properties' tab\n4. Scroll to 'Default encryption'\n5. Screenshot showing 'Server-side encryption: Enabled'",
+			ScreenshotGuide:   "1. Open S3 Console\n2. Click bucket '" + unencryptedBuckets[0] + "'\n3. Go to 'Properties' tab\n4. Scroll to 'Default encryption'\n5. Screenshot showing 'Server-side encryption: Enabled'\n6. For HIPAA: Note encryption algorithm (AES-256)",
 			ConsoleURL:        fmt.Sprintf("https://s3.console.aws.amazon.com/s3/buckets/%s?tab=properties", unencryptedBuckets[0]),
 			Priority:          PriorityHigh,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("S3_ENCRYPTION"),
 		}, nil
 	}
 
 	return CheckResult{
-		Control:   "CC6.3",
-		Name:      "S3 Encryption at Rest",
-		Status:    "PASS",
-		Evidence:  fmt.Sprintf("All %d S3 buckets have encryption enabled", checkedCount),
-		Severity:  "INFO",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "CC6.3",
+		Name:       "S3 Encryption at Rest",
+		Status:     "PASS",
+		Evidence:   fmt.Sprintf("All %d S3 buckets have encryption enabled | Meets SOC2 CC6.3, PCI DSS 3.4, HIPAA 164.312(a)(2)(iv)", checkedCount),
+		Severity:   "INFO",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("S3_ENCRYPTION"),
 	}, nil
 }
 
@@ -213,32 +219,38 @@ func (c *S3Checks) CheckVersioning(ctx context.Context) (CheckResult, error) {
 			Name:              "S3 Versioning for Backup",
 			Status:            "FAIL",
 			Severity:          "MEDIUM",
-			Evidence:          fmt.Sprintf("%d buckets lack versioning (needed for data recovery)", len(noVersioning)),
+			Evidence:          fmt.Sprintf("%d buckets lack versioning (needed for data recovery) | Required for PCI DSS 10.5.5 (secure audit trails)", len(noVersioning)),
 			Remediation:       fmt.Sprintf("Enable versioning on: %s", firstBucket),
 			RemediationDetail: fmt.Sprintf("aws s3api put-bucket-versioning --bucket %s --versioning-configuration Status=Enabled", firstBucket),
 			Priority:          PriorityMedium,
 			Timestamp:         time.Now(),
+			Frameworks:        GetFrameworkMappings("S3_VERSIONING"),
+			ScreenshotGuide:   "1. Open S3 Console\n2. Click bucket '" + firstBucket + "'\n3. Go to 'Properties' tab\n4. Screenshot 'Bucket Versioning' showing 'Enabled'",
+			ConsoleURL:        fmt.Sprintf("https://s3.console.aws.amazon.com/s3/buckets/%s?tab=properties", firstBucket),
 		}, nil
 	}
 
 	return CheckResult{
-		Control:   "A1.2",
-		Name:      "S3 Versioning for Backup",
-		Status:    "PASS",
-		Evidence:  "All buckets have versioning enabled",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "A1.2",
+		Name:       "S3 Versioning for Backup",
+		Status:     "PASS",
+		Evidence:   "All buckets have versioning enabled | Meets SOC2 A1.2, PCI DSS 10.5.5, HIPAA 164.312(c)(1)",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("S3_VERSIONING"),
 	}, nil
 }
 
 func (c *S3Checks) CheckLogging(ctx context.Context) (CheckResult, error) {
 	// Implementation for S3 access logging check
+	// TODO: Add actual implementation
 	return CheckResult{
-		Control:   "CC7.1",
-		Name:      "S3 Access Logging",
-		Status:    "PASS",
-		Evidence:  "S3 logging check placeholder",
-		Priority:  PriorityInfo,
-		Timestamp: time.Now(),
+		Control:    "CC7.1",
+		Name:       "S3 Access Logging",
+		Status:     "PASS",
+		Evidence:   "S3 logging check placeholder | Required for PCI DSS 10.2 (implement audit trails)",
+		Priority:   PriorityInfo,
+		Timestamp:  time.Now(),
+		Frameworks: GetFrameworkMappings("S3_LOGGING"),
 	}, nil
 }
