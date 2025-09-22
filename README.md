@@ -1,6 +1,6 @@
 # AuditKit - Multi-Framework Compliance Scanner & Evidence Collection
 
-**Open-source SOC2 compliance scanner with auditor-ready evidence collection guides.**
+**Open-source compliance scanner with auditor-ready evidence collection guides.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
