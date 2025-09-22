@@ -28,11 +28,16 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.59.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/backup v1.47.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.50.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/inspector2 v1.44.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.8.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/kms v1.45.3 // indirect
+	github.com/aws/aws-sdk-go-v2/service/lambda v1.77.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/organizations v1.45.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sns v1.38.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.64.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.29.3 // indirect

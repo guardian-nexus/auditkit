@@ -66,9 +66,9 @@ type ScorePoint struct {
 
 func main() {
 	var (
-		provider  = flag.String("provider", "aws", "Cloud provider (aws, azure, gcp)")
+		provider  = flag.String("provider", "aws", "Cloud provider: aws (full support), azure/gcp (coming soon)")
 		profile   = flag.String("profile", "default", "AWS profile to use")
-		framework = flag.String("framework", "all", "Compliance framework (soc2, pci, hipaa, all)")
+		framework = flag.String("framework", "all", "Compliance framework: soc2 (full), pci/hipaa (EXPERIMENTAL - limited controls), all")
 		format    = flag.String("format", "text", "Output format (text, json, html, pdf)")
 		output    = flag.String("output", "", "Output file (default: stdout)")
 		verbose   = flag.Bool("verbose", false, "Verbose output")
@@ -122,8 +122,8 @@ Usage:
   auditkit version           Show version
 
 Options:
-  -framework string  Compliance framework (soc2, pci, hipaa, all) (default "all")
-  -provider string   Cloud provider (aws, azure, gcp) (default "aws")
+  -framework string  Compliance framework: soc2 (full), pci/hipaa (EXPERIMENTAL), all (default "all")
+  -provider string   Cloud provider: aws only (azure/gcp coming soon) (default "aws")
   -profile string    AWS profile to use (default "default")
   -format string     Output format (text, json, html, pdf) (default "text")
   -output string     Output file (default: stdout)

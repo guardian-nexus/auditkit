@@ -1,364 +1,242 @@
-# AuditKit - Multi-Framework Compliance Scanner & Evidence Collection
+# AuditKit - AWS SOC2 Compliance Scanner
 
-**SOC2, PCI-DSS, HIPAA, ISO 27001 - One scan, all frameworks. Turn compliance chaos into auditor-ready evidence.**
+**Open-source SOC2 compliance scanner with auditor-ready evidence collection guides.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
-![Version](https://img.shields.io/badge/version-v0.4.0-green)
+![Version](https://img.shields.io/badge/version-v0.4.1-green)
 
-> 🚀 **v0.4.0 MAJOR UPDATE**: Multi-framework support is HERE! Scan for SOC2, PCI-DSS, and HIPAA in one run. First open-source tool to do this. 
+## What AuditKit Does
 
-## 🎯 The Problem We Actually Solve
+AuditKit scans your AWS infrastructure against SOC2 Common Criteria controls and provides:
 
-**Every compliance framework wants the same shit:**
-- Is your S3 public? (SOC2: CC6.2, PCI: 2.1, HIPAA: §164.312(a)(1))
-- Got MFA enabled? (SOC2: CC6.6, PCI: 8.3, HIPAA: §164.312(a)(2)(i))
-- Encryption at rest? (SOC2: CC6.3, PCI: 3.4, HIPAA: §164.312(a)(2)(iv))
+1. **Clear Pass/Fail Status** - 64 SOC2 controls checked automatically
+2. **Exact Fix Commands** - Not just "enable MFA", but the actual AWS CLI command
+3. **Evidence Collection Guides** - Step-by-step screenshots auditors actually accept
+4. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
 
-**But every framework calls it something different.**
-
-AuditKit v0.4.0 maps your AWS controls to ALL frameworks simultaneously. One scan, multiple compliance reports. Plus evidence collection guides that auditors actually accept.
-
-## ⚠️ Important Disclaimer
-
-**AuditKit is a PREPARATION tool, not a replacement for professional audit services:**
-- SOC2 requires certified CPAs
-- PCI-DSS requires QSAs (Qualified Security Assessors)
-- HIPAA requires experienced compliance professionals
-- This tool identifies common issues but doesn't guarantee compliance
-- We help you be prepared, not certified
-
-**Think of us as the practice test, not the actual exam.**
-
-## 📸 What Makes AuditKit Different: Evidence Collection
-
-**Every other tool:** "Your S3 bucket is public" ❌
-
-**AuditKit:** "Your S3 bucket is public. Here's how to prove you fixed it:" ✅
-```
-1. Open S3 Console
-2. Click bucket 'my-public-bucket'  
-3. Go to Permissions tab
-4. Screenshot showing all 4 "Block public access" = ON
-5. Save as: SOC2_Evidence_S3_Public_Access.png
-Console URL: https://s3.console.aws.amazon.com/s3/buckets/...
-```
-
-**This is what auditors actually want.** Not your tool's report. AWS Console screenshots.
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install
 go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
 
-# Scan for ALL frameworks (NEW in v0.4.0!)
-auditkit scan -framework all
+# Configure AWS credentials
+aws configure
 
-# Scan for specific framework
-auditkit scan -framework pci      # PCI-DSS only
-auditkit scan -framework soc2     # SOC2 only
-auditkit scan -framework hipaa    # HIPAA only
+# Run SOC2 scan
+auditkit scan -framework soc2
 
-# Generate multi-framework PDF report
-auditkit scan -framework all -format pdf -output compliance-evidence.pdf
+# Generate PDF report with evidence checklist
+auditkit scan -framework soc2 -format pdf -output soc2-report.pdf
 
-# Track your progress per framework
-auditkit progress -framework pci
-
-# Generate framework-specific evidence checklist
-auditkit evidence -framework hipaa
+# Generate fix script
+auditkit fix -output remediation.sh
 ```
 
-## 🎯 What's New in v0.4.0
+## Current Status
 
-**BREAKING: First open-source tool with true multi-framework support**
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **SOC2** | ✅ Full Support | All 64 Common Criteria controls (CC1-CC9) |
+| **AWS** | ✅ Full Support | S3, IAM, EC2, CloudTrail, RDS, Config, GuardDuty, etc. |
+| **PCI-DSS** | 🧪 Experimental | Limited control mapping only |
+| **HIPAA** | 🧪 Experimental | Limited control mapping only |
+| **Azure** | 🚧 Coming Soon | Planned for v0.5 |
+| **GCP** | 🚧 Coming Soon | Planned for v0.6 |
 
-### One Scan, Multiple Frameworks
-```bash
-$ auditkit scan -framework all
+## What Makes AuditKit Different
 
-Scanning for: SOC2, PCI-DSS, HIPAA, ISO 27001
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-CRITICAL ISSUES ACROSS FRAMEWORKS:
-🔥 Root MFA Missing
-   - SOC2: CC6.6 (CRITICAL)
-   - PCI: Requirement 8.3.1 (FAIL)
-   - HIPAA: §164.312(a)(2)(i) (REQUIRED)
-   - ISO: A.9.4.2 (MANDATORY)
-
-📊 Compliance Scores:
-   SOC2:  67% (20/30 controls)
-   PCI:   45% (14/31 requirements)
-   HIPAA: 72% (18/25 safeguards)
-   ISO:   69% (22/32 controls)
-```
-
-### Framework-Specific Requirements
-- **PCI-DSS**: 90-day key rotation (stricter than SOC2's 180)
-- **HIPAA**: Encryption mandatory (not just recommended)
-- **ISO 27001**: Documented ISMS requirements
-- **SOC2**: Trust Services Criteria mapping
-
-### Smart Priority Adjustment
-```
-Same issue, different severity:
-- Old access keys (120 days):
-  - SOC2: MEDIUM (180-day requirement)
-  - PCI: CRITICAL (90-day requirement)
-  - HIPAA: HIGH (access control required)
-```
-
-## 📊 The Math That Matters (Updated for Multi-Framework)
-
-| Without AuditKit | With AuditKit |
-|------------------|---------------|
-| SOC2 Consultant: $50K | |
-| PCI-DSS QSA: $40K | One scan finds issues for ALL |
-| HIPAA Consultant: $30K | Fix once, comply with multiple |
-| ISO 27001 Auditor: $45K | Evidence works for all frameworks |
-| **Total: $165,000** | **Total: $40,000** |
-
-**You save: $125,000** (and auditors love that you understand cross-framework requirements)
-
-## 🔍 What We Check (By Framework)
-
-### SOC2 Trust Services Criteria
-- **CC6.x**: Logical & Physical Access Controls
-- **CC7.x**: System Operations
-- **A1.x**: Availability
-- **C1.x**: Confidentiality
-- **PI1.x**: Privacy
-
-### PCI-DSS Requirements
-- **Req 1-2**: Network Security
-- **Req 3-4**: Cardholder Data Protection
-- **Req 7-8**: Access Control
-- **Req 10**: Logging and Monitoring
-- **Req 11**: Security Testing
-
-### HIPAA Safeguards
-- **§164.308**: Administrative (18 controls)
-- **§164.310**: Physical (9 controls)
-- **§164.312**: Technical (15 controls)
-
-### ISO 27001 Controls
-- **A.5**: Information Security Policies
-- **A.9**: Access Control
-- **A.10**: Cryptography
-- **A.12**: Operations Security
-- **A.16**: Incident Management
-
-## 🤝 Works With Your Existing Tools
-
-**Not a replacement, a complement:**
-
-| Tool | What It Does | What AuditKit Adds |
-|------|--------------|-------------------|
-| **AWS Config** | Continuous compliance monitoring | Multi-framework mapping |
-| **Prowler** | 400+ security checks | Framework-specific priorities |
-| **Security Hub** | Centralized findings | Evidence requirements per framework |
-| **GuardDuty** | Threat detection | Compliance control mapping |
-
-**Better together:** Use Config/Prowler to find issues, AuditKit to map them to frameworks and collect evidence.
-
-## 📸 Evidence Collection - Now Framework-Aware
-
-v0.4.0's enhancement - evidence guides now specify framework requirements:
+### 1. Evidence Collection That Auditors Accept
 
 ```yaml
-Control: Access Key Rotation
-Frameworks Affected:
-  SOC2: CC6.8 (180-day requirement) - MEDIUM
-  PCI: 8.2.4 (90-day requirement) - CRITICAL
-  HIPAA: §164.308(a)(5)(ii)(D) - HIGH
-  
-Fix Command: aws iam create-access-key --user-name USERNAME
+Control Failed: CC6.2 - Public S3 Bucket
+Fix Command: aws s3api put-public-access-block --bucket my-bucket --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+
 Evidence Required:
-  For PCI: Screenshot must show ALL keys < 90 days
-  For SOC2: Screenshot must show keys < 180 days
-  For HIPAA: Document key rotation procedure
-  
-Console URL: https://console.aws.amazon.com/iam/home#/users
-Save As: 
-  - PCI_DSS_Req_8.2.4_Key_Rotation.png
-  - SOC2_CC6.8_Access_Management.png
-  - HIPAA_164.308_a_5_Access_Controls.png
+1. Navigate to: https://s3.console.aws.amazon.com/s3/buckets/my-bucket
+2. Click "Permissions" tab
+3. Screenshot showing all 4 "Block public access" settings = ON
+4. Save as: SOC2_CC6.2_S3_Public_Access.png
 ```
 
-## 🎯 Commands That Matter
+### 2. Prioritized by Audit Impact
+
+```
+🔥 CRITICAL (2 issues) - Will fail your audit
+  └─ CC6.6: Root account missing MFA
+  └─ CC7.1: CloudTrail not enabled
+
+⚠️ HIGH (5 issues) - Auditor will flag these
+  └─ CC6.7: No password policy configured
+  └─ CC3.2: GuardDuty not enabled
+  └─ ...
+
+📋 MEDIUM (8 issues) - Should fix for smooth audit
+```
+
+### 3. Real Fix Scripts, Not Documentation
 
 ```bash
-# Scan for everything
-auditkit scan -framework all
+# Generated by: auditkit fix -output remediation.sh
 
-# Generate framework-specific report
-auditkit scan -framework pci -format pdf -output pci-compliance.pdf
+#!/bin/bash
+# Critical Fixes - Run These First
 
-# Compare framework requirements
-auditkit compare-frameworks
+echo "Enabling MFA for root account..."
+# Manual step required - see PDF report for screenshots
 
-# Show what's different between frameworks
-auditkit diff -framework1 soc2 -framework2 pci
+echo "Enabling CloudTrail..."
+aws cloudtrail create-trail --name audit-trail --s3-bucket-name my-audit-bucket
+aws cloudtrail start-logging --name audit-trail
 
-# Track evidence collection per framework
-auditkit evidence -framework hipaa
-
-# Generate fix scripts with framework priorities
-auditkit fix -framework pci -output pci-remediation.sh
+echo "Setting password policy..."
+aws iam update-account-password-policy \
+  --minimum-password-length 14 \
+  --require-symbols \
+  --require-numbers \
+  --require-uppercase-characters \
+  --require-lowercase-characters \
+  --max-password-age 90
 ```
 
-## 📈 Framework Comparison Dashboard
+## SOC2 Controls Coverage
 
+| Category | Controls | Description |
+|----------|----------|-------------|
+| **CC1** | 5 controls | Control Environment (governance, ethics, structure) |
+| **CC2** | 3 controls | Communication & Information |
+| **CC3** | 4 controls | Risk Assessment |
+| **CC4** | 2 controls | Monitoring Activities |
+| **CC5** | 3 controls | Control Activities |
+| **CC6** | 8 controls | Logical & Physical Access Controls |
+| **CC7** | 4 controls | System Operations |
+| **CC8** | 1 control | Change Management |
+| **CC9** | 2 controls | Risk Mitigation |
+| **Total** | **64 controls** | Full Common Criteria coverage |
+
+## Requirements
+
+- Go 1.19+
+- AWS credentials configured
+- AWS services to check: IAM, S3, EC2, CloudTrail, Config, GuardDuty, Security Hub, etc.
+
+## Important Disclaimers
+
+1. **This is a preparation tool** - SOC2 certification requires a CPA audit
+2. **AWS-only currently** - Azure and GCP support coming soon
+3. **PCI/HIPAA are experimental** - Only basic control mapping implemented
+4. **Not a replacement for professional services** - Use alongside qualified auditors
+
+## Command Reference
+
+```bash
+# Scanning
+auditkit scan                          # Default SOC2 scan
+auditkit scan -framework soc2          # Explicit SOC2 scan
+auditkit scan -framework pci           # Experimental PCI scan
+auditkit scan -verbose                 # Detailed output
+
+# Reporting
+auditkit scan -format pdf -output report.pdf    # PDF with evidence checklist
+auditkit scan -format json                       # JSON output
+auditkit scan -format html -output report.html   # HTML report
+
+# Remediation
+auditkit fix                           # Generate fix script
+auditkit fix -output fixes.sh          # Save to file
+
+# Progress Tracking
+auditkit progress                      # Show improvement over time
+auditkit compare                       # Compare last two scans
+
+# Evidence Collection
+auditkit evidence                      # Generate evidence tracker
+auditkit evidence -output tracker.html  # Save tracker
 ```
-$ auditkit compare-frameworks
 
-CONTROL COMPARISON ACROSS FRAMEWORKS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## Installation Options
 
-MFA Requirement:
-├── SOC2:  Required for privileged accounts
-├── PCI:   Required for ALL network access
-├── HIPAA: Required for ePHI access
-└── ISO:   Required per risk assessment
-
-Encryption at Rest:
-├── SOC2:  Recommended (CC6.3)
-├── PCI:   MANDATORY (Req 3.4)
-├── HIPAA: REQUIRED (§164.312(a)(2)(iv))
-└── ISO:   Required for classified data
-
-Key Rotation:
-├── SOC2:  180 days
-├── PCI:   90 days (STRICTER!)
-├── HIPAA: "Reasonable" timeframe
-└── ISO:   Based on key usage
+### From Source
+```bash
+git clone https://github.com/guardian-nexus/auditkit
+cd auditkit/scanner
+go build ./cmd/auditkit
+./auditkit scan
 ```
 
-## 🏗️ Technical Architecture
+### Using Go Install
+```bash
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
+```
+
+### Download Binary
+See [Releases](https://github.com/guardian-nexus/auditkit/releases) for pre-built binaries.
+
+## Project Structure
 
 ```
 auditkit/
-├── scanner/              
-│   ├── cmd/
-│   │   └── auditkit/    
-│   │       └── main.go      # CLI with multi-framework support
-│   ├── go.mod               # Dependencies
-│   └── pkg/             
-│       ├── aws/             # AWS provider
-│       │   ├── checks/      # S3, IAM, EC2, CloudTrail checks
-│       │   │   ├── s3.go
-│       │   │   ├── iam.go
-│       │   │   ├── ec2.go
-│       │   │   ├── cloudtrail.go
-│       │   │   ├── config.go
-│       │   │   └── types.go
-│       │   ├── scanner.go   # Orchestrates AWS checks
-│       │   └── priority.go  # Framework-specific priorities
-│       ├── azure/           # Azure provider (in progress)
-│       │   ├── checks/      # Storage, Identity checks
-│       │   ├── scanner.go   
-│       │   └── README.md    
-│       ├── cache/           
-│       │   └── results.go   # Caches scan results
-│       ├── evidence/        
-│       │   └── screenshots.go # Evidence collection guides
-│       ├── remediation/     
-│       │   └── scripts.go   # Fix script generation
-│       ├── report/          
-│       │   └── pdf.go       # Multi-framework reports
-│       ├── telemetry/       
-│       │   └── telemetry.go # Anonymous usage stats
-│       ├── tracker/         
-│       │   ├── evidence.go  # Evidence tracker
-│       │   └── progress.go  # Progress tracking
-│       └── updater/         
-│           └── updater.go   # Version checker
-├── docs/                    
-└── README.md               
+├── scanner/
+│   ├── cmd/auditkit/         # CLI entry point
+│   └── pkg/
+│       ├── aws/               # AWS provider
+│       │   └── checks/        # SOC2 control checks
+│       │       ├── soc2_cc1_cc2.go
+│       │       ├── soc2_cc3_cc5.go
+│       │       └── soc2_cc6_cc9.go
+│       ├── report/            # PDF/HTML generation
+│       ├── remediation/       # Fix script generation
+│       └── tracker/           # Evidence tracking
+└── README.md
 ```
 
-**Note:** The `/pkg/checks/` and `/pkg/soc2/` directories exist but are not currently used. They may be removed in a future cleanup.
+## Roadmap
 
-## 📈 Roadmap
+- [x] v0.4.1 - Full SOC2 controls (Sep 2025)
+- [ ] v0.5.0 - Azure support (Oct 2025)
+- [ ] v0.6.0 - GCP support (Oct 2025)
+- [ ] v0.7.0 - Full PCI-DSS mapping (Nov 2025)
+- [ ] v0.8.0 - Full HIPAA mapping (Nov 2025)
+- [ ] v1.0.0 - Automated evidence collection (Dec 2025)
 
-- [x] v0.1: AWS scanning (Sep 2025)
-- [x] v0.2: PDF reports (Sep 2025)
-- [x] v0.3: Evidence collection guides (Sep 2025)
-- [x] v0.4: Multi-framework support (Sep 2025) ← **We're here!**
-- [ ] v0.5: Azure support (Oct 2025)
-- [ ] v0.6: GCP support (Oct 2025)
-- [ ] v0.7: NIST 800-53 & FedRAMP (Nov 2025)
-- [ ] v0.8: CIS Controls & CMMC (Nov 2025)
-- [ ] v1.0: Full automation suite (Dec 2025)
+## Contributing
 
-## 🤔 FAQ (The Really Honest Answers)
+We need help with:
+1. Azure/GCP provider implementation
+2. Complete PCI-DSS control mapping
+3. Complete HIPAA control mapping
+4. Automated screenshot collection (Selenium?)
+5. Terraform compliance checks
 
-**Q: How do you map controls between frameworks?**
-A: Years of pain. We've mapped every control to its equivalent across frameworks. Sometimes it's 1:1, sometimes one PCI requirement covers 3 SOC2 controls.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-**Q: Which framework should I scan for?**
-A: All of them. Seriously. Fix the strictest requirement and you'll pass the others.
-
-**Q: Is PCI-DSS really that much stricter?**
-A: Yes. 90-day key rotation vs 180. Password length minimums. Network segmentation requirements. PCI doesn't fuck around.
-
-**Q: Can this do CMMC?**
-A: Coming in v0.8. CMMC is... special. Like PCI had a baby with FedRAMP.
-
-**Q: Why is the HIPAA score usually highest?**
-A: HIPAA is surprisingly vague. "Reasonable safeguards" can mean a lot of things. PCI gives you exact numbers.
-
-## 🆘 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/guardian-nexus/auditkit/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/guardian-nexus/auditkit/discussions)
-- **Updates**: [Newsletter](https://auditkit.substack.com) (Major releases only, no spam)
-- **Questions**: Open a discussion, not an issue
+- **Updates**: [Newsletter](https://auditkit.substack.com)
 
-## ☕ Support Development
+## FAQ
 
-If AuditKit saved you from hiring separate consultants for each framework:
+**Q: Why is my compliance score so low?**  
+A: You need AWS services configured. Enable GuardDuty, Security Hub, Config, CloudTrail, etc. The scanner checks if these services exist and are properly configured.
 
-<a href="https://www.buymeacoffee.com/auditkit"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=auditkit&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00" /></a>
+**Q: Can this replace a SOC2 audit?**  
+A: No. This helps you prepare for an audit. You still need a CPA firm for actual SOC2 certification.
 
-Seriously, if this saved you even $50K across frameworks, throw us $100. We'll add that CMMC support everyone in defense is begging for.
+**Q: When will Azure/GCP be supported?**  
+A: Azure in v0.5 (October 2025), GCP in v0.6 (October 2025).
 
-## 📜 License
+**Q: What about ISO 27001, NIST, CIS?**  
+A: On the roadmap after core cloud providers are complete.
 
-Apache 2.0 - Use it, modify it, sell it. Just help others navigate the compliance hellscape.
+## License
 
-## 🙏 Contributing
-
-Want to help? Priority based on user requests:
-1. **Azure/GCP support** (everyone's multi-cloud now)
-2. **CMMC mappings** (defense contractors need this)
-3. **Kubernetes controls** (CIS Benchmarks)
-4. **Terraform compliance** (infrastructure as code)
-5. **Evidence automation** (screenshot via Selenium?)
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## ⚡ The One-Liner That Matters
-
-**"It's Rosetta Stone for compliance frameworks. Same controls, different languages."**
+Apache 2.0 - Use it, modify it, sell it. Just help others pass their audits.
 
 ---
 
-*Built by engineers who realized every framework asks for the same 30 things with different names.*
+*Built by engineers who've been through too many SOC2 audits.*
 
-*Special thanks to r/cybersecurity for the feedback that shaped this multi-framework approach*
-
-## 📊 Stats That Matter
-
-- **221+ upvotes** on r/cybersecurity (that never happens for compliance tools)
-- **50K+ views** from security professionals
-- **36 stars** in first weekend
-- **5 forks** 
-- **First open-source tool** to do multi-framework mapping properly
-
----
-
-*v0.4.0 - Because compliance frameworks are just different ways to ask "is your shit encrypted?"*
+*If this saves you audit prep time, consider [supporting development](https://www.buymeacoffee.com/auditkit).*

@@ -1,6 +1,7 @@
 package checks
 
 import (
+	"fmt"
 	"context"
 	"time"
 )
