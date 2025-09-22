@@ -2,13 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AuditKit - Open Source SOC2 Evidence Collection</title>
+    <title>AuditKit - Multi-Framework Cloud Compliance Scanner</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="The missing evidence collection layer for SOC2. Shows exactly what screenshots auditors need.">
+    <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, HIPAA, ISO 27001. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
     
-    <meta property="og:title" content="AuditKit - Evidence Collection for SOC2">
-    <meta property="og:description" content="Stop guessing what auditors want to see. Free and open source.">
+    <meta property="og:title" content="AuditKit - Multi-Framework Compliance Scanner">
+    <meta property="og:description" content="SOC2, PCI-DSS, HIPAA, ISO 27001. One scan, all frameworks. Stop guessing what auditors want.">
     <meta property="og:url" content="https://auditkit.io">
     
     <style>
@@ -43,6 +43,40 @@
         .tagline {
             color: #666;
             font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        /* Framework badges */
+        .frameworks {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .framework-badge {
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .ready {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .beta {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .coming {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
         }
         
         /* Terminal Box */
@@ -54,6 +88,7 @@
             margin: 30px 0;
             font-family: 'Courier New', monospace;
             overflow-x: auto;
+            font-size: 14px;
         }
         
         .terminal .prompt {
@@ -63,6 +98,19 @@
         .terminal .output {
             color: #ce9178;
             margin-left: 20px;
+        }
+        
+        .terminal .critical {
+            color: #f48771;
+        }
+        
+        .terminal .comment {
+            color: #608b4e;
+        }
+        
+        .terminal .framework-ref {
+            color: #9cdcfe;
+            font-size: 12px;
         }
         
         /* Info Box */
@@ -105,6 +153,31 @@
         
         li {
             margin-bottom: 8px;
+        }
+        
+        /* Comparison table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #fff;
         }
         
         /* Code Block */
@@ -206,6 +279,15 @@
                 width: 100%;
                 text-align: center;
             }
+            
+            .comparison-table {
+                font-size: 12px;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 6px;
+            }
         }
     </style>
     <script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
@@ -214,61 +296,110 @@
     <div class="container">
         <header>
             <h1>AuditKit</h1>
-            <p class="tagline">The evidence collection layer your SOC2 scanner is missing</p>
+            <p class="tagline">Multi-framework compliance scanner that shows exactly what auditors need</p>
+            <div class="frameworks">
+                <span class="framework-badge ready">✓ SOC2 Ready</span>
+                <span class="framework-badge beta">⚡ PCI-DSS Beta</span>
+                <span class="framework-badge beta">⚡ HIPAA Beta</span>
+                <span class="framework-badge coming">🚧 ISO 27001</span>
+                <span class="framework-badge coming">🚧 Azure/GCP</span>
+            </div>
         </header>
         
         <div class="terminal">
-            <span class="prompt">$</span> auditkit scan<br>
-            <span class="output">Scanning AWS account 123456789...</span><br>
-            <span class="output">✗ CRITICAL: Root account missing MFA</span><br>
-            <span class="output">✗ HIGH: 3 S3 buckets allow public access</span><br>
-            <span class="output">✗ HIGH: Security group allows SSH from 0.0.0.0/0</span><br><br>
-            <span class="prompt">$</span> auditkit evidence<br>
-            <span class="output">Opening evidence checklist...</span><br>
-            <span class="output">Screenshot guide: exactly what your auditor needs to see</span>
+            <span class="prompt">$</span> auditkit scan -framework all<br>
+            <span class="comment"># Scanning AWS account 123456789...</span><br><br>
+            <span class="critical">✗ CRITICAL: Root account missing MFA</span><br>
+            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | HIPAA: §164.312(a)(2)(i)</span><br><br>
+            <span class="critical">✗ CRITICAL: S3 bucket 'customer-data' public</span><br>
+            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | HIPAA: §164.312(a)(1)</span><br><br>
+            <span class="prompt">$</span> auditkit evidence -framework soc2<br>
+            <span class="output">Generating evidence checklist...</span><br>
+            <span class="output">📸 23 screenshots needed | ✅ 5 collected | ⏳ 18 remaining</span>
         </div>
         
         <div class="section">
             <h2>The Problem</h2>
             <p>
-                You run Prowler. It finds 400 issues. Your auditor wants screenshots of the AWS console 
-                showing you fixed them. But which screens? What exactly should be visible? What format?
+                Every compliance framework checks the same things with different names. You run separate tools for each one. 
+                Your auditor wants screenshots proving you fixed everything. But which screens? What format? What labels?
             </p>
             <p>
-                You Google "SOC2 evidence examples" and find nothing useful. You hire consultants for $50K. 
-                They take the same screenshots you could have taken yourself—if you knew what to capture.
+                You hire consultants for $50K. They run the same scans and take the same screenshots you could have taken 
+                yourself—if you knew what auditors actually wanted to see.
             </p>
         </div>
         
+        <div class="section">
+            <h2>One Scan, All Frameworks</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>What They Check</th>
+                        <th>SOC2</th>
+                        <th>PCI-DSS</th>
+                        <th>HIPAA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MFA enabled?</td>
+                        <td>CC6.6</td>
+                        <td>Req 8.3</td>
+                        <td>§164.312(a)(2)(i)</td>
+                    </tr>
+                    <tr>
+                        <td>Encryption at rest?</td>
+                        <td>CC6.3</td>
+                        <td>Req 3.4</td>
+                        <td>§164.312(a)(2)(iv)</td>
+                    </tr>
+                    <tr>
+                        <td>Audit logging?</td>
+                        <td>CC7.1</td>
+                        <td>Req 10.1</td>
+                        <td>§164.312(b)</td>
+                    </tr>
+                    <tr>
+                        <td>Access controls?</td>
+                        <td>CC6.1</td>
+                        <td>Req 7.1</td>
+                        <td>§164.312(a)(1)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>AuditKit runs once, maps findings to all frameworks. No more juggling different scanners.</p>
+        </div>
+        
         <div class="warning-box">
-            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. You still need real auditors. 
-            But it will save you ~150 hours of consultant time by handling the mechanical evidence collection 
-            they charge $300/hour for.
+            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. SOC2 needs a CPA. PCI needs a QSA. 
+            But it will save you ~150 hours at $300/hour by showing exactly what evidence to collect.
         </div>
         
         <div class="section">
             <h2>What AuditKit Actually Does</h2>
             <ul>
-                <li>Scans for the 25 controls auditors care about (not 400 generic checks)</li>
-                <li>Shows EXACTLY which AWS console screens to screenshot</li>
-                <li>Generates evidence labels auditors recognize</li>
+                <li>Scans for controls that matter across SOC2, PCI-DSS, HIPAA, ISO 27001</li>
+                <li>Maps each finding to relevant framework requirements</li>
+                <li>Shows EXACTLY which console screens to screenshot</li>
+                <li>Generates framework-specific evidence checklists</li>
                 <li>Tracks what you've collected vs. what's missing</li>
-                <li>Outputs PDF reports that look like what Big 4 firms produce</li>
+                <li>Outputs reports formatted for each framework's auditors</li>
             </ul>
         </div>
         
         <div class="stats">
             <div class="stat">
-                <div class="stat-number">32</div>
-                <div class="stat-label">GitHub Stars</div>
+                <div class="stat-number">64</div>
+                <div class="stat-label">SOC2 Controls</div>
             </div>
             <div class="stat">
-                <div class="stat-number">217</div>
+                <div class="stat-number">221+</div>
                 <div class="stat-label">Reddit Upvotes</div>
             </div>
             <div class="stat">
-                <div class="stat-number">~50K</div>
-                <div class="stat-label">Views</div>
+                <div class="stat-number">4</div>
+                <div class="stat-label">Frameworks</div>
             </div>
             <div class="stat">
                 <div class="stat-number">$0</div>
@@ -279,37 +410,37 @@
         <div class="section">
             <h2>Installation</h2>
             <div class="terminal">
-                <span class="prompt">#</span> Download binary (macOS/Linux)<br>
-                curl -L https://github.com/guardian-nexus/auditkit/releases/latest/download/auditkit -o auditkit<br>
-                chmod +x auditkit<br><br>
+                <span class="prompt">#</span> Quick install (Go required)<br>
+                go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest<br><br>
                 <span class="prompt">#</span> Or build from source<br>
                 git clone https://github.com/guardian-nexus/auditkit.git<br>
                 cd auditkit/scanner && go build ./cmd/auditkit<br><br>
                 <span class="prompt">#</span> Run your first scan<br>
-                ./auditkit scan -format pdf -output soc2-evidence.pdf
+                ./auditkit scan -framework soc2 -format pdf -output evidence.pdf
             </div>
         </div>
         
         <div class="info-box">
-            <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data is sent anywhere. 
-            No telemetry, no analytics from the tool itself, no BS. Check the source code if you don't trust me.
+            <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data leaves your infrastructure. 
+            No telemetry from the tool, no phone-home, no BS. Check the source code.
         </div>
         
         <div class="section">
             <h2>Who Should Use This</h2>
             <ul>
-                <li>Startups doing SOC2 for the first time</li>
-                <li>Companies who got quoted $50K+ for compliance prep</li>
+                <li>Startups facing multiple compliance requirements</li>
+                <li>Teams juggling SOC2 + PCI + HIPAA simultaneously</li>
+                <li>Companies quoted $50K+ per framework for prep</li>
                 <li>Engineers who prefer fixing things themselves</li>
-                <li>Teams who need evidence collection, not more scanning</li>
+                <li>Anyone tired of running 5 different scanners</li>
             </ul>
             
             <h2 style="margin-top: 30px;">Who Should NOT Use This</h2>
             <ul>
-                <li>If you need hand-holding through compliance</li>
-                <li>If you want someone else to do it for you</li>
-                <li>If you're looking for a silver bullet</li>
-                <li>If you need something "enterprise-grade"</li>
+                <li>If you need someone to do compliance for you</li>
+                <li>If you want a magic "pass audit" button</li>
+                <li>If you need vendor certifications</li>
+                <li>If you require hand-holding</li>
             </ul>
         </div>
         
@@ -322,12 +453,13 @@
         <div class="section">
             <h2>Current Status</h2>
             <p>
-                <strong>v0.3.0</strong> shipped with evidence collection based on feedback from 39 security professionals. 
-                AWS is fully supported. Azure and GCP coming when someone actually needs them.
+                <strong>v0.4.1</strong> - Full SOC2 (64 controls), experimental PCI/HIPAA mapping, AWS provider complete.
             </p>
             <p>
-                Telos Corporation (a $100M defense contractor) already forked this. 
-                So apparently we're onto something they charge $50K for.
+                <strong>Coming in v0.5.0</strong> - Azure provider, complete PCI-DSS requirements, ScubaGear integration for M365.
+            </p>
+            <p>
+                <strong>On the roadmap</strong> - GCP provider, ISO 27001, NIST 800-53, automated evidence collection.
             </p>
         </div>
         

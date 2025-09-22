@@ -35,6 +35,14 @@ auditkit scan -framework soc2 -format pdf -output soc2-report.pdf
 auditkit fix -output remediation.sh
 ```
 
+## 📢 Recent Updates
+
+**v0.4.1 (Sept 2025)** - Fixed critical nil pointer crashes, improved error handling
+**v0.4.0 (Sept 2025)** - Multi-framework support (experimental PCI/HIPAA)
+**v0.3.0 (Sept 2025)** - Evidence collection guides based on Reddit feedback
+
+---
+
 ## Current Status
 
 | Component | Status | Notes |
@@ -201,6 +209,11 @@ auditkit/
 - [ ] v0.8.0 - Full HIPAA mapping (Nov 2025)
 - [ ] v1.0.0 - Automated evidence collection (Dec 2025)
 
+## Integration Partners (Planned)
+- **ScubaGear** - M365 compliance scanning
+- **Prowler** - Import findings for evidence collection
+- **AWS Config** - Leverage existing rules
+
 ## Contributing
 
 We need help with:
@@ -231,6 +244,9 @@ A: Azure in v0.5 (October 2025), GCP in v0.6 (October 2025).
 
 **Q: What about ISO 27001, NIST, CIS?**  
 A: On the roadmap after core cloud providers are complete.
+
+**Q: Is there a paid version?**
+A: Not yet. Considering premium features like white-label reports, API access, and priority support. [Join the newsletter](https://auditkit.substack.com) to get early access when available.
 
 ## License
 
