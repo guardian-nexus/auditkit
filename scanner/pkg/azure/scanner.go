@@ -217,6 +217,15 @@ func (s *AzureScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanRe
     
     // Initialize Azure SOC2 checks
     azureChecks := []checks.Check{
+        checks.NewAzureCC1Checks(s.roleClient, s.roleDefClient),
+        checks.NewAzureCC2Checks(),
+        checks.NewAzureCC3Checks(s.monitorClient),
+        checks.NewAzureCC4Checks(s.monitorClient),
+        checks.NewAzureCC5Checks(s.keyVaultClient),
+        checks.NewAzureCC6Wrapper(),
+        checks.NewAzureCC7Checks(),
+        checks.NewAzureCC8Checks(),
+        checks.NewAzureCC9Checks(),
         checks.NewStorageChecks(s.storageClient),
         checks.NewAADChecks(s.roleClient, s.roleDefClient),
         checks.NewNetworkChecks(s.networkClient),

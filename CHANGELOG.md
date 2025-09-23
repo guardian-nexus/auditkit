@@ -4,15 +4,16 @@
 
 ### Added
 - **Azure Support** - Complete Azure provider implementation
-  - Storage Account security checks (public access, encryption, secure transfer)
-  - Azure AD compliance validation (MFA, privileged roles, guest access)
+  - Full SOC2 Common Criteria coverage (all 64 controls across CC1-CC9)
+  - Full PCI-DSS v4.0 implementation (30 technical controls)
+  - Storage Account security (public access, encryption, secure transfer)
+  - Azure AD/Entra ID validation (MFA, privileged roles, guest access)
   - Network Security Group analysis (open ports, dangerous rules)
   - VM and Disk encryption checks
   - Key Vault security (purge protection, soft delete)
-  - Activity Log retention validation
+  - Activity Log retention validation (12-month for PCI-DSS)
   - Azure SQL security assessment (TDE, auditing)
-  - Complete PCI-DSS v4.0 checks for Azure (30 controls)
-  - SOC2 Common Criteria implementation for Azure (64 controls)
+  - Dedicated SOC2 modules (soc2_cc1_cc2.go, soc2_cc3_cc5.go, soc2_cc6_cc9.go)
 
 ### Changed
 - **Improved Error Messages** - Better guidance when credentials not configured

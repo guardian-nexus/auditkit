@@ -70,6 +70,8 @@ auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 
 ### Azure Services Covered (v0.5.0)
 - **Azure AD (Entra ID)**: MFA, privileged roles, guest access, password policies
+- **Full SOC2 Implementation**: All 64 Common Criteria controls (CC1-CC9)
+- **Dedicated SOC2 modules**: soc2_cc1_cc2.go, soc2_cc3_cc5.go, soc2_cc6_cc9.go
 - **Storage Accounts**: Public access, encryption, secure transfer, access keys
 - **Virtual Machines**: Disk encryption, managed disks, security extensions
 - **Network Security Groups**: Open ports, dangerous rules, flow logs
@@ -236,6 +238,9 @@ auditkit/
         │       ├── monitoring.go    # Activity logs
         │       ├── network.go       # NSGs and networking
         │       ├── pci_dss.go       # PCI-DSS v4.0 controls
+        │       ├── soc2_cc1_cc2.go  # SOC2 Common Criteria 1-2
+        │       ├── soc2_cc3_cc5.go  # SOC2 Common Criteria 3-5
+        │       ├── soc2_cc6_cc9.go  # SOC2 Common Criteria 6-9
         │       ├── sql.go           # Azure SQL
         │       ├── storage.go       # Storage accounts
         │       └── types.go

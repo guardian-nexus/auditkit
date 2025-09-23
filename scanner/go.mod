@@ -72,3 +72,9 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute v1.0.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork v1.1.0
 )
+
+require (
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization/v2 v2.2.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armsubscriptions v1.3.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/security/armsecurity v0.14.0 // indirect
+)
