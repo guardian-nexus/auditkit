@@ -59,7 +59,7 @@ func (c *RDSChecks) Run(ctx context.Context) ([]CheckResult, error) {
 			Name:              "RDS Encryption at Rest",
 			Status:            "FAIL",
 			Severity:          "CRITICAL",
-			Evidence:          fmt.Sprintf("🚨 %d RDS instances NOT encrypted: %s", len(unencrypted), unencrypted[0]),
+			Evidence:          fmt.Sprintf("%d RDS instances NOT encrypted: %s", len(unencrypted), unencrypted[0]),
 			Remediation:       "Enable RDS encryption (requires snapshot & restore)",
 			RemediationDetail: "1. Create snapshot\n2. Copy snapshot with encryption\n3. Restore from encrypted snapshot",
 			ScreenshotGuide:   "1. Go to RDS Console\n2. Click on instance\n3. Screenshot 'Configuration' tab showing encryption status",

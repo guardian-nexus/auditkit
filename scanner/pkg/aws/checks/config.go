@@ -34,7 +34,7 @@ func (c *ConfigChecks) Run(ctx context.Context) ([]CheckResult, error) {
 			Name:            "AWS Config Recording",
 			Status:          "FAIL",
 			Severity:        "HIGH",
-			Evidence:        "🚨 AWS Config NOT enabled! Cannot track configuration changes!",
+			Evidence:        " AWS Config NOT enabled! Cannot track configuration changes!",
 			Remediation:     "Enable AWS Config to record all resource configurations",
 			ScreenshotGuide: "1. Go to AWS Config Console\n2. Click 'Get started'\n3. Enable recording for all resources\n4. Screenshot showing 'Recorder is ON'",
 			ConsoleURL:      "https://console.aws.amazon.com/config/",

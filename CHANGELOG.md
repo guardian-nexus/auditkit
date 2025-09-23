@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.5.0] - 2025-10-22
+
+### Added
+- **Azure Support** - Complete Azure provider implementation
+  - Storage Account security checks (public access, encryption, secure transfer)
+  - Azure AD compliance validation (MFA, privileged roles, guest access)
+  - Network Security Group analysis (open ports, dangerous rules)
+  - VM and Disk encryption checks
+  - Key Vault security (purge protection, soft delete)
+  - Activity Log retention validation
+  - Azure SQL security assessment (TDE, auditing)
+  - Complete PCI-DSS v4.0 checks for Azure (30 controls)
+  - SOC2 Common Criteria implementation for Azure (64 controls)
+
+### Changed
+- **Improved Error Messages** - Better guidance when credentials not configured
+- **Framework Consistency** - Aligned control mappings between AWS and Azure
+- **Updated Dependencies** - Added Azure SDK for Go
+
+### Fixed
+- Azure SDK compatibility issues (method names, field access)
+- Compilation errors in Azure check files
+- Missing package declarations in some files
+- Types.go emoji field removed completely
+
+### Technical
+- Added `/pkg/azure/` provider structure
+- Implemented 10+ Azure check files (storage, aad, network, compute, etc.)
+- Updated main.go to support multi-cloud providers
+- Added Azure authentication support (CLI, Service Principal, Managed Identity)
+
 ## [0.4.1] - 2025-09-21
 ### Added
 - Complete SOC2 Common Criteria implementation (64 controls across CC1-CC9)

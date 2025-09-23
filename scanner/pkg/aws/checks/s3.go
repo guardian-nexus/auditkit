@@ -114,7 +114,7 @@ func (c *S3Checks) CheckPublicAccess(ctx context.Context) (CheckResult, error) {
 			Name:              "S3 Public Access Block",
 			Status:            "FAIL",
 			Severity:          "CRITICAL",
-			Evidence:          fmt.Sprintf("🚨 %d/%d S3 buckets allow public access: %s | Violates PCI DSS 1.2.1 (no direct public access to cardholder data)", len(publicBuckets), checkedCount, bucketList),
+			Evidence:          fmt.Sprintf("%d/%d S3 buckets allow public access: %s | Violates PCI DSS 1.2.1 (no direct public access to cardholder data)", len(publicBuckets), checkedCount, bucketList),
 			Remediation:       fmt.Sprintf("Block public access on bucket: %s\nRun: aws s3api put-public-access-block", publicBuckets[0]),
 			RemediationDetail: fmt.Sprintf("aws s3api put-public-access-block --bucket %s --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true", publicBuckets[0]),
 			ScreenshotGuide:   "1. Open S3 Console\n2. Click on bucket '" + publicBuckets[0] + "'\n3. Go to 'Permissions' tab\n4. Screenshot 'Block public access' section\n5. All 4 options must show 'On'\n6. For PCI DSS: Document that cardholder data is NOT stored here",

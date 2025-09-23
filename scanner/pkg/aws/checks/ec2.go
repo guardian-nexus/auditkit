@@ -113,7 +113,7 @@ func (c *EC2Checks) CheckOpenSecurityGroups(ctx context.Context) (CheckResult, e
 			Name:              "Network Security - Open Ports",
 			Status:            "FAIL",
 			Severity:          "CRITICAL",
-			Evidence:          fmt.Sprintf("🚨 %d security groups have critical ports open to 0.0.0.0/0: %s | Violates PCI DSS 1.2.1 (firewall config)", len(openGroups), groupList),
+			Evidence:          fmt.Sprintf(" %d security groups have critical ports open to 0.0.0.0/0: %s | Violates PCI DSS 1.2.1 (firewall config)", len(openGroups), groupList),
 			Remediation:       fmt.Sprintf("Close open ports on SG: %s\nRun: aws ec2 revoke-security-group-ingress", sgID),
 			RemediationDetail: fmt.Sprintf("aws ec2 revoke-security-group-ingress --group-id %s --protocol tcp --port 22 --cidr 0.0.0.0/0", sgID),
 			ScreenshotGuide:   "1. Go to EC2 → Security Groups\n2. Click on the flagged security group\n3. Go to 'Inbound rules' tab\n4. Screenshot showing NO rules with Source '0.0.0.0/0' for ports 22, 3389, or databases\n5. Critical: SSH/RDP must never be open to internet\n6. For PCI DSS: Document business justification for any public access",

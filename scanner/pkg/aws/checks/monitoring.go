@@ -76,7 +76,7 @@ func (c *MonitoringChecks) CheckCloudWatchAlarms(ctx context.Context) (CheckResu
 			Name:              "Security Event Monitoring",
 			Status:            "FAIL",
 			Severity:          "HIGH",
-			Evidence:          fmt.Sprintf("🚨 Missing %d critical security alarms", len(missingAlarms)),
+			Evidence:          fmt.Sprintf("Missing %d critical security alarms", len(missingAlarms)),
 			Remediation:       "Create CloudWatch alarms for security events",
 			RemediationDetail: "Create alarms for: root usage, unauthorized API calls, IAM changes, etc.",
 			ScreenshotGuide:   "1. Go to CloudWatch → Alarms\n2. Screenshot list of security alarms\n3. Each alarm should notify SNS topic\n4. Show alarm history (triggered events)",

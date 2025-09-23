@@ -1,58 +1,82 @@
-# AuditKit - Multi-Framework Compliance Scanner & Evidence Collection
+# AuditKit - Multi-Cloud Compliance Scanner & Evidence Collection
 
-**Open-source compliance scanner with auditor-ready evidence collection guides.**
+**Open-source compliance scanner for AWS and Azure with auditor-ready evidence collection guides.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-v0.4.1-green)
+![Version](https://img.shields.io/badge/version-v0.5.0-green)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
 
-AuditKit scans your AWS infrastructure against SOC2 Common Criteria controls and provides:
+AuditKit scans your cloud infrastructure against SOC2 and PCI-DSS controls and provides:
 
-1. **Clear Pass/Fail Status** - 64 SOC2 controls checked automatically
-2. **Exact Fix Commands** - Not just "enable MFA", but the actual AWS CLI command
-3. **Evidence Collection Guides** - Step-by-step screenshots auditors actually accept
-4. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
+1. **Multi-Cloud Support** - AWS (production), Azure (v0.5.0) 
+2. **Clear Pass/Fail Status** - 64 SOC2 controls, 30 PCI-DSS controls  
+3. **Exact Fix Commands** - Cloud-specific CLI commands for remediation
+4. **Evidence Collection Guides** - Step-by-step screenshots auditors accept
+5. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
 
 ## Quick Start
 
+### AWS
 ```bash
-# Install
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
-
 # Configure AWS credentials
 aws configure
 
 # Run SOC2 scan
-auditkit scan -framework soc2
+auditkit scan -provider aws -framework soc2
 
-# Generate PDF report with evidence checklist
-auditkit scan -framework soc2 -format pdf -output soc2-report.pdf
-
-# Generate fix script
-auditkit fix -output remediation.sh
+# Generate PDF report
+auditkit scan -provider aws -framework soc2 -format pdf -output aws-soc2.pdf
 ```
 
-## 📢 Recent Updates
+### Azure (v0.5.0)
+```bash
+# Configure Azure credentials
+az login
+export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
-**v0.4.1 (Sept 2025)** - Fixed critical nil pointer crashes, improved error handling
-**v0.4.0 (Sept 2025)** - Multi-framework support (experimental PCI/HIPAA)
+# Run SOC2 scan
+auditkit scan -provider azure -framework soc2
+
+# Generate PCI-DSS report
+auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
+```
+
+## Recent Updates
+
+**v0.5.0 (Sept 2025)** - Azure provider support with full SOC2/PCI-DSS implementation  
+**v0.4.1 (Sept 2025)** - Complete SOC2 implementation (all 64 Common Criteria)  
+**v0.4.0 (Sept 2025)** - Multi-framework support with PCI-DSS v4.0  
 **v0.3.0 (Sept 2025)** - Evidence collection guides based on Reddit feedback
 
----
+## Current Implementation Status
 
-## Current Status
+### Cloud Providers
+| Provider | Files | Checks | Status | Authentication |
+|----------|-------|--------|--------|----------------|
+| **AWS** | 16 check files | ~150 checks | ✅ Production | AWS CLI, IAM roles |
+| **Azure** | 11 check files | ~100 checks | ✅ Production | CLI, Service Principal, Managed Identity |
+| **GCP** | Not started | 0 | 🚧 Planned v0.6.0 | - |
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **SOC2** | ✅ Full Support | All 64 Common Criteria controls (CC1-CC9) |
-| **AWS** | ✅ Full Support | S3, IAM, EC2, CloudTrail, RDS, Config, GuardDuty, etc. |
-| **PCI-DSS** | 🧪 Experimental | Limited control mapping only |
-| **HIPAA** | 🧪 Experimental | Limited control mapping only |
-| **Azure** | 🚧 Coming Soon | Planned for v0.5 |
-| **GCP** | 🚧 Coming Soon | Planned for v0.6 |
+### Framework Coverage
+| Framework | AWS Controls | Azure Controls | Status |
+|-----------|--------------|----------------|--------|
+| **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | ✅ Production Ready |
+| **PCI-DSS v4.0** | 30 technical | 30 technical | ✅ Production Ready |
+| **HIPAA** | ~10 mapped | ~10 mapped | 🧪 Experimental Only |
+| **ISO 27001** | ~5 mapped | ~5 mapped | 🧪 Experimental Only |
+
+### Azure Services Covered (v0.5.0)
+- **Azure AD (Entra ID)**: MFA, privileged roles, guest access, password policies
+- **Storage Accounts**: Public access, encryption, secure transfer, access keys
+- **Virtual Machines**: Disk encryption, managed disks, security extensions
+- **Network Security Groups**: Open ports, dangerous rules, flow logs
+- **Key Vault**: Soft delete, purge protection, access policies
+- **Activity Logs**: Retention, log profiles, diagnostic settings
+- **Azure SQL**: Transparent encryption, auditing, firewall rules
+- **Managed Identities**: System vs user-assigned configuration
 
 ## What Makes AuditKit Different
 
@@ -69,81 +93,75 @@ Evidence Required:
 4. Save as: SOC2_CC6.2_S3_Public_Access.png
 ```
 
-### 2. Prioritized by Audit Impact
+## What's New in v0.5.0
 
+### Azure Provider Support
+- **11 Azure check modules** implementing full compliance validation
+- **Azure AD (Entra ID)** - MFA, conditional access, privileged roles
+- **Storage Accounts** - Encryption, public access, secure transfer
+- **Network Security** - NSGs, dangerous ports, flow logs
+- **Compute Resources** - VM encryption, managed disks
+- **Key Vault** - Soft delete, purge protection
+- **Activity Logs** - 12-month retention for PCI-DSS
+- **Azure SQL** - TDE, auditing, firewall rules
+- **PCI-DSS v4.0** - Azure-specific implementation with stricter requirements
+
+### Technical Improvements
+- Removed all emoji output for professional reports
+- Consistent framework mappings between AWS and Azure
+- Improved error handling for missing credentials
+- Better evidence collection descriptions
+
+### 3. Framework-Specific Requirements
+
+```yaml
+PCI-DSS Specific:
+- 90-day password rotation (not 180 like SOC2)
+- MFA for ALL users (not just privileged)
+- 12-month log retention (not 90 days)
+- Quarterly vulnerability scans required
+- No 0.0.0.0/0 security rules (zero tolerance)
+
+SOC2 Specific:
+- Risk-based approach allowed
+- 180-day rotation acceptable
+- MFA for privileged users only
 ```
-🔥 CRITICAL (2 issues) - Will fail your audit
-  └─ CC6.6: Root account missing MFA
-  └─ CC7.1: CloudTrail not enabled
-
-⚠️ HIGH (5 issues) - Auditor will flag these
-  └─ CC6.7: No password policy configured
-  └─ CC3.2: GuardDuty not enabled
-  └─ ...
-
-📋 MEDIUM (8 issues) - Should fix for smooth audit
-```
-
-### 3. Real Fix Scripts, Not Documentation
-
-```bash
-# Generated by: auditkit fix -output remediation.sh
-
-#!/bin/bash
-# Critical Fixes - Run These First
-
-echo "Enabling MFA for root account..."
-# Manual step required - see PDF report for screenshots
-
-echo "Enabling CloudTrail..."
-aws cloudtrail create-trail --name audit-trail --s3-bucket-name my-audit-bucket
-aws cloudtrail start-logging --name audit-trail
-
-echo "Setting password policy..."
-aws iam update-account-password-policy \
-  --minimum-password-length 14 \
-  --require-symbols \
-  --require-numbers \
-  --require-uppercase-characters \
-  --require-lowercase-characters \
-  --max-password-age 90
-```
-
-## SOC2 Controls Coverage
-
-| Category | Controls | Description |
-|----------|----------|-------------|
-| **CC1** | 5 controls | Control Environment (governance, ethics, structure) |
-| **CC2** | 3 controls | Communication & Information |
-| **CC3** | 4 controls | Risk Assessment |
-| **CC4** | 2 controls | Monitoring Activities |
-| **CC5** | 3 controls | Control Activities |
-| **CC6** | 8 controls | Logical & Physical Access Controls |
-| **CC7** | 4 controls | System Operations |
-| **CC8** | 1 control | Change Management |
-| **CC9** | 2 controls | Risk Mitigation |
-| **Total** | **64 controls** | Full Common Criteria coverage |
 
 ## Requirements
 
-- Go 1.19+
-- AWS credentials configured
-- AWS services to check: IAM, S3, EC2, CloudTrail, Config, GuardDuty, Security Hub, etc.
+- **Go**: 1.19+
+- **Cloud Access**: 
+  - AWS: Configured AWS CLI (`aws configure`)
+  - Azure: Azure CLI (`az login`) or Service Principal
+- **Permissions**: Read-only access to cloud resources
 
-## Important Disclaimers
+## Installation
 
-1. **This is a preparation tool** - SOC2 certification requires a CPA audit
-2. **AWS-only currently** - Azure and GCP support coming soon
-3. **PCI/HIPAA are experimental** - Only basic control mapping implemented
-4. **Not a replacement for professional services** - Use alongside qualified auditors
+### From Source
+```bash
+git clone https://github.com/guardian-nexus/auditkit
+cd auditkit/scanner
+go build ./cmd/auditkit
+./auditkit scan
+```
+
+### Using Go Install
+```bash
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.5.0
+```
+
+### Download Binary
+See [Releases](https://github.com/guardian-nexus/auditkit/releases) for pre-built binaries.
 
 ## Command Reference
 
 ```bash
 # Scanning
-auditkit scan                          # Default SOC2 scan
-auditkit scan -framework soc2          # Explicit SOC2 scan
-auditkit scan -framework pci           # Experimental PCI scan
+auditkit scan                          # Default SOC2 scan for AWS
+auditkit scan -provider azure          # Azure SOC2 scan
+auditkit scan -framework pci           # PCI-DSS scan
+auditkit scan -framework all           # All frameworks
 auditkit scan -verbose                 # Detailed output
 
 # Reporting
@@ -164,96 +182,130 @@ auditkit evidence                      # Generate evidence tracker
 auditkit evidence -output tracker.html  # Save tracker
 ```
 
-## Installation Options
+## Azure Authentication Options
 
-### From Source
 ```bash
-git clone https://github.com/guardian-nexus/auditkit
-cd auditkit/scanner
-go build ./cmd/auditkit
-./auditkit scan
-```
+# Option 1: Azure CLI (easiest)
+az login
+export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
-### Using Go Install
-```bash
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
-```
+# Option 2: Service Principal
+export AZURE_CLIENT_ID="your-client-id"
+export AZURE_CLIENT_SECRET="your-secret"
+export AZURE_TENANT_ID="your-tenant-id"
+export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
-### Download Binary
-See [Releases](https://github.com/guardian-nexus/auditkit/releases) for pre-built binaries.
+# Option 3: Managed Identity (for Azure VMs)
+# Automatically detected, no configuration needed
+```
 
 ## Project Structure
 
 ```
 auditkit/
-├── scanner/
-│   ├── cmd/auditkit/         # CLI entry point
-│   └── pkg/
-│       ├── aws/               # AWS provider
-│       │   └── checks/        # SOC2 control checks
-│       │       ├── soc2_cc1_cc2.go
-│       │       ├── soc2_cc3_cc5.go
-│       │       └── soc2_cc6_cc9.go
-│       ├── report/            # PDF/HTML generation
-│       ├── remediation/       # Fix script generation
-│       └── tracker/           # Evidence tracking
-└── README.md
+└── scanner/
+    ├── cmd/auditkit/           # CLI entry point (main.go)
+    ├── go.mod                  # Go dependencies
+    └── pkg/
+        ├── aws/                # AWS provider (18 files)
+        │   ├── scanner.go      
+        │   ├── priority.go     
+        │   └── checks/         
+        │       ├── cloudtrail.go
+        │       ├── config.go
+        │       ├── ec2.go
+        │       ├── iam.go
+        │       ├── iam_advanced.go
+        │       ├── monitoring.go
+        │       ├── pci_dss.go       # PCI-DSS v4.0 controls
+        │       ├── rds.go
+        │       ├── s3.go
+        │       ├── soc2_cc1_cc2.go  # SOC2 Common Criteria 1-2
+        │       ├── soc2_cc3_cc5.go  # SOC2 Common Criteria 3-5
+        │       ├── soc2_cc6_cc9.go  # SOC2 Common Criteria 6-9
+        │       ├── systems.go
+        │       ├── types.go
+        │       └── vpc.go
+        ├── azure/              # Azure provider (14 files)
+        │   ├── scanner.go      
+        │   └── checks/         
+        │       ├── aad.go           # Azure AD/Entra ID
+        │       ├── compute.go       # VMs and disks
+        │       ├── identity.go      # Managed identities
+        │       ├── keyvault.go      # Key Vault checks
+        │       ├── monitoring.go    # Activity logs
+        │       ├── network.go       # NSGs and networking
+        │       ├── pci_dss.go       # PCI-DSS v4.0 controls
+        │       ├── sql.go           # Azure SQL
+        │       ├── storage.go       # Storage accounts
+        │       └── types.go
+        ├── cache/              # Scan result caching
+        ├── evidence/           # Screenshot guidance
+        ├── remediation/        # Fix script generation
+        ├── report/             # PDF/HTML generation
+        ├── telemetry/          # Anonymous usage stats
+        ├── tracker/            # Progress tracking
+        └── updater/            # Version checking
 ```
 
 ## Roadmap
 
-- [x] v0.4.1 - Full SOC2 controls (Sep 2025)
-- [ ] v0.5.0 - Azure support (Oct 2025)
-- [ ] v0.6.0 - GCP support (Oct 2025)
-- [ ] v0.7.0 - Full PCI-DSS mapping (Nov 2025)
-- [ ] v0.8.0 - Full HIPAA mapping (Nov 2025)
-- [ ] v1.0.0 - Automated evidence collection (Dec 2025)
+- [x] v0.3.0 - Evidence collection (Sept 2025)
+- [x] v0.4.0 - Multi-framework support (Sept 2025)
+- [x] v0.4.1 - Full SOC2 implementation (Sept 2025)
+- [x] v0.5.0 - Azure support (Sept 2025)
+- [ ] v0.6.0 - GCP support (Nov 2025)
+- [ ] v0.7.0 - Kubernetes compliance (Dec 2025)
+- [ ] v0.8.0 - Terraform/IaC scanning (Jan 2026)
+- [ ] v1.0.0 - Automated evidence collection (Feb 2026)
 
-## Integration Partners (Planned)
-- **ScubaGear** - M365 compliance scanning
-- **Prowler** - Import findings for evidence collection
-- **AWS Config** - Leverage existing rules
+## Important Disclaimers
+
+1. **This is a preparation tool** - You still need a CPA firm for actual SOC2 certification
+2. **Not a security scanner** - Focused on compliance evidence, not vulnerability detection
+3. **Framework limitations**:
+   - SOC2 & PCI-DSS: Production ready
+   - HIPAA & ISO 27001: Experimental mappings only
+4. **Manual verification required** - Some controls need human review
 
 ## Contributing
 
 We need help with:
-1. Azure/GCP provider implementation
-2. Complete PCI-DSS control mapping
-3. Complete HIPAA control mapping
-4. Automated screenshot collection (Selenium?)
-5. Terraform compliance checks
+1. **GCP provider** - Mirror AWS/Azure structure
+2. **HIPAA controls** - Complete the 45 administrative safeguards
+3. **ISO 27001** - Map all 114 controls
+4. **Evidence automation** - Selenium/Playwright for screenshots
+5. **Container scanning** - Kubernetes, Docker compliance
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/guardian-nexus/auditkit/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/guardian-nexus/auditkit/discussions)
-- **Updates**: [Newsletter](https://auditkit.substack.com)
+- **Newsletter**: [auditkit.substack.com](https://auditkit.substack.com)
+- **Support Development**: [Buy Me a Coffee](https://www.buymeacoffee.com/auditkit)
 
 ## FAQ
 
-**Q: Why is my compliance score so low?**  
-A: You need AWS services configured. Enable GuardDuty, Security Hub, Config, CloudTrail, etc. The scanner checks if these services exist and are properly configured.
+**Q: Is Azure support actually complete?**  
+A: Yes, v0.5.0 includes full Azure implementation with 64 SOC2 controls and 30 PCI-DSS controls. It's production-ready.
 
-**Q: Can this replace a SOC2 audit?**  
-A: No. This helps you prepare for an audit. You still need a CPA firm for actual SOC2 certification.
+**Q: Why is my compliance score low?**  
+A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs)
 
-**Q: When will Azure/GCP be supported?**  
-A: Azure in v0.5 (October 2025), GCP in v0.6 (October 2025).
+**Q: Which cloud provider has better coverage?**  
+A: Both AWS and Azure have identical control coverage. AWS has slightly more mature checks due to being implemented first.
 
-**Q: What about ISO 27001, NIST, CIS?**  
-A: On the roadmap after core cloud providers are complete.
+**Q: Can I scan multiple AWS accounts or Azure subscriptions?**  
+A: Currently one at a time. Use different profiles: `auditkit scan -profile production`
 
-**Q: Is there a paid version?**
-A: Not yet. Considering premium features like white-label reports, API access, and priority support. [Join the newsletter](https://auditkit.substack.com) to get early access when available.
+**Q: Does this replace Prowler/ScoutSuite?**  
+A: No, those are security scanners. AuditKit focuses on compliance evidence collection for auditors.
 
 ## License
 
-Apache 2.0 - Use it, modify it, sell it. Just help others pass their audits.
+Apache 2.0 - Use freely, even commercially.
 
 ---
 
-*Built by engineers who've been through too many SOC2 audits.*
-
-*If this saves you audit prep time, consider [supporting development](https://www.buymeacoffee.com/auditkit).*
+**Built by engineers who've been through too many compliance audits. Special thanks to the off-the-cuff contributions from Jordan**

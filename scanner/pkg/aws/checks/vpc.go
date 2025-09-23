@@ -34,7 +34,7 @@ func (c *VPCChecks) Run(ctx context.Context) ([]CheckResult, error) {
 			Name:              "VPC Flow Logs",
 			Status:            "FAIL",
 			Severity:          "HIGH",
-			Evidence:          "🚨 No VPC Flow Logs enabled - can't track network traffic!",
+			Evidence:          "CRITICAL: No VPC Flow Logs enabled - can't track network traffic!",
 			Remediation:       "Enable VPC Flow Logs immediately",
 			RemediationDetail: "aws ec2 create-flow-logs --resource-type VPC --traffic-type ALL --resource-ids vpc-xxxxx --log-destination-type cloud-watch-logs --log-group-name /aws/vpc/flowlogs",
 			ScreenshotGuide:   "1. Go to VPC Console\n2. Select your VPC\n3. Go to 'Flow logs' tab\n4. Screenshot showing flow logs enabled",
