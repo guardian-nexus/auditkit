@@ -108,5 +108,5 @@ func ShowProgress(accountID string) {
 		}
 	}
 
-	fmt.Println("\n💡 Tip: Run 'auditkit scan -format pdf' to generate evidence for your auditor")
+	fmt.Println("\n Tip: Run 'auditkit scan -format pdf' to generate evidence for your auditor")
 }

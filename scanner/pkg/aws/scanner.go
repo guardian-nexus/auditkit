@@ -113,7 +113,7 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 	_, err := s.stsClient.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		if verbose {
-			fmt.Println("❌ Error: Not connected to AWS. Please configure AWS credentials.")
+			fmt.Println("Error: Not connected to AWS. Please configure AWS credentials.")
 			fmt.Println("   Run: aws configure")
 		}
 		return nil, fmt.Errorf("AWS connection failed: %v. Please configure AWS credentials", err)
@@ -126,13 +126,13 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 	
 	if verbose {
 		if framework == "pci" {
-			fmt.Println("🔍 Running PCI-DSS v4.0 compliance scan...")
+			fmt.Println("Running PCI-DSS v4.0 compliance scan...")
 			fmt.Println("   Checking requirements 1, 2, 3, 8, 10, 11")
 		} else if framework == "soc2" {
-			fmt.Println("🔍 Running complete SOC2 Common Criteria scan...")
+			fmt.Println("Running complete SOC2 Common Criteria scan...")
 			fmt.Println("   This includes all 64 controls across CC1-CC9")
 		} else if framework == "all" {
-			fmt.Println("🔍 Running multi-framework compliance scan...")
+			fmt.Println("Running multi-framework compliance scan...")
 			fmt.Println("   SOC2 (64 controls) + PCI-DSS (40 controls)")
 		}
 	}
@@ -147,7 +147,7 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 		// For now, use basic checks with HIPAA mappings
 		results = append(results, s.runBasicChecks(ctx, services, verbose)...)
 		if verbose {
-			fmt.Println("⚠️  HIPAA checks are experimental - limited coverage")
+			fmt.Println(" HIPAA checks are experimental - limited coverage")
 		}
 	case "all":
 		// Run everything
@@ -159,7 +159,7 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 	}
 
 	if verbose {
-		fmt.Printf("✅ Scan complete - %d total checks performed\n", len(results))
+		fmt.Printf("Scan complete - %d total checks performed\n", len(results))
 	}
 
 	return results, nil
@@ -199,12 +199,12 @@ func (s *AWSScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanResu
 	
 	for _, check := range soc2Checks {
 		if verbose {
-			fmt.Printf("  📍 Running %s checks...\n", check.Name())
+			fmt.Printf("  Running %s checks...\n", check.Name())
 		}
 		
 		checkResults, err := check.Run(ctx)
 		if err != nil && verbose {
-			fmt.Printf("    ⚠️  Warning in %s: %v\n", check.Name(), err)
+			fmt.Printf("    Warning in %s: %v\n", check.Name(), err)
 		}
 		
 		// Convert CheckResult to ScanResult
@@ -234,12 +234,12 @@ func (s *AWSScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResul
 	pciChecks := checks.NewPCIDSSChecks(s.iamClient, s.ec2Client, s.s3Client, s.ctClient, s.configClient)
 	
 	if verbose {
-		fmt.Printf("  📍 Running PCI-DSS v4.0 requirement checks...\n")
+		fmt.Printf("  Running PCI-DSS v4.0 requirement checks...\n")
 	}
 	
 	checkResults, err := pciChecks.Run(ctx)
 	if err != nil && verbose {
-		fmt.Printf("    ⚠️  Warning in PCI-DSS checks: %v\n", err)
+		fmt.Printf("     Warning in PCI-DSS checks: %v\n", err)
 	}
 	
 	// Convert CheckResult to ScanResult
@@ -308,12 +308,12 @@ func (s *AWSScanner) runBasicChecks(ctx context.Context, services []string, verb
 	
 	for _, check := range basicChecks {
 		if verbose {
-			fmt.Printf("  📍 Running %s checks...\n", check.Name())
+			fmt.Printf("  Running %s checks...\n", check.Name())
 		}
 		
 		checkResults, err := check.Run(ctx)
 		if err != nil && verbose {
-			fmt.Printf("    ⚠️  Warning in %s: %v\n", check.Name(), err)
+			fmt.Printf("     Warning in %s: %v\n", check.Name(), err)
 		}
 		
 		// Convert CheckResult to ScanResult

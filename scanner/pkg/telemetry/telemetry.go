@@ -110,7 +110,7 @@ func SendTelemetry(accountID string, score float64, controls []ControlResult, du
 	// Send async
 	go func() {
 		jsonData, _ := json.Marshal(data)
-		// For now, just print to stderr until you set up endpoint
+
 		fmt.Fprintf(os.Stderr, "DEBUG: Would send telemetry: %s\n", string(jsonData))
 
 		// When ready, uncomment:

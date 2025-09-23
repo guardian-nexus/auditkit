@@ -28,10 +28,10 @@ func CheckForUpdates() {
 	json.NewDecoder(resp.Body).Decode(&release)
 
 	if release.TagName > CurrentVersion {
-		fmt.Printf("\n🎉 New version available: %s (you have %s)\n", release.TagName, CurrentVersion)
+		fmt.Printf("\n New version available: %s (you have %s)\n", release.TagName, CurrentVersion)
 		fmt.Printf("   Update: go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest\n")
 		fmt.Printf("   Or download: %s\n\n", release.URL)
 	} else {
-		fmt.Printf("✅ You're on the latest version (%s)\n", CurrentVersion)
+		fmt.Printf("You're on the latest version (%s)\n", CurrentVersion)
 	}
 }

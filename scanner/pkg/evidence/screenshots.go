@@ -108,10 +108,10 @@ func GenerateHTMLGuide(controlID string, outputPath string) error {
 </head>
 <body>
     <div class="container">
-        <h1>📸 Screenshot Guide: {{.ControlID}} - {{.Service}}</h1>
+        <h1> Screenshot Guide: {{.ControlID}} - {{.Service}}</h1>
         
         <div class="warning">
-            <strong>⚠️ Important:</strong> Auditors need specific screenshots as evidence. Follow each step exactly and capture the highlighted areas.
+            <strong> Important:</strong> Auditors need specific screenshots as evidence. Follow each step exactly and capture the highlighted areas.
         </div>
         
         <a href="{{.ConsoleURL}}" target="_blank" class="console-link">Open AWS Console →</a>

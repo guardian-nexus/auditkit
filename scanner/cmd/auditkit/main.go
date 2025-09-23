@@ -173,7 +173,6 @@ func runScan(provider, profile, framework, format, output string, verbose bool, 
 	// Send telemetry if opted in
 	telemetry.SendTelemetry(result.AccountID, result.Score, convertToTelemetryControls(result.Controls), duration)
 
-	// Success message for high scores (no emojis)
 	if result.Score >= 90 {
 		fmt.Printf("\nCONGRATULATIONS! %.1f%% %s compliance!\n", result.Score, strings.ToUpper(framework))
 		fmt.Println("\nShare your success:")
@@ -688,7 +687,6 @@ func runEvidenceTracker(provider, profile, output string) {
 	fmt.Println("Open this file in your browser and check off evidence as you collect it!")
 }
 
-// Rest of the helper functions remain the same but with emojis removed...
 
 func getPriorityAndImpact(controlID, severity, status, framework string) (string, string) {
 	if status == "PASS" {
@@ -1157,18 +1155,14 @@ func outputHTML(result ComplianceResult, output string) {
 }
 
 func generateHTML(result ComplianceResult) string {
-	// HTML generation code without emojis...
-	// This is too long to include but would be the same as before without emoji characters
 	return ""
 }
 
 func generateEvidenceTrackerHTML(controls []tracker.ControlResult, accountID string) string {
-	// HTML generation without emojis
 	return ""
 }
 
 func generateCriticalAlert(controls []ControlResult) string {
-	// Alert generation without emojis
 	return ""
 }
 
@@ -1178,7 +1172,6 @@ func generateControlRows(controls []ControlResult) string {
 }
 
 func generateRecommendationHTML(recommendations []string) string {
-	// Recommendation HTML without emojis
 	return ""
 }
 
