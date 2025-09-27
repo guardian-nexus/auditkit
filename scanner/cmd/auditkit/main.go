@@ -69,7 +69,7 @@ func main() {
 	var (
 		provider  = flag.String("provider", "aws", "Cloud provider: aws, azure (both with full SOC2/PCI support)")
 		profile   = flag.String("profile", "default", "AWS profile or Azure subscription to use")
-		framework = flag.String("framework", "all", "Compliance framework: soc2, pci, hipaa (limited), all")
+		framework = flag.String("framework", "all", "Compliance framework: soc2, pci, cmcc, hipaa (limited), all")
 		format    = flag.String("format", "text", "Output format (text, json, html, pdf)")
 		output    = flag.String("output", "", "Output file (default: stdout)")
 		verbose   = flag.Bool("verbose", false, "Verbose output")
@@ -124,11 +124,25 @@ Usage:
 Options:
   -provider string   Cloud provider: aws, azure (default "aws")
   -profile string    AWS profile or Azure subscription (default "default")
-  -framework string  Compliance framework: soc2, pci, hipaa, all (default "all")
+  -framework string  Compliance framework: soc2, pci, cmcc, hipaa, all (default "all")
   -format string     Output format (text, json, html, pdf) (default "text")
   -output string     Output file (default: stdout)
   -services string   Services to scan (default "all")
   -verbose          Verbose output
+
+Frameworks:
+  soc2    SOC2 Type II Common Criteria (full coverage)
+  pci     PCI-DSS v4.0 (full coverage)
+  cmmc    CMMC Level 1 (17 practices) - OPEN SOURCE
+          Level 2 (110 practices) - UPGRADE TO PRO
+  hipaa   HIPAA Security Rule (experimental)
+  all     Run all available frameworks
+
+CMMC Level 2 Upgrade:
+  Unlock 110 additional CMMC Level 2 practices required for DoD contracts
+  Visit: https://auditkit.io/pro
+  Email: sales@auditkit.io
+
 
 Examples:
   # AWS SOC2 scan
@@ -151,12 +165,18 @@ func runScan(provider, profile, framework, format, output string, verbose bool, 
 		"soc2":  true,
 		"pci":   true,
 		"hipaa": true,
-		"all":   true,
+                "cmmc": true,
+                "all":   true,
 	}
-	
+
 	if !validFrameworks[strings.ToLower(framework)] {
-		fmt.Fprintf(os.Stderr, "Error: Invalid framework: %s. Valid options: soc2, pci, hipaa, all\n", framework)
-		os.Exit(1)
+	    fmt.Fprintf(os.Stderr, "Error: Invalid framework: %s\n", framework)
+	    fmt.Fprintf(os.Stderr, "Valid options: soc2, pci, cmmc (Level 1 only), hipaa, all\n")
+	    fmt.Fprintf(os.Stderr, "\n")
+	    fmt.Fprintf(os.Stderr, "CMMC Level 2 requires upgrade to Pro:\n")
+	    fmt.Fprintf(os.Stderr, "  Visit: https://auditkit.io/pro\n")
+	    fmt.Fprintf(os.Stderr, "  Email: sales@auditkit.io\n")
+	    os.Exit(1)
 	}
 
 	if verbose {
@@ -559,7 +579,8 @@ func compareScan(provider, profile string) {
 	curr := progress.ScoreHistory[len(progress.ScoreHistory)-1]
 	
 	fmt.Println("\nCompliance Progress Report")
-	fmt.Println("============================")
+	
+fmt.Println("============================")
 	fmt.Printf("Previous: %.1f%% [%s] (%s)\n", prev.Score, prev.Framework, prev.Date.Format("Jan 2, 3:04 PM"))
 	fmt.Printf("Current:  %.1f%% [%s] (%s)\n", curr.Score, curr.Framework, curr.Date.Format("Jan 2, 3:04 PM"))
 	

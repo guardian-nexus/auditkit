@@ -158,7 +158,7 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
         fmt.Println("Checking Azure connectivity...")
     }
     
-    // Try to list resource groups as a connectivity test
+    // Try to list storage accounts as a connectivity test
     pager := s.storageClient.NewListPager(nil)
     _, err := pager.NextPage(ctx)
     if err != nil {
@@ -180,6 +180,9 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
             fmt.Println("Running PCI-DSS v4.0 compliance scan for Azure...")
         } else if framework == "soc2" {
             fmt.Println("Running SOC2 compliance scan for Azure...")
+        } else if framework == "cmmc" {
+            fmt.Println("Running CMMC Level 1 compliance scan for Azure...")
+            fmt.Println("For Level 2 upgrade to Pro")
         } else if framework == "all" {
             fmt.Println("Running multi-framework compliance scan for Azure...")
         }
@@ -191,6 +194,11 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
         results = append(results, s.runSOC2Checks(ctx, verbose)...)
     case "pci", "pci-dss":
         results = append(results, s.runPCIChecks(ctx, verbose)...)
+    case "cmmc":
+        results = append(results, s.runCMMCChecks(ctx, verbose)...)
+        if verbose {
+            fmt.Println("Azure CMMC Level 1 scan complete")
+        }
     case "hipaa":
         results = append(results, s.runBasicChecks(ctx, services, verbose)...)
         if verbose {
@@ -199,6 +207,7 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
     case "all":
         results = append(results, s.runSOC2Checks(ctx, verbose)...)
         results = append(results, s.runPCIChecks(ctx, verbose)...)
+        results = append(results, s.runCMMCChecks(ctx, verbose)...)
     default:
         // Default to SOC2
         results = append(results, s.runSOC2Checks(ctx, verbose)...)
@@ -209,6 +218,49 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
     }
     
     return results, nil
+}
+
+// runCMMCChecks executes CMMC Level 1 checks for Azure
+func (s *AzureScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResult {
+    var results []ScanResult
+    
+    if verbose {
+        fmt.Println("Running CMMC Level 1 (17 practices) for Azure")
+    }
+    
+    level1 := checks.NewAzureCMMCLevel1Checks()
+    checkResults, err := level1.Run(ctx)
+    if err != nil && verbose {
+        fmt.Printf("Warning in Azure CMMC Level 1: %v\n", err)
+    }
+    
+    for _, cr := range checkResults {
+        results = append(results, ScanResult{
+            Control:           cr.Control,
+            Status:            cr.Status,
+            Evidence:          cr.Evidence,
+            Remediation:       cr.Remediation,
+            RemediationDetail: cr.RemediationDetail,
+            Severity:          cr.Severity,
+            ScreenshotGuide:   cr.ScreenshotGuide,
+            ConsoleURL:        cr.ConsoleURL,
+            Frameworks:        cr.Frameworks,
+        })
+    }
+    
+    if verbose {
+        fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
+        fmt.Println("")
+        fmt.Println("UPGRADE TO CMMC LEVEL 2:")
+        fmt.Println("  110 additional practices for CUI handling")
+        fmt.Println("  Required for DoD contractors processing CUI")
+        fmt.Println("  Complete evidence collection guides")
+        fmt.Println("  November 10, 2025 deadline compliance")
+        fmt.Println("")
+        fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
+    }
+    
+    return results
 }
 
 // runSOC2Checks executes SOC2 compliance checks for Azure

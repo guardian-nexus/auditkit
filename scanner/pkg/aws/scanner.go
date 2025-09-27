@@ -131,9 +131,12 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 		} else if framework == "soc2" {
 			fmt.Println("Running complete SOC2 Common Criteria scan...")
 			fmt.Println("   This includes all 64 controls across CC1-CC9")
+		} else if framework == "cmmc" {
+		        fmt.Println("Running CMMC Level 1 compliance scan...")
+		        fmt.Println("For Level 2 upgrade to Pro")
 		} else if framework == "all" {
-			fmt.Println("Running multi-framework compliance scan...")
-			fmt.Println("   SOC2 (64 controls) + PCI-DSS (40 controls)")
+		        fmt.Println("Running multi-framework compliance scan...")
+		        fmt.Println("   SOC2 (64 controls) + PCI-DSS (40 controls) + CMMC Level 1 (17 controls)")
 		}
 	}
 
@@ -149,10 +152,16 @@ func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbos
 		if verbose {
 			fmt.Println(" HIPAA checks are experimental - limited coverage")
 		}
+	case "cmmc":
+	    results = append(results, s.runCMMCChecks(ctx, verbose)...)
+	    if verbose {
+	        fmt.Println("AWS CMMC Level 1 scan complete")
+	    }
 	case "all":
 		// Run everything
 		results = append(results, s.runSOC2Checks(ctx, verbose)...)
 		results = append(results, s.runPCIChecks(ctx, verbose)...)
+                results = append(results, s.runCMMCChecks(ctx, verbose)...)
 	default:
 		// Default to SOC2
 		results = append(results, s.runSOC2Checks(ctx, verbose)...)
@@ -333,4 +342,43 @@ func (s *AWSScanner) runBasicChecks(ctx context.Context, services []string, verb
 	}
 	
 	return results
+}
+
+func (s *AWSScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResult {
+    var results []ScanResult
+    
+    if verbose {
+        fmt.Println("Running CMMC Level 1 (17 practices) - Open Source")
+    }
+    
+    level1 := checks.NewAWSCMMCLevel1Checks(s.iamClient, s.s3Client, s.ec2Client, s.ctClient)
+    checkResults, _ := level1.Run(ctx)
+    
+    for _, cr := range checkResults {
+        results = append(results, ScanResult{
+            Control: cr.Control,
+            Status: cr.Status,
+            Evidence: cr.Evidence,
+            Remediation: cr.Remediation,
+            RemediationDetail: cr.RemediationDetail,
+            Severity: cr.Severity,
+            ScreenshotGuide: cr.ScreenshotGuide,
+            ConsoleURL: cr.ConsoleURL,
+            Frameworks: cr.Frameworks,
+        })
+    }
+    
+    if verbose {
+        fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
+        fmt.Println("")
+        fmt.Println("UPGRADE TO CMMC LEVEL 2:")
+        fmt.Println("  110 additional practices for CUI handling")
+        fmt.Println("  Required for DoD contractors processing CUI")
+        fmt.Println("  Complete evidence collection guides")
+        fmt.Println("  November 10, 2025 deadline compliance")
+        fmt.Println("")
+        fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
+    }
+    
+    return results
 }
