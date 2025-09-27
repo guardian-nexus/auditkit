@@ -5,10 +5,10 @@
     <title>AuditKit - Multi-Framework Cloud Compliance Scanner</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, HIPAA, ISO 27001. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
+    <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
     
     <meta property="og:title" content="AuditKit - Multi-Framework Compliance Scanner">
-    <meta property="og:description" content="SOC2, PCI-DSS, HIPAA, ISO 27001. One scan, all frameworks. Stop guessing what auditors want.">
+    <meta property="og:description" content="SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001. One scan, all frameworks. Stop guessing what auditors want.">
     <meta property="og:url" content="https://auditkit.io">
     
     <style>
@@ -65,6 +65,12 @@
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+        }
+        
+        .pro {
+            background: #e7f3ff;
+            color: #004085;
+            border: 1px solid #b8daff;
         }
         
         .beta {
@@ -126,6 +132,14 @@
             background: #fffbf0;
             border: 1px solid #f0ad4e;
             border-left: 4px solid #f0ad4e;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .cmmc-box {
+            background: #fff5f5;
+            border: 1px solid #dc3545;
+            border-left: 4px solid #dc3545;
             padding: 20px;
             margin: 30px 0;
         }
@@ -299,23 +313,32 @@
             <p class="tagline">Multi-framework compliance scanner that shows exactly what auditors need</p>
             <div class="frameworks">
                 <span class="framework-badge ready">✓ SOC2 Ready</span>
-                <span class="framework-badge beta">⚡ PCI-DSS Beta</span>
+                <span class="framework-badge ready">✓ PCI-DSS Ready</span>
+                <span class="framework-badge ready">✓ CMMC Level 1</span>
+                <span class="framework-badge pro">PRO CMMC Level 2</span>
                 <span class="framework-badge beta">⚡ HIPAA Beta</span>
                 <span class="framework-badge coming">🚧 ISO 27001</span>
-                <span class="framework-badge coming">🚧 Azure/GCP</span>
+                <span class="framework-badge coming">🚧 GCP</span>
             </div>
         </header>
+        
+        <div class="cmmc-box">
+            <strong>CMMC DEADLINE ALERT:</strong> November 10, 2025 - All new DoD contracts require CMMC compliance. 
+            CMMC Level 1 (17 practices) is open source. CMMC Level 2 (110 practices for CUI handling) available upon request: 
+            <strong>hello@auditkit.io</strong>
+        </div>
         
         <div class="terminal">
             <span class="prompt">$</span> auditkit scan -framework all<br>
             <span class="comment"># Scanning AWS account 123456789...</span><br><br>
             <span class="critical">✗ CRITICAL: Root account missing MFA</span><br>
-            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | HIPAA: §164.312(a)(2)(i)</span><br><br>
+            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span><br><br>
             <span class="critical">✗ CRITICAL: S3 bucket 'customer-data' public</span><br>
-            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | HIPAA: §164.312(a)(1)</span><br><br>
-            <span class="prompt">$</span> auditkit evidence -framework soc2<br>
-            <span class="output">Generating evidence checklist...</span><br>
-            <span class="output">📸 23 screenshots needed | ✅ 5 collected | ⏳ 18 remaining</span>
+            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span><br><br>
+            <span class="prompt">$</span> auditkit scan -framework cmmc<br>
+            <span class="output">CMMC Level 1 complete: 17/17 practices assessed</span><br>
+            <span class="output">📋 November 10, 2025 deadline: 47 days remaining</span><br>
+            <span class="output">📧 Level 2 Pro (110 practices): hello@auditkit.io</span>
         </div>
         
         <div class="section">
@@ -325,8 +348,8 @@
                 Your auditor wants screenshots proving you fixed everything. But which screens? What format? What labels?
             </p>
             <p>
-                You hire consultants for $50K. They run the same scans and take the same screenshots you could have taken 
-                yourself—if you knew what auditors actually wanted to see.
+                DoD contractors face CMMC Level 2 requirements by November 10, 2025. Consulting firms charge $50K+ for what 
+                you could assess yourself—if you knew what auditors actually wanted to see.
             </p>
         </div>
         
@@ -338,6 +361,7 @@
                         <th>What They Check</th>
                         <th>SOC2</th>
                         <th>PCI-DSS</th>
+                        <th>CMMC Level 1</th>
                         <th>HIPAA</th>
                     </tr>
                 </thead>
@@ -346,24 +370,28 @@
                         <td>MFA enabled?</td>
                         <td>CC6.6</td>
                         <td>Req 8.3</td>
+                        <td>IA.L1-3.5.2</td>
                         <td>§164.312(a)(2)(i)</td>
                     </tr>
                     <tr>
                         <td>Encryption at rest?</td>
                         <td>CC6.3</td>
                         <td>Req 3.4</td>
+                        <td>SC.L1-3.13.16</td>
                         <td>§164.312(a)(2)(iv)</td>
                     </tr>
                     <tr>
                         <td>Audit logging?</td>
                         <td>CC7.1</td>
                         <td>Req 10.1</td>
+                        <td>SI.L1-3.14.6</td>
                         <td>§164.312(b)</td>
                     </tr>
                     <tr>
                         <td>Access controls?</td>
                         <td>CC6.1</td>
                         <td>Req 7.1</td>
+                        <td>AC.L1-3.1.1</td>
                         <td>§164.312(a)(1)</td>
                     </tr>
                 </tbody>
@@ -372,38 +400,40 @@
         </div>
         
         <div class="warning-box">
-            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. SOC2 needs a CPA. PCI needs a QSA. 
-            But it will save you ~150 hours at $300/hour by showing exactly what evidence to collect.
+            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. SOC2 needs a CPA. PCI needs a QSA. CMMC needs a C3PAO.
+            But it will save you ~200 hours at $300/hour by showing exactly what evidence to collect.
         </div>
         
         <div class="section">
             <h2>What AuditKit Actually Does</h2>
             <ul>
-                <li>Scans for controls that matter across SOC2, PCI-DSS, HIPAA, ISO 27001</li>
+                <li>Scans for controls that matter across SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001</li>
                 <li>Maps each finding to relevant framework requirements</li>
                 <li>Shows EXACTLY which console screens to screenshot</li>
                 <li>Generates framework-specific evidence checklists</li>
                 <li>Tracks what you've collected vs. what's missing</li>
                 <li>Outputs reports formatted for each framework's auditors</li>
+                <li><strong>CMMC Level 1:</strong> Complete 17-practice assessment for DoD contractors</li>
+                <li><strong>CMMC Level 2:</strong> 110 practices for CUI handling (Pro version)</li>
             </ul>
         </div>
         
         <div class="stats">
             <div class="stat">
+                <div class="stat-number">127</div>
+                <div class="stat-label">CMMC Controls</div>
+            </div>
+            <div class="stat">
                 <div class="stat-number">64</div>
                 <div class="stat-label">SOC2 Controls</div>
             </div>
             <div class="stat">
-                <div class="stat-number">221+</div>
-                <div class="stat-label">Reddit Upvotes</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">4</div>
+                <div class="stat-number">5</div>
                 <div class="stat-label">Frameworks</div>
             </div>
             <div class="stat">
                 <div class="stat-number">$0</div>
-                <div class="stat-label">Cost Forever</div>
+                <div class="stat-label">Level 1 Cost</div>
             </div>
         </div>
         
@@ -415,8 +445,10 @@
                 <span class="prompt">#</span> Or build from source<br>
                 git clone https://github.com/guardian-nexus/auditkit.git<br>
                 cd auditkit/scanner && go build ./cmd/auditkit<br><br>
-                <span class="prompt">#</span> Run your first scan<br>
-                ./auditkit scan -framework soc2 -format pdf -output evidence.pdf
+                <span class="prompt">#</span> Run CMMC Level 1 assessment<br>
+                ./auditkit scan -framework cmmc -format pdf -output cmmc-evidence.pdf<br><br>
+                <span class="prompt">#</span> Multi-framework scan<br>
+                ./auditkit scan -framework all -format pdf -output compliance-report.pdf
             </div>
         </div>
         
@@ -428,8 +460,9 @@
         <div class="section">
             <h2>Who Should Use This</h2>
             <ul>
+                <li><strong>Defense contractors</strong> facing CMMC Level 1/2 requirements by Nov 10, 2025</li>
                 <li>Startups facing multiple compliance requirements</li>
-                <li>Teams juggling SOC2 + PCI + HIPAA simultaneously</li>
+                <li>Teams juggling SOC2 + PCI + HIPAA + CMMC simultaneously</li>
                 <li>Companies quoted $50K+ per framework for prep</li>
                 <li>Engineers who prefer fixing things themselves</li>
                 <li>Anyone tired of running 5 different scanners</li>
@@ -447,30 +480,32 @@
         <div class="buttons">
             <a href="https://github.com/guardian-nexus/auditkit" class="button">View on GitHub</a>
             <a href="https://github.com/guardian-nexus/auditkit/releases" class="button button-secondary">Download Binary</a>
+            <a href="mailto:hello@auditkit.io?subject=CMMC Level 2 Pro Inquiry" class="button button-secondary">CMMC Level 2 Pro</a>
             <a href="https://auditkit.substack.com" class="button button-secondary">Get Updates</a>
         </div>
         
         <div class="section">
             <h2>Current Status</h2>
             <p>
-                <strong>v0.4.1</strong> - Full SOC2 (64 controls), experimental PCI/HIPAA mapping, AWS provider complete.
+                <strong>v0.6.0</strong> - Complete SOC2 (64 controls), PCI-DSS production ready, CMMC Level 1 (17 practices), AWS + Azure providers complete.
             </p>
             <p>
-                <strong>Coming in v0.5.0</strong> - Azure provider, complete PCI-DSS requirements, ScubaGear integration for M365.
+                <strong>CMMC Level 2 Pro</strong> - 110 practices for CUI handling, enterprise features, priority support. Contact hello@auditkit.io for access.
             </p>
             <p>
-                <strong>On the roadmap</strong> - GCP provider, ISO 27001, NIST 800-53, automated evidence collection.
+                <strong>Coming in v0.7.0</strong> - GCP provider, ISO 27001 complete, container scanning, advanced evidence automation.
             </p>
         </div>
         
         <footer>
             <p>
-                Built by an engineer who went through SOC2 hell and lived to tell the tale.<br>
-                Apache 2.0 License. Fork it, improve it, sell it—I don't care.<br><br>
+                Built by engineers who went through compliance hell and lived to tell the tale.<br>
+                Apache 2.0 License. Fork it, improve it, sell it—we don't care.<br><br>
                 
                 <a href="https://github.com/guardian-nexus/auditkit">GitHub</a> · 
                 <a href="https://github.com/guardian-nexus/auditkit/issues">Report Bug</a> · 
                 <a href="https://github.com/guardian-nexus/auditkit/discussions">Discussions</a> · 
+                <a href="mailto:hello@auditkit.io">Email</a> ·
                 <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a>
             </p>
             <p style="margin-top: 20px; font-size: 12px; color: #999;">
