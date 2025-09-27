@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.6.0] - 2025-09-27
+Added
+
+CMMC Level 1 Support: Complete implementation of all 17 CMMC Level 1 practices for both AWS and Azure
+DoD Contractor Compliance: Support for Federal Contract Information (FCI) protection requirements
+November 10, 2025 Deadline Tracking: Built-in countdown and deadline warnings for CMMC compliance
+CMMC Evidence Collection: Screenshot guides and console URLs for all 17 Level 1 practices
+Framework-Specific Help: Enhanced verbose output with control counts and deadline information
+Upgrade Messaging: Clear path to CMMC Level 2 Pro for organizations handling CUI
+
+Enhanced
+
+Multi-Framework Support: CMMC now joins SOC2 and PCI-DSS as fully supported compliance frameworks
+Deadline Awareness: Time-sensitive compliance requirements now show days remaining
+Evidence Collection: Consistent screenshot guide format across all frameworks
+Framework Validation: Improved error handling and help text for supported frameworks
+
+Technical
+
+Added cmmc_level1.go for AWS provider with all 17 practices
+Added cmmc_level1.go for Azure provider with all 17 practices
+Enhanced main.go with CMMC-specific verbose output and deadline calculations
+Improved framework filtering logic to handle CMMC controls
+Added CMMC control name mappings and categorization
+
+Business
+
+Open Source Strategy: CMMC Level 1 freely available to build credibility with DoD contractors
+Clear Monetization Path: Level 2 Pro offering for organizations requiring CUI protection (110 practices)
+Market Timing: Release aligns with growing urgency around November 2025 deadline
+
 ## [0.5.0] - 2025-10-22
 
 ### Added

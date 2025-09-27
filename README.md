@@ -4,15 +4,15 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-v0.5.0-green)
+![Version](https://img.shields.io/badge/version-v0.6.0-green)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
 
-AuditKit scans your cloud infrastructure against SOC2 and PCI-DSS controls and provides:
+AuditKit scans your cloud infrastructure against SOC2, PCI-DSS, and CMMC controls and provides:
 
 1. **Multi-Cloud Support** - AWS (production), Azure (v0.5.0) 
-2. **Clear Pass/Fail Status** - 64 SOC2 controls, 30 PCI-DSS controls  
+2. **Clear Pass/Fail Status** - 64 SOC2 controls, 30 PCI-DSS controls, 17 CMMC Level 1 controls
 3. **Exact Fix Commands** - Cloud-specific CLI commands for remediation
 4. **Evidence Collection Guides** - Step-by-step screenshots auditors accept
 5. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
@@ -27,6 +27,9 @@ aws configure
 # Run SOC2 scan
 auditkit scan -provider aws -framework soc2
 
+# Run CMMC Level 1 scan (DoD contractors)
+auditkit scan -provider aws -framework cmmc
+
 # Generate PDF report
 auditkit scan -provider aws -framework soc2 -format pdf -output aws-soc2.pdf
 ```
@@ -40,12 +43,16 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 # Run SOC2 scan
 auditkit scan -provider azure -framework soc2
 
+# Run CMMC Level 1 scan
+auditkit scan -provider azure -framework cmmc
+
 # Generate PCI-DSS report
 auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 ```
 
 ## Recent Updates
 
+**v0.6.0 (Sept 2025)** - CMMC Level 1 support with November 10, 2025 deadline tracking  
 **v0.5.0 (Sept 2025)** - Azure provider support with full SOC2/PCI-DSS implementation  
 **v0.4.1 (Sept 2025)** - Complete SOC2 implementation (all 64 Common Criteria)  
 **v0.4.0 (Sept 2025)** - Multi-framework support with PCI-DSS v4.0  
@@ -56,22 +63,29 @@ auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 ### Cloud Providers
 | Provider | Files | Checks | Status | Authentication |
 |----------|-------|--------|--------|----------------|
-| **AWS** | 16 check files | ~150 checks | ✅ Production | AWS CLI, IAM roles |
-| **Azure** | 11 check files | ~100 checks | ✅ Production | CLI, Service Principal, Managed Identity |
-| **GCP** | Not started | 0 | 🚧 Planned v0.6.0 | - |
+| **AWS** | 17 check files | ~150 checks | ✅ Production | AWS CLI, IAM roles |
+| **Azure** | 12 check files | ~110 checks | ✅ Production | CLI, Service Principal, Managed Identity |
+| **GCP** | Not started | 0 | 🚧 Planned v0.7.0 | - |
 
 ### Framework Coverage
 | Framework | AWS Controls | Azure Controls | Status |
 |-----------|--------------|----------------|--------|
 | **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | ✅ Production Ready |
 | **PCI-DSS v4.0** | 30 technical | 30 technical | ✅ Production Ready |
+| **CMMC Level 1** | 17 practices | 17 practices | ✅ Production Ready |
 | **HIPAA** | ~10 mapped | ~10 mapped | 🧪 Experimental Only |
 | **ISO 27001** | ~5 mapped | ~5 mapped | 🧪 Experimental Only |
 
-### Azure Services Covered (v0.5.0)
+### CMMC Compliance (NEW in v0.6.0)
+- **CMMC Level 1**: 17 foundational practices for Federal Contract Information (FCI)
+- **Deadline**: November 10, 2025 - All DoD contracts will require CMMC compliance
+- **Coverage**: Both AWS and Azure providers support complete Level 1 assessment
+- **Evidence**: Screenshot guides for all 17 practices with exact Azure Portal/AWS Console URLs
+
+### Azure Services Covered (v0.5.0+)
 - **Azure AD (Entra ID)**: MFA, privileged roles, guest access, password policies
 - **Full SOC2 Implementation**: All 64 Common Criteria controls (CC1-CC9)
-- **Dedicated SOC2 modules**: soc2_cc1_cc2.go, soc2_cc3_cc5.go, soc2_cc6_cc9.go
+- **CMMC Implementation**: All 17 Level 1 practices with DoD deadline tracking
 - **Storage Accounts**: Public access, encryption, secure transfer, access keys
 - **Virtual Machines**: Disk encryption, managed disks, security extensions
 - **Network Security Groups**: Open ports, dangerous rules, flow logs
@@ -95,28 +109,39 @@ Evidence Required:
 4. Save as: SOC2_CC6.2_S3_Public_Access.png
 ```
 
-## What's New in v0.5.0
+## What's New in v0.6.0
 
-### Azure Provider Support
-- **11 Azure check modules** implementing full compliance validation
-- **Azure AD (Entra ID)** - MFA, conditional access, privileged roles
-- **Storage Accounts** - Encryption, public access, secure transfer
-- **Network Security** - NSGs, dangerous ports, flow logs
-- **Compute Resources** - VM encryption, managed disks
-- **Key Vault** - Soft delete, purge protection
-- **Activity Logs** - 12-month retention for PCI-DSS
-- **Azure SQL** - TDE, auditing, firewall rules
-- **PCI-DSS v4.0** - Azure-specific implementation with stricter requirements
+### CMMC Level 1 Support
+- **17 CMMC Level 1 practices** implementing foundational cybersecurity for DoD contractors
+- **November 10, 2025 deadline tracking** - Shows days remaining until mandatory compliance
+- **Both AWS and Azure support** - Complete CMMC Level 1 coverage across cloud providers
+- **Federal Contract Information (FCI) protection** - Basic safeguarding requirements
+- **Evidence collection guides** - Screenshot instructions for all 17 practices
+- **Built-in upgrade messaging** - Clear path to Level 2 Pro for CUI handling
+
+### CMMC Practices Covered
+- **Access Control (AC)**: Limit system access and control information flow
+- **Identification & Authentication (IA)**: User identity verification and authentication
+- **Media Protection (MP)**: Control and sanitize CUI media
+- **Personnel Security (PS)**: Screen personnel prior to system access
+- **System Protection (SC)**: Cryptographic mechanisms and session management
+- **System Integrity (SI)**: Flaw identification, malicious code protection, security monitoring
 
 ### Technical Improvements
-- Removed all emoji output for professional reports
-- Consistent framework mappings between AWS and Azure
-- Improved error handling for missing credentials
-- Better evidence collection descriptions
+- Enhanced deadline countdown for time-sensitive compliance requirements
+- Improved framework-specific verbose output with control counts
+- Better integration with existing SOC2 and PCI-DSS workflows
+- Consistent evidence collection format across all frameworks
 
 ### 3. Framework-Specific Requirements
 
 ```yaml
+CMMC Level 1 (NEW):
+- 17 foundational practices for FCI protection
+- Required for all DoD contractors by November 10, 2025
+- Self-assessment certification process
+- Focuses on basic cybersecurity hygiene
+
 PCI-DSS Specific:
 - 90-day password rotation (not 180 like SOC2)
 - MFA for ALL users (not just privileged)
@@ -150,7 +175,7 @@ go build ./cmd/auditkit
 
 ### Using Go Install
 ```bash
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.5.0
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.0
 ```
 
 ### Download Binary
@@ -163,8 +188,9 @@ See [Releases](https://github.com/guardian-nexus/auditkit/releases) for pre-buil
 auditkit scan                          # Default SOC2 scan for AWS
 auditkit scan -provider azure          # Azure SOC2 scan
 auditkit scan -framework pci           # PCI-DSS scan
+auditkit scan -framework cmmc          # CMMC Level 1 scan (DoD contractors)
 auditkit scan -framework all           # All frameworks
-auditkit scan -verbose                 # Detailed output
+auditkit scan -verbose                 # Detailed output with deadline tracking
 
 # Reporting
 auditkit scan -format pdf -output report.pdf    # PDF with evidence checklist
@@ -209,40 +235,42 @@ auditkit/
     ├── cmd/auditkit/           # CLI entry point (main.go)
     ├── go.mod                  # Go dependencies
     └── pkg/
-        ├── aws/                # AWS provider (18 files)
+        ├── aws/                # AWS provider (19 files)
         │   ├── scanner.go      
         │   ├── priority.go     
         │   └── checks/         
         │       ├── cloudtrail.go
+        │       ├── cmmc_level1.go       # CMMC Level 1 practices (NEW)
         │       ├── config.go
         │       ├── ec2.go
         │       ├── iam.go
         │       ├── iam_advanced.go
         │       ├── monitoring.go
-        │       ├── pci_dss.go       # PCI-DSS v4.0 controls
+        │       ├── pci_dss.go           # PCI-DSS v4.0 controls
         │       ├── rds.go
         │       ├── s3.go
-        │       ├── soc2_cc1_cc2.go  # SOC2 Common Criteria 1-2
-        │       ├── soc2_cc3_cc5.go  # SOC2 Common Criteria 3-5
-        │       ├── soc2_cc6_cc9.go  # SOC2 Common Criteria 6-9
+        │       ├── soc2_cc1_cc2.go      # SOC2 Common Criteria 1-2
+        │       ├── soc2_cc3_cc5.go      # SOC2 Common Criteria 3-5
+        │       ├── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
         │       ├── systems.go
         │       ├── types.go
         │       └── vpc.go
-        ├── azure/              # Azure provider (14 files)
+        ├── azure/              # Azure provider (15 files)
         │   ├── scanner.go      
         │   └── checks/         
-        │       ├── aad.go           # Azure AD/Entra ID
-        │       ├── compute.go       # VMs and disks
-        │       ├── identity.go      # Managed identities
-        │       ├── keyvault.go      # Key Vault checks
-        │       ├── monitoring.go    # Activity logs
-        │       ├── network.go       # NSGs and networking
-        │       ├── pci_dss.go       # PCI-DSS v4.0 controls
-        │       ├── soc2_cc1_cc2.go  # SOC2 Common Criteria 1-2
-        │       ├── soc2_cc3_cc5.go  # SOC2 Common Criteria 3-5
-        │       ├── soc2_cc6_cc9.go  # SOC2 Common Criteria 6-9
-        │       ├── sql.go           # Azure SQL
-        │       ├── storage.go       # Storage accounts
+        │       ├── aad.go               # Azure AD/Entra ID
+        │       ├── cmmc_level1.go       # CMMC Level 1 practices (NEW)
+        │       ├── compute.go           # VMs and disks
+        │       ├── identity.go          # Managed identities
+        │       ├── keyvault.go          # Key Vault checks
+        │       ├── monitoring.go        # Activity logs
+        │       ├── network.go           # NSGs and networking
+        │       ├── pci_dss.go           # PCI-DSS v4.0 controls
+        │       ├── soc2_cc1_cc2.go      # SOC2 Common Criteria 1-2
+        │       ├── soc2_cc3_cc5.go      # SOC2 Common Criteria 3-5
+        │       ├── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
+        │       ├── sql.go               # Azure SQL
+        │       ├── storage.go           # Storage accounts
         │       └── types.go
         ├── cache/              # Scan result caching
         ├── evidence/           # Screenshot guidance
@@ -259,19 +287,21 @@ auditkit/
 - [x] v0.4.0 - Multi-framework support (Sept 2025)
 - [x] v0.4.1 - Full SOC2 implementation (Sept 2025)
 - [x] v0.5.0 - Azure support (Sept 2025)
-- [ ] v0.6.0 - GCP support (Nov 2025)
-- [ ] v0.7.0 - Kubernetes compliance (Dec 2025)
-- [ ] v0.8.0 - Terraform/IaC scanning (Jan 2026)
-- [ ] v1.0.0 - Automated evidence collection (Feb 2026)
+- [x] v0.6.0 - CMMC Level 1 support (Sept 2025)
+- [ ] v0.7.0 - GCP support (Dec 2025)
+- [ ] v0.8.0 - Kubernetes compliance (Jan 2026)
+- [ ] v0.9.0 - Terraform/IaC scanning (Feb 2026)
+- [ ] v1.0.0 - Automated evidence collection (Mar 2026)
 
 ## Important Disclaimers
 
 1. **This is a preparation tool** - You still need a CPA firm for actual SOC2 certification
 2. **Not a security scanner** - Focused on compliance evidence, not vulnerability detection
 3. **Framework limitations**:
-   - SOC2 & PCI-DSS: Production ready
+   - SOC2, PCI-DSS & CMMC Level 1: Production ready
    - HIPAA & ISO 27001: Experimental mappings only
-4. **Manual verification required** - Some controls need human review
+4. **CMMC Level 2**: Contact us for Level 2+ requirements (110 practices for CUI handling)
+5. **Manual verification required** - Some controls need human review
 
 ## Contributing
 
@@ -279,8 +309,9 @@ We need help with:
 1. **GCP provider** - Mirror AWS/Azure structure
 2. **HIPAA controls** - Complete the 45 administrative safeguards
 3. **ISO 27001** - Map all 114 controls
-4. **Evidence automation** - Selenium/Playwright for screenshots
-5. **Container scanning** - Kubernetes, Docker compliance
+4. **CMMC Level 2** - 110 additional practices for CUI protection
+5. **Evidence automation** - Selenium/Playwright for screenshots
+6. **Container scanning** - Kubernetes, Docker compliance
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
@@ -292,20 +323,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## FAQ
 
-**Q: Is Azure support actually complete?**  
-A: Yes, v0.5.0 includes full Azure implementation with 64 SOC2 controls and 30 PCI-DSS controls. It's production-ready.
+**Q: Is CMMC Level 1 implementation complete?**  
+A: Yes, v0.6.0 includes full CMMC Level 1 implementation with all 17 practices for both AWS and Azure. Production-ready for DoD contractor compliance.
+
+**Q: When is the CMMC deadline?**  
+A: November 10, 2025. All new DoD contracts will require CMMC compliance starting this date. AuditKit shows countdown and deadline tracking.
+
+**Q: What about CMMC Level 2?**  
+A: Level 2 (110 practices for CUI handling) is available through our Pro offering. Contact info@auditkit.io for enterprise licensing.
 
 **Q: Why is my compliance score low?**  
 A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs)
 
 **Q: Which cloud provider has better coverage?**  
-A: Both AWS and Azure have identical control coverage. AWS has slightly more mature checks due to being implemented first.
+A: Both AWS and Azure have identical control coverage across SOC2, PCI-DSS, and CMMC Level 1. AWS has slightly more mature checks due to being implemented first.
 
 **Q: Can I scan multiple AWS accounts or Azure subscriptions?**  
 A: Currently one at a time. Use different profiles: `auditkit scan -profile production`
 
 **Q: Does this replace Prowler/ScoutSuite?**  
-A: No, those are security scanners. AuditKit focuses on compliance evidence collection for auditors.
+A: No, those are security scanners. AuditKit focuses on compliance evidence collection for auditors with framework-specific mappings.
 
 ## License
 
