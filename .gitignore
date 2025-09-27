@@ -1,3 +1,7 @@
+# CMMC Level 2 files (private/paid tier only)
+**/cmmc_level2*.go
+**/cmmc_level2_*.go
+
 # Binaries
 auditkit
 *.exe
