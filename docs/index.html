@@ -332,13 +332,18 @@
             <span class="prompt">$</span> auditkit scan -framework all<br>
             <span class="comment"># Scanning AWS account 123456789...</span><br><br>
             <span class="critical">✗ CRITICAL: Root account missing MFA</span><br>
-            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span><br><br>
+            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span><br>
+            <span class="output">  Console URL: https://console.aws.amazon.com/iam/home#/security_credentials</span><br>
+            <span class="output">  Screenshot: Navigate to Security credentials → MFA → Screenshot "Assigned MFA device"</span><br>
+            <span class="output">  Fix: aws iam enable-mfa-device --user-name root --serial-number arn:aws:iam::123456789:mfa/root</span><br><br>
             <span class="critical">✗ CRITICAL: S3 bucket 'customer-data' public</span><br>
-            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span><br><br>
-            <span class="prompt">$</span> auditkit scan -framework cmmc<br>
-            <span class="output">CMMC Level 1 complete: 17/17 practices assessed</span><br>
-            <span class="output">📋 November 10, 2025 deadline: 47 days remaining</span><br>
-            <span class="output">📧 Level 2 Pro (110 practices): hello@auditkit.io</span>
+            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span><br>
+            <span class="output">  Console URL: https://s3.console.aws.amazon.com/s3/buckets/customer-data</span><br>
+            <span class="output">  Screenshot: Permissions tab → Block public access → All 4 settings "On"</span><br>
+            <span class="output">  Fix: aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span><br><br>
+            <span class="prompt">$</span> auditkit evidence -output evidence-tracker.html<br>
+            <span class="output">Evidence tracker generated with 23 screenshot requirements</span><br>
+            <span class="output">📋 5 collected | ⏳ 18 remaining | 🎯 SOC2_CC6.6_MFA_Evidence.png needed</span>
         </div>
         
         <div class="section">
