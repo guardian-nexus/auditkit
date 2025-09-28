@@ -144,6 +144,47 @@
             margin: 30px 0;
         }
         
+        /* NEW: Pro CTA Box */
+        .pro-cta-box {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .pro-cta-box h2 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .pro-cta-box p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        
+        .pro-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .pro-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .pro-feature strong {
+            color: #fff;
+        }
+        
         /* Main Content */
         .section {
             margin: 40px 0;
@@ -237,6 +278,18 @@
             background: #f0f8ff;
         }
         
+        .button-pro {
+            background: #dc3545;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 16px 32px;
+        }
+        
+        .button-pro:hover {
+            background: #c82333;
+        }
+        
         /* Stats Table */
         .stats {
             display: flex;
@@ -302,6 +355,10 @@
             .comparison-table td {
                 padding: 6px;
             }
+            
+            .pro-features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     <script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
@@ -322,10 +379,39 @@
             </div>
         </header>
         
+        <!-- NEW: Pro CTA Section -->
+        <div class="pro-cta-box">
+            <h2>🚨 CMMC Level 2 Pro - Defense Contractors</h2>
+            <p><strong>Deadline: November 10, 2025</strong> - All new DoD contracts require CMMC compliance</p>
+            <div class="pro-features">
+                <div class="pro-feature">
+                    <strong>110 CMMC Level 2 Practices</strong><br>
+                    Complete CUI handling assessment
+                </div>
+                <div class="pro-feature">
+                    <strong>30 Days to Compliant</strong><br>
+                    vs 6+ months traditional assessment
+                </div>
+                <div class="pro-feature">
+                    <strong>$297/month</strong><br>
+                    vs $100K+ consultant fees
+                </div>
+                <div class="pro-feature">
+                    <strong>C3PAO Ready</strong><br>
+                    Automated evidence collection
+                </div>
+            </div>
+            <div style="margin-top: 25px;">
+                <a href="/pro" class="button-pro">Get CMMC Level 2 Pro →</a>
+                <span style="margin: 0 10px; font-size: 14px; opacity: 0.8;">or</span>
+                <a href="mailto:hello@auditkit.io?subject=CMMC Demo" style="color: white; text-decoration: underline;">Schedule Demo</a>
+            </div>
+        </div>
+        
         <div class="cmmc-box">
             <strong>CMMC DEADLINE ALERT:</strong> November 10, 2025 - All new DoD contracts require CMMC compliance. 
-            CMMC Level 1 (17 practices) is open source. CMMC Level 2 (110 practices for CUI handling) available upon request: 
-            <strong>hello@auditkit.io</strong>
+            CMMC Level 1 (17 practices) is open source. CMMC Level 2 (110 practices for CUI handling) available with Pro: 
+            <strong><a href="/pro" style="color: #dc3545;">Get Pro Access</a></strong>
         </div>
         
         <div class="terminal">
@@ -485,7 +571,7 @@
         <div class="buttons">
             <a href="https://github.com/guardian-nexus/auditkit" class="button">View on GitHub</a>
             <a href="https://github.com/guardian-nexus/auditkit/releases" class="button button-secondary">Download Binary</a>
-            <a href="mailto:hello@auditkit.io?subject=CMMC Level 2 Pro Inquiry" class="button button-secondary">CMMC Level 2 Pro</a>
+            <a href="/pro" class="button-pro">CMMC Level 2 Pro</a>
             <a href="https://auditkit.substack.com" class="button button-secondary">Get Updates</a>
         </div>
         
@@ -495,7 +581,7 @@
                 <strong>v0.6.0</strong> - Complete SOC2 (64 controls), PCI-DSS production ready, CMMC Level 1 (17 practices), AWS + Azure providers complete.
             </p>
             <p>
-                <strong>CMMC Level 2 Pro</strong> - 110 practices for CUI handling, enterprise features, priority support. Contact hello@auditkit.io for access.
+                <strong>CMMC Level 2 Pro</strong> - 110 practices for CUI handling, enterprise features, priority support. <a href="/pro">Learn more →</a>
             </p>
             <p>
                 <strong>Coming in v0.7.0</strong> - GCP provider, ISO 27001 complete, container scanning, advanced evidence automation.
