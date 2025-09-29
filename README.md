@@ -73,7 +73,7 @@ auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 | **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | ✅ Production Ready |
 | **PCI-DSS v4.0** | 30 technical | 30 technical | ✅ Production Ready |
 | **CMMC Level 1** | 17 practices | 17 practices | ✅ Production Ready |
-| **CMMC Level 2** | 110 practices (Pro) | 110 practices (Pro) | 🔥 Pro Feature - Contact hello@auditkit.io |
+| **CMMC Level 2** | 110 practices (Pro) | 110 practices (Pro) | 🔥 Pro Feature - [AuditKit Pro](https://auditkit.io/pro/) or e-mail hello@auditkit.io |
 | **HIPAA** | ~10 mapped | ~10 mapped | 🧪 Experimental Only |
 | **ISO 27001** | ~5 mapped | ~5 mapped | 🧪 Experimental Only |
 
@@ -124,7 +124,7 @@ Evidence Required:
 - **110 CMMC Level 2 practices** for organizations handling Controlled Unclassified Information (CUI)
 - **Enterprise features** including advanced evidence automation and reporting
 - **Priority support** for DoD contractors facing November 2025 deadline
-- **Contact hello@auditkit.io** for CMMC Level 2 Pro licensing and access
+- **Check out [AuditKit Pro](https://auditkit.io/pro/) or Contact hello@auditkit.io** for CMMC Level 2 Pro licensing and access
 
 ### CMMC Practices Covered (Level 1 Open Source)
 - **Access Control (AC)**: Limit system access and control information flow
@@ -337,7 +337,7 @@ A: Yes, v0.6.0 includes full CMMC Level 1 implementation with all 17 practices f
 A: November 10, 2025. All new DoD contracts will require CMMC compliance starting this date. AuditKit shows countdown and deadline tracking.
 
 **Q: What about CMMC Level 2?**  
-A: CMMC Level 2 (110 practices for CUI handling) is available as a Pro feature with enterprise support and advanced automation. Contact hello@auditkit.io for licensing information.
+A: CMMC Level 2 (110 practices for CUI handling) is available as a Pro feature with enterprise support and advanced automation. Check out [AuditKit Pro](https://auditkit.io/pro/) for licensing information.
 
 **Q: Why is my compliance score low?**  
 A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs)
