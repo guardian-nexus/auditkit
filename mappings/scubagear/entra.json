@@ -1,0 +1,1018 @@
+{
+  "source": "scubagear",
+  "domain": "entra",
+  "version": "v1",
+  "rules": [
+   {
+      "rule_id": "MS.AAD.1.1",
+      "product": "aad",
+      "title": "Legacy authentication blocked",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.1", "title": "Logical access safeguards"},
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"},
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Conditional Access > Policies.",
+        "Create or edit a policy that applies to all users (exclude break-glass accounts only with strong justification).",
+        "Under 'Client apps', select 'Other clients' and 'Legacy authentication clients'.",
+        "Set the access control to Block.",
+        "Test in Report-only mode first to identify potential impact.",
+        "Enable the policy in On state and verify legacy auth attempts are blocked via sign-in logs."
+      ],
+      "evidence_guidance": [
+        " Make sure you added timestamps to all evidence you produce, e.g., UI timestamp or date command if you use command line",
+        "Screenshot of Conditional Access policy showing legacy authentication blocked.",
+        "Export of sign-in logs highlighting blocked legacy authentication attempts.",
+        "Documentation of any approved exceptions (service accounts, legacy connectors) with compensating controls."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade",
+      "fallback_notes": "If the Conditional Access blade has moved, use the global search bar in Entra admin center and search for 'Conditional Access'. Alternatively, verify via Graph API or PowerShell: Get-AzureADMSConditionalAccessPolicy. Auditors will accept policy exports or JSON evidence if the UI differs.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/conditional-access/block-legacy-authentication",
+        "https://learn.microsoft.com/entra/identity/conditional-access/concept-conditional-access-policies",
+        "https://learn.microsoft.com/entra/identity/conditional-access/concept-conditional-access-report-only"
+      ]
+   },
+   {
+      "rule_id": "MS.AAD.2.1",
+      "product": "aad",
+      "title": "Block high-risk users",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"},
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, navigate to Security > Identity Protection > User risk policy.",
+        "Create or edit the 'User risk policy' to include All Users (exclude break-glass or service accounts only with strong justification).",
+        "Set the 'User risk level' condition to High.",
+        "Set the 'Access' control to Block access.",
+        "Enable the policy and save changes.",
+        "Verify in sign-in logs that high-risk users are being blocked as expected."
+      ],
+      "evidence_guidance": [
+        " Make sure you added timestamps to all evidence you produce, e.g., UI timestamp or date command if you use command line",
+        "Screenshot of the configured 'User risk policy' showing High risk level mapped to 'Block access'.",
+        "Export of sign-in logs with examples of high-risk users being blocked.",
+        "Documented rationale for any exclusions (e.g., break-glass accounts) and how they are monitored."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade",
+      "fallback_notes": "If the Identity Protection blade has moved, search for 'Identity Protection' in the global search bar of Entra admin center, or use PowerShell/Graph API (Get-AzureADUserRiskPolicy). Auditors will accept a config export or JSON output as evidence. Make sure you added timestamps to all evidence you produce, e.g., UI timestamp or date command if you use command line",
+      "references": [
+        "https://learn.microsoft.com/entra/id-protection/howto-identity-protection-configure-risk-policies",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-identity-protection-risks"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.2.2",
+      "product": "aad",
+      "title": "Notify admins on high-risk users",
+      "mappings": {
+        "soc2": [
+          {"id": "CC7.2", "title": "Security event monitoring"}
+        ],
+        "pci": [
+          {"id": "10", "title": "Log and monitor all access"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, navigate to Security > Identity Protection > Notifications.",
+        "Enable 'Users at risk detected alerts' and specify one or more administrator email addresses (security operations or InfoSec distribution list is recommended).",
+        "Verify that the listed recipients are monitored mailboxes (e.g., SOC shared mailbox, ticketing system).",
+        "Test by simulating a risky sign-in or reviewing past risky sign-ins to confirm alert delivery.",
+        "Document who receives alerts and what the escalation process is (e.g., incident response workflow)."
+      ],
+      "evidence_guidance": [
+        " Make sure you added timestamps to all evidence you produce, e.g., UI timestamp or date command if you use command line",
+        "Screenshot of Identity Protection > Notifications page showing alert recipients configured.",
+        "Copy of a real or test notification email received by admins (with sensitive info redacted).",
+        "Policy or procedure document describing how alerts are triaged and escalated."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/Notifications",
+      "fallback_notes": "If the Notifications blade is unavailable, use global search in Entra admin center for 'Identity Protection Notifications'. As a fallback, configure Azure Monitor alerts on risky sign-in logs and route them to an email or SIEM. Auditors will accept proof of alerting via email headers or SIEM entries.",
+      "references": [
+        "https://learn.microsoft.com/entra/id-protection/howto-identity-protection-configure-notifications",
+        "https://learn.microsoft.com/entra/id-protection/overview-identity-protection"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.2.3",
+      "product": "aad",
+      "title": "Block high-risk sign-ins",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"},
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Identity Protection > Sign-in risk policy.",
+        "Create or edit the policy and include All Users (with the exception of break-glass accounts, documented separately).",
+        "Set 'Sign-in risk level' to High.",
+        "Under 'Access', choose Block access.",
+        "Enable the policy and save changes.",
+        "Monitor risky sign-in logs to confirm high-risk attempts are being blocked."
+      ],
+      "evidence_guidance": [
+        "Screenshot of configured Sign-in risk policy showing High risk level set to Block access.",
+        "Export of sign-in logs highlighting blocked high-risk attempts.",
+        "Documentation of excluded accounts (if any) and their compensating controls (e.g., monitoring, alerting)."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/SignInRiskPolicy",
+      "fallback_notes": "If the Sign-in risk policy UI has changed, use the global search bar in Entra admin center to find 'Sign-in risk policy'. Alternatively, confirm via PowerShell/Graph API (Get-AzureADMSRiskySignIn). Auditors will accept JSON exports or SIEM alerts as evidence if the console looks different.",
+      "references": [
+        "https://learn.microsoft.com/entra/id-protection/howto-identity-protection-configure-risk-policies",
+        "https://learn.microsoft.com/entra/id-protection/overview-identity-protection"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.1",
+      "product": "aad",
+      "title": "Phishing-resistant MFA for all users",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Authentication methods > Policies.",
+        "Enable phishing-resistant methods such as FIDO2 security keys, Windows Hello for Business, or certificate-based authentication.",
+        "Configure Conditional Access policies to require phishing-resistant MFA for all users.",
+        "Roll out gradually: start with admins and high-risk roles, then expand to all users.",
+        "Educate users on the use of FIDO2 keys or Windows Hello, and provide fallback for supported devices only.",
+        "Monitor sign-in logs to confirm phishing-resistant methods are in use."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authentication methods policy showing phishing-resistant methods enabled and enforced.",
+        "Screenshot of Conditional Access policy requiring phishing-resistant MFA for all users.",
+        "Export from sign-in logs proving successful use of FIDO2, Windows Hello, or certificate-based authentication.",
+        "Documented rollout plan and user communication materials."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/AuthenticationMethodsBlade",
+      "fallback_notes": "If the Authentication methods blade is unavailable, search for 'Authentication methods policy' in Entra admin center. Alternatively, verify via Graph API (GET /policies/authenticationMethodsPolicy) or export from PowerShell. Auditors will accept JSON exports or admin reports if the UI differs.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-strengths",
+        "https://learn.microsoft.com/entra/identity/authentication/howto-authentication-passwordless-deployment",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-fido2"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.2",
+      "product": "aad",
+      "title": "Enforce MFA (any approved method) for all users",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Conditional Access > Policies.",
+        "Create a policy applying to All Users (exclude break-glass accounts only with documented justification).",
+        "Set the assignment conditions to cover All cloud apps.",
+        "Under 'Access controls', require Multi-factor authentication.",
+        "Enable the policy in Report-only mode for testing, then switch to On once validated.",
+        "Monitor sign-in logs to confirm MFA challenges are occurring for all users."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Conditional Access policy requiring MFA for all users.",
+        "Sample of sign-in logs showing MFA challenge events.",
+        "List of any excluded accounts and justification, including compensating monitoring controls."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade",
+      "fallback_notes": "If the Conditional Access blade changes, search for 'Conditional Access' in the Entra admin center. Alternatively, verify via Graph API (GET /identity/conditionalAccess/policies) or PowerShell (Get-AzureADMSConditionalAccessPolicy). Auditors will accept policy JSON output or equivalent logs as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/conditional-access/howto-conditional-access-policy-all-users-mfa",
+        "https://learn.microsoft.com/entra/identity/conditional-access/concept-conditional-access-policies"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.3",
+      "product": "aad",
+      "title": "Authenticator shows app/location context",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "Ensure Microsoft Authenticator is the primary MFA method available for users.",
+        "In the Authenticator app, enable 'Number matching' and 'Additional context' (app name and sign-in location).",
+        "From the Entra admin center, go to Security > Authentication methods > Authenticator settings.",
+        "Under 'Configure', set 'Require number matching' to Enabled and 'Show application name and location' to Enabled.",
+        "Roll out the policy to all users in phases to avoid disruptions."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authenticator policy configuration showing 'Number matching' and 'App/location context' enabled.",
+        "Sample screenshot from a user’s device showing number matching and context in action (with sensitive info redacted).",
+        "Export of audit logs showing enforcement of number matching and contextual prompts."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/Authenticator",
+      "fallback_notes": "If Authenticator policy settings are not visible in the Entra portal, check 'Authentication methods' in Azure AD legacy portal or confirm via Graph API (GET /policies/authenticationMethodsPolicy). Auditors will accept evidence from mobile screenshots combined with policy exports.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/how-to-mfa-number-match",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-strengths"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.4",
+      "product": "aad",
+      "title": "Authentication methods migration completed/managed",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Authentication methods.",
+        "Verify that legacy MFA and SSPR settings have been migrated into the unified 'Authentication methods policy'.",
+        "For any users still managed under legacy policies, create equivalent rules in the unified policy and disable legacy configurations.",
+        "Confirm that new authentication methods (Authenticator app, FIDO2 keys, Windows Hello for Business, etc.) are enforced under the new policy.",
+        "Document the completion of the migration and disable legacy policy blades to avoid drift."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authentication methods policy showing consolidated configuration (no legacy MFA/SSPR blades still active).",
+        "Policy export or JSON showing all authentication methods managed centrally.",
+        "Documented deprecation plan for legacy MFA settings, with date of enforcement."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade",
+      "fallback_notes": "If the Authentication methods blade does not display migration status, check Microsoft Learn for 'Deprecation of legacy MFA/SSPR settings'. You can also query via Graph API (GET /policies/authenticationMethodsPolicy). Auditors will accept screenshots of the new policy UI or JSON exports as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/howto-authentication-methods-manage",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-methods"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.5",
+      "product": "aad",
+      "title": "Disable SMS/Voice/Email OTP",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Authentication methods > Policies.",
+        "Locate the SMS, Voice, and Email OTP methods under the list of available authentication methods.",
+        "Set their state to Disabled for all users (or restrict to none).",
+        "Communicate the change to users, and provide guidance on supported secure methods (Authenticator app, FIDO2 keys, Windows Hello for Business).",
+        "Test access scenarios to confirm no fallback to SMS/Voice/Email OTP remains enabled."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authentication methods policy showing SMS, Voice, and Email OTP methods set to Disabled.",
+        "Policy export or JSON confirming these methods are disabled.",
+        "Communication or training material showing users were informed of the change and directed to use supported methods."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade",
+      "fallback_notes": "If UI navigation changes, search for 'Authentication methods' in the Entra admin center. Alternatively, use Graph API (GET /policies/authenticationMethodsPolicy) or PowerShell (Get-MsolUser with StrongAuthenticationMethods) to confirm SMS/Voice/Email OTP are disabled. Auditors will accept evidence from exports or logs in place of screenshots.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-methods",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-strengths"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.6",
+      "product": "aad",
+      "title": "Phishing-resistant MFA for privileged roles",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"},
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"},
+          {"id": "8.3", "title": "Multi-factor authentication for access to CDE"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Authentication methods > Policies.",
+        "Enable phishing-resistant methods (FIDO2 security keys, Windows Hello for Business, or certificate-based authentication).",
+        "Create Conditional Access policies targeting privileged roles (e.g., Global Administrator, Privileged Role Administrator, Security Administrator).",
+        "Set the policy to require phishing-resistant MFA for these roles at every sign-in.",
+        "Roll out hardware keys (FIDO2) or equivalent strong factors to all privileged users.",
+        "Test sign-ins with a sample privileged account to verify enforcement before applying broadly.",
+        "Document fallback (e.g., break-glass account) and apply tight monitoring to it."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authentication methods policy showing phishing-resistant methods enabled.",
+        "Screenshot of Conditional Access policy requiring phishing-resistant MFA for privileged roles.",
+        "Sample sign-in logs demonstrating Global Admin or Security Admin logins enforced with FIDO2/Windows Hello.",
+        "Documentation of the issuance process for hardware keys (who has them, how they’re stored, recovery process)."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade",
+      "fallback_notes": "If Conditional Access or Authentication methods UI changes, search for 'Authentication strengths' in Entra admin center. Alternatively, verify via Graph API (GET /policies/authenticationStrengthPolicies) to confirm phishing-resistant MFA is required for admin roles. Auditors will accept JSON exports or key issuance records as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/concept-authentication-strengths",
+        "https://learn.microsoft.com/entra/identity/authentication/howto-authentication-passwordless-deployment",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-fido2"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.7",
+      "product": "aad",
+      "title": "Require managed devices for authentication",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.1", "title": "Logical access safeguards"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, navigate to Security > Conditional Access > Policies.",
+        "Create or edit a policy that requires compliant or hybrid-joined devices for authentication.",
+        "Scope the policy to All Users, excluding only documented break-glass accounts.",
+        "Set the condition under 'Device state' to 'Require Hybrid Azure AD joined or marked as compliant'.",
+        "Test with pilot groups to confirm only enrolled devices are able to complete sign-in.",
+        "Roll out to broader user groups once verified, documenting any justified exceptions."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Conditional Access policy requiring compliant or hybrid-joined devices.",
+        "Device compliance report from Intune showing enrolled devices.",
+        "Sign-in logs demonstrating blocked access attempts from unmanaged devices."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade",
+      "fallback_notes": "If Conditional Access UI changes, search for 'Conditional Access' and check the 'Device state' condition. As a fallback, export policies via Graph API (GET /identity/conditionalAccess/policies) or Intune compliance reports. Auditors will accept JSON exports, CSV compliance reports, or SIEM logs showing enforcement.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/conditional-access/concept-conditional-access-device",
+        "https://learn.microsoft.com/mem/intune/protect/device-compliance-get-started"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.8",
+      "product": "aad",
+      "title": "Require managed device to register MFA",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Conditional Access > Policies.",
+        "Create a policy targeting All Users (exclude break-glass accounts only with documented justification).",
+        "Set the policy condition under 'Grant' to require that MFA registration occurs from a compliant or hybrid-joined device.",
+        "Ensure device compliance policies are in place via Intune or a supported MDM solution.",
+        "Pilot the configuration with a small user group to confirm it does not block legitimate onboarding.",
+        "Roll out to broader groups once tested, and document compensating controls for any exceptions."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Conditional Access policy enforcing managed device requirement for MFA registration.",
+        "Device compliance report showing enrolled devices used for MFA setup.",
+        "Sign-in logs confirming attempts to register MFA from unmanaged devices are blocked."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade",
+      "fallback_notes": "If Conditional Access UI changes, search for 'MFA registration' or 'Registration campaign' in Entra admin center. As a fallback, use Graph API (GET /identity/conditionalAccess/policies) or Intune reports to validate enforcement. Auditors will accept JSON exports or CSV compliance reports if console navigation differs.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/howto-mfa-registration-enforcement",
+        "https://learn.microsoft.com/mem/intune/protect/device-compliance-get-started"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.3.9",
+      "product": "aad",
+      "title": "Block device-code authentication flow",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Security > Authentication methods > Settings.",
+        "Locate the setting for 'Device code flow' (used by older clients and scripts).",
+        "Set the control to Disabled to prevent users from authenticating via device code flow.",
+        "Communicate this change to developers or IT staff who may use older tooling.",
+        "Test critical applications to ensure they use supported modern authentication methods."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Authentication methods settings showing device code flow set to Disabled.",
+        "Policy export or JSON confirming device code flow is disabled.",
+        "Change management record or internal communication noting the deprecation of device code flow."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade",
+      "fallback_notes": "If the UI location changes, search for 'Authentication methods settings' in Entra admin center. Alternatively, confirm via Graph API (GET /policies/authenticationMethodsPolicy) whether device code flow is allowed. Auditors will accept exports or logs showing the flow is disabled.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/conditional-access/block-legacy-authentication",
+        "https://learn.microsoft.com/azure/active-directory/develop/msal-authentication-flows"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.4.1",
+      "product": "aad",
+      "title": "Send security logs to SIEM/SOC",
+      "mappings": {
+        "soc2": [
+          {"id": "CC7.1", "title": "Security events logging"}
+        ],
+        "pci": [
+          {"id": "10.1", "title": "Track and monitor all access to network resources and cardholder data"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Monitoring & health > Diagnostic settings.",
+        "Select the directory or resource to configure and click 'Add diagnostic setting'.",
+        "Enable sign-in logs, audit logs, and risk events.",
+        "Choose 'Send to Log Analytics', 'Archive to a storage account', or 'Stream to an Event Hub' depending on your SIEM integration.",
+        "Confirm that logs are being received by your SIEM/SOC platform (e.g., Sentinel, Splunk, Datadog).",
+        "Set retention policies consistent with SOC 2 and PCI DSS requirements (≥90 days online, ≥1 year archived)."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Diagnostic settings showing Entra sign-in and audit logs being forwarded.",
+        "Evidence from SIEM (e.g., Sentinel dashboard) showing Entra logs ingested.",
+        "Retention policy export showing logs stored ≥90 days (SOC 2) and ≥1 year (PCI DSS)."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/DiagnosticSettingsMenuBlade",
+      "fallback_notes": "If Diagnostic settings have moved, search for 'Diagnostic settings' in the Entra admin center or configure via Azure Portal > Monitor > Diagnostic settings. Alternatively, use PowerShell (Get-AzDiagnosticSetting) or Graph API to export settings. Auditors will accept storage account exports or SIEM ingestion evidence if the portal UI differs.",
+      "references": [
+        "https://learn.microsoft.com/azure/active-directory/reports-monitoring/concept-diagnostic-settings",
+        "https://learn.microsoft.com/azure/active-directory/reports-monitoring/plan-monitoring-and-reporting",
+        "https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.5.1",
+      "product": "aad",
+      "title": "Only admins may register applications",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Applications > User settings.",
+        "Locate the setting 'Users can register applications'.",
+        "Set this option to 'No' so that only administrators can register new applications.",
+        "Document the approved process for application registration (e.g., request via IT/InfoSec ticket).",
+        "Review periodically to ensure the setting has not been re-enabled."
+      ],
+      "evidence_guidance": [
+        "Screenshot of User settings showing 'Users can register applications' set to No.",
+        "Change management documentation or policy describing how new applications are requested and approved.",
+        "Audit log export confirming only admins have registered applications since enforcement."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ApplicationsMenuBlade/~/UserSettings",
+      "fallback_notes": "If the Applications > User settings menu changes, use global search for 'User settings' in Entra admin center. Alternatively, check via PowerShell (Get-AzureADDirectorySetting) or Graph API (GET /settings) to confirm the value of 'Users can register applications'. Auditors will accept JSON exports or audit logs if UI navigation differs.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/manage-apps/configure-user-consent",
+        "https://learn.microsoft.com/entra/identity/manage-apps/manage-app-consent-policies"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.5.2",
+      "product": "aad",
+      "title": "Only admins may consent to applications",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Applications > User settings.",
+        "Locate the setting 'Users can consent to apps accessing company data on their behalf'.",
+        "Set this option to 'No' so that only administrators can grant application permissions.",
+        "Implement an internal review and approval process for app consent requests (e.g., security review and data access assessment).",
+        "Periodically review app consents to ensure no unauthorized grants exist."
+      ],
+      "evidence_guidance": [
+        "Screenshot of User settings showing 'User consent for apps' set to No.",
+        "Audit log export showing consent events tied only to administrator accounts.",
+        "Documented process describing how employees request new app access and how InfoSec approves or rejects requests."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ApplicationsMenuBlade/~/UserSettings",
+      "fallback_notes": "If the UI changes, search for 'User settings' in the Entra admin center. Alternatively, confirm via PowerShell (Get-AzureADMSPermissionGrantPolicy) or Graph API (GET /policies/permissionGrantPolicies). Auditors will accept JSON policy exports or audit logs proving user consent is disabled.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/manage-apps/configure-user-consent",
+        "https://learn.microsoft.com/entra/identity/manage-apps/manage-app-consent-policies"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.5.3",
+      "product": "aad",
+      "title": "Admin consent workflow configured",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.1", "title": "Logical access safeguards"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Applications > Admin consent settings.",
+        "Enable the 'Admin consent workflow' feature so that when a user requests an app requiring elevated permissions, the request is routed to administrators for review.",
+        "Configure reviewers (e.g., Global Admins, Security Admins, or a designated application governance group).",
+        "Set notifications so reviewers are alerted when new requests are pending.",
+        "Document the review process, including how to approve or deny requests based on security and compliance impact.",
+        "Periodically review audit logs to ensure all requests were handled according to policy."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Admin consent workflow settings showing it is enabled with designated reviewers.",
+        "Export of an admin consent request workflow event (approved/denied).",
+        "Documented SOP for application consent reviews and escalation criteria."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ApplicationsMenuBlade/~/AdminConsentSettings",
+      "fallback_notes": "If the Admin consent workflow UI changes, search for 'Admin consent requests' in Entra admin center. Alternatively, verify via Graph API (GET /policies/adminConsentRequestPolicy) or review audit logs of app consent requests. Auditors will accept workflow exports or screenshots from email notifications as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/manage-apps/manage-app-consent-policies#configure-the-admin-consent-workflow",
+        "https://learn.microsoft.com/entra/identity/manage-apps/configure-admin-consent-workflow"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.6.1",
+      "product": "aad",
+      "title": "User passwords do not expire (policy-based)",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "8.2", "title": "Identify and authenticate users"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Security > Authentication methods > Password protection.",
+        "Review the password expiration settings. By default, modern password security guidance (Microsoft, NIST) recommends non-expiring passwords with strong complexity and MFA enforced.",
+        "Ensure password expiration is disabled for standard user accounts, but validate that stronger compensating controls are in place: MFA, conditional access, and risk-based sign-in policies.",
+        "Document exceptions for privileged or service accounts where expiration policies may differ.",
+        "Periodically review audit logs and ensure that password reset events are tracked and monitored."
+      ],
+      "evidence_guidance": [
+        "Screenshot of password protection settings showing password expiration set to 'Never expires'.",
+        "Documentation or security standard referencing the use of MFA and conditional access as compensating controls.",
+        "Audit log export showing password reset events are captured and monitored."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/PasswordProtectionMenuBlade",
+      "fallback_notes": "If password expiration options have moved, search for 'Password protection' in the Entra admin center. Alternatively, confirm settings via PowerShell (Get-MsolUser -All | Select DisplayName, PasswordNeverExpires) or Graph API (GET /users). Auditors will accept command output or security policy docs as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/authentication/concept-password-ban-bad",
+        "https://learn.microsoft.com/entra/identity/authentication/concept-sspr-policy",
+        "https://pages.nist.gov/800-63-3/sp800-63b.html#memsecret-ver"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.1",
+      "product": "aad",
+      "title": "Limit Global Admins (2–8)",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Roles & administrators.",
+        "Filter for the 'Global Administrator' role and review the number of active assignments.",
+        "Ensure the number of active Global Admins is between 2–8. Fewer than 2 introduces risk of lockout; more than 8 increases the attack surface.",
+        "Reassign excess Global Admins to more granular roles (e.g., Security Administrator, Exchange Administrator).",
+        "Document a privileged access strategy (PIM/PAM) to manage elevation and ensure assignments are time-bound.",
+        "Review role assignments quarterly to confirm compliance with policy."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Global Administrator role assignment page showing 2–8 accounts.",
+        "Audit log export confirming role changes or removals of excess admins.",
+        "Privileged Access Management (PIM) configuration showing time-based or approval-based elevation."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/DirectoryRolesMenuBlade",
+      "fallback_notes": "If Roles & administrators UI has changed, search for 'Directory roles' in Entra admin center. Alternatively, confirm via Graph API (GET /directoryRoles/roleTemplateId for Global Admin) or PowerShell (Get-AzureADDirectoryRoleMember). Auditors will accept exports, screenshots, or PIM configuration evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/roles/security-planning"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.2",
+      "product": "aad",
+      "title": "Use finer-grained roles instead of Global Admin",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Roles & administrators.",
+        "Review accounts currently assigned to Global Administrator.",
+        "Identify which activities those users perform regularly (e.g., user management, security policy changes, Exchange administration).",
+        "Reassign Global Admins to more specific roles such as User Administrator, Security Administrator, Exchange Administrator, or Billing Administrator.",
+        "Use Privileged Identity Management (PIM) to allow just-in-time elevation to Global Admin only when absolutely necessary.",
+        "Document role assignment rationale and update it during quarterly access reviews."
+      ],
+      "evidence_guidance": [
+        "Screenshot of role assignments showing fewer Global Admins and increased use of specific roles.",
+        "Export of Directory Roles assignments confirming fine-grained distribution of privileges.",
+        "PIM configuration screenshots or exports showing Global Admin is eligible only with just-in-time elevation."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/DirectoryRolesMenuBlade",
+      "fallback_notes": "If Roles & administrators UI has changed, search for 'Directory roles' in Entra admin center. Alternatively, use Graph API (GET /directoryRoles) or PowerShell (Get-AzureADDirectoryRole) to list assignments. Auditors will accept role assignment exports or PIM evidence instead of UI screenshots.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/role-based-access-control/best-practices",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/roles/security-planning"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.3",
+      "product": "aad",
+      "title": "Privileged users use cloud-only accounts",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, navigate to Identity > Roles & administrators.",
+        "Identify privileged accounts (e.g., Global Administrator, Privileged Role Administrator, Security Administrator).",
+        "Verify that these privileged accounts are cloud-only (not synchronized from on-premises AD).",
+        "If any privileged accounts are hybrid (synced), create new cloud-only accounts and reassign roles.",
+        "Migrate responsibilities from hybrid privileged accounts to cloud-only accounts and disable or remove hybrid assignments.",
+        "Document the change and enforce that privileged roles can only be assigned to cloud-only identities going forward."
+      ],
+      "evidence_guidance": [
+        "Screenshot of privileged role assignments showing cloud-only accounts (UPNs not ending with on-prem domain).",
+        "Export of directory role members with account type (cloud vs. synced) clearly indicated.",
+        "Documentation of account management policy requiring privileged accounts to be cloud-only."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/DirectoryRolesMenuBlade",
+      "fallback_notes": "If Roles & administrators UI changes, search for 'Directory roles' in Entra admin center. Alternatively, use PowerShell (Get-MsolUser | Where-Object { $_.ImmutableId -eq $null }) or Graph API (GET /users?$filter=onPremisesSyncEnabled eq false) to confirm privileged accounts are cloud-only. Auditors will accept exports from these tools as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/roles/best-practices",
+        "https://learn.microsoft.com/entra/identity/hybrid/whatis-hybrid-identity",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.4",
+      "product": "aad",
+      "title": "No permanent active privileged assignments",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, navigate to Identity > Privileged Identity Management (PIM).",
+        "Review all privileged roles (e.g., Global Admin, Security Admin, Exchange Admin).",
+        "Identify accounts with permanent active assignments.",
+        "Convert permanent assignments to 'Eligible' assignments in PIM with just-in-time activation.",
+        "Configure activation requirements: approval workflows, MFA enforcement, and time-limited sessions.",
+        "Document exceptions (if any) and apply compensating controls such as continuous monitoring.",
+        "Review privileged role assignments quarterly to ensure no drift back to permanent assignments."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM showing privileged roles assigned as 'Eligible' rather than 'Active'.",
+        "Export from PIM role settings showing MFA, approval, and time-bound activation configured.",
+        "Audit log entries of role activation and deactivation events demonstrating just-in-time access in practice."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If the PIM interface has changed, search for 'Privileged Identity Management' in Entra admin center. Alternatively, confirm via PowerShell (Get-AzureADMSPrivilegedRoleAssignment) or Graph API (GET /privilegedRoleAssignments). Auditors will accept exports or activation history logs as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-activate-role",
+        "https://learn.microsoft.com/entra/identity/roles/security-planning"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.5",
+      "product": "aad",
+      "title": "Provision privileged roles via PIM/PAM",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Privileged Identity Management (PIM).",
+        "Enable PIM for all Azure AD roles and Azure resources (if applicable).",
+        "Configure privileged role assignments to be made only through PIM/PAM workflows.",
+        "Ensure assignments are 'Eligible' by default and require activation with MFA.",
+        "Set maximum activation durations (e.g., 1–8 hours) and enforce approval workflows for highly sensitive roles like Global Admin.",
+        "Establish alerts for role activations, and review audit logs regularly.",
+        "Document the PIM process and integrate it into your access control policy."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM settings showing role provisioning restricted to PIM workflows.",
+        "Export of PIM configuration showing eligible vs. active assignments and activation requirements.",
+        "Audit logs from PIM showing recent role activations with MFA and approval steps enforced."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If the PIM interface changes, search for 'Privileged Identity Management' in Entra admin center. Alternatively, confirm via Graph API (GET /privilegedRoleAssignments) or PowerShell (Get-AzureADMSPrivilegedRoleAssignment). Auditors will accept PIM exports, activation logs, or policy documents as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-start",
+        "https://learn.microsoft.com/entra/identity/roles/security-planning"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.6",
+      "product": "aad",
+      "title": "Global Administrator activation requires approval",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Privileged Identity Management (PIM).",
+        "Locate the Global Administrator role under Azure AD roles.",
+        "Edit the role settings to require approval before activation.",
+        "Designate at least two approvers from the security or compliance team to avoid conflicts of interest.",
+        "Enforce MFA during activation and configure maximum activation duration (e.g., 4 hours).",
+        "Test the workflow by requesting GA activation and confirming that approval is required.",
+        "Document the approval workflow and include it in the organization’s access control procedures."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM settings for Global Administrator showing 'Approval required' enabled with designated approvers.",
+        "Export of PIM configuration confirming approvers and activation rules.",
+        "Audit log entries showing GA activation requests and corresponding approval actions."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If the PIM interface changes, search for 'Privileged Identity Management' in Entra admin center. Alternatively, verify via Graph API (GET /privilegedRoleSettings) or PowerShell (Get-AzureADMSPrivilegedRoleSetting) that GA role requires approval. Auditors will accept exports or activation workflow evidence if UI navigation differs.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-start",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-activate-role"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.7",
+      "product": "aad",
+      "title": "Alert on eligible or active privileged role assignment",
+      "mappings": {
+        "soc2": [
+          {"id": "CC7.2", "title": "Security event monitoring"}
+        ],
+        "pci": [
+          {"id": "10", "title": "Log and monitor all access"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, open Identity > Privileged Identity Management.",
+        "Under Azure AD roles, open Settings and enable notifications for role assignment and role activation events.",
+        "Set recipients to a monitored security mailbox or ticketing address to ensure timely response.",
+        "Create an alert in Azure Monitor on Entra audit logs for events such as Add member to role, Activate eligible role assignment, and Extend assignment.",
+        "Forward audit logs to your SIEM and add a correlation rule to notify on any privileged role assignment or activation.",
+        "Test by activating an eligible role and confirm an alert is delivered to the designated recipients."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM notification settings that show email alerts enabled for role assignment and activation.",
+        "Sample alert message or ticket created from a test role activation with sensitive data redacted.",
+        "Audit log or SIEM record that shows the event type, actor, target role, timestamp, and outcome."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If PIM notifications are not visible, use Azure Monitor on Entra audit logs for role assignment and activation events and route alerts to email or the SIEM. Auditors will accept SIEM alert records or Azure Monitor alert history as evidence when console menus have moved.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-activate-role",
+        "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-create-new-alert-rule"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.8",
+      "product": "aad",
+      "title": "Alert on Global Administrator activation",
+      "mappings": {
+        "soc2": [
+          {"id": "CC7.2", "title": "Security event monitoring"}
+        ],
+        "pci": [
+          {"id": "10", "title": "Log and monitor all access"}
+        ]
+      },
+      "severity": "CRITICAL",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Privileged Identity Management (PIM).",
+        "Locate the Global Administrator role under Azure AD roles.",
+        "Enable notifications for role activation and configure Global Administrator activation events to trigger email alerts.",
+        "Ensure recipients are security operations staff or an always-monitored distribution group.",
+        "Set up Azure Monitor alerts on audit logs filtered to Global Administrator role activation events.",
+        "Forward alerts to your SIEM or ticketing system to ensure incidents are tracked and responded to.",
+        "Test by activating a GA role through PIM and verify alert delivery."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM settings for Global Administrator with notifications enabled.",
+        "Copy of a test alert email or ticket generated when GA role was activated (sensitive info redacted).",
+        "SIEM export showing log ingestion of Global Administrator activation event."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If PIM UI changes, use Azure Monitor or Graph API to create alerts specifically on Global Administrator role activations. PowerShell (Search-UnifiedAuditLog) can also confirm event logging. Auditors will accept alert rules, SIEM tickets, or audit log exports as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-start",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-activate-role",
+        "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-overview"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.7.9",
+      "product": "aad",
+      "title": "Alert on other privileged role activations",
+      "mappings": {
+        "soc2": [
+          {"id": "CC7.2", "title": "Security event monitoring"}
+        ],
+        "pci": [
+          {"id": "10", "title": "Log and monitor all access"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > Privileged Identity Management (PIM).",
+        "Under Azure AD roles, configure notification settings for role activations beyond Global Administrator (e.g., Security Administrator, Privileged Role Administrator, Exchange Administrator, Conditional Access Administrator).",
+        "Ensure notifications are routed to a monitored mailbox or security operations channel (e.g., SIEM, Teams, Slack, ticketing).",
+        "Set up Azure Monitor alerts on Entra audit logs that capture activation of any privileged role.",
+        "Forward alerts to your SIEM for central correlation and incident tracking.",
+        "Test by activating a role (e.g., Security Administrator) and confirm that alerts are delivered properly."
+      ],
+      "evidence_guidance": [
+        "Screenshot of PIM settings showing notifications enabled for multiple privileged roles.",
+        "Copy of a test alert email or SIEM ticket generated on a Security Administrator activation (redacted).",
+        "Audit log export demonstrating capture of non-GA privileged role activations."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ResourceMenuBlade/~/AzureADRoles",
+      "fallback_notes": "If the PIM notifications UI changes, configure Azure Monitor alerts on audit events filtered by role name. Graph API (GET /auditLogs/directoryAudits) or PowerShell (Search-UnifiedAuditLog) can also be used to validate. Auditors will accept alert rules, SIEM records, or activation history as evidence.",
+      "references": [
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-configure",
+        "https://learn.microsoft.com/entra/identity/privileged-identity-management/pim-how-to-activate-role",
+        "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-overview"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.8.1",
+      "product": "aad",
+      "title": "Limit guest access to directory objects",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > External identities > External collaboration settings.",
+        "Locate the setting 'Guest user access restrictions'.",
+        "Set access level to 'Limited access' so guests can only view their own profile and not enumerate directory objects.",
+        "Review and enforce group-based access to sensitive applications and resources, ensuring guests are restricted appropriately.",
+        "Document and periodically review all guest accounts and their access rights."
+      ],
+      "evidence_guidance": [
+        "Screenshot of External collaboration settings showing 'Guest user access restrictions' set to Limited access.",
+        "Export of guest user accounts with associated group memberships to confirm access is restricted.",
+        "Documented access review results showing guest accounts reviewed and access adjusted or removed where appropriate."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ExternalIdentitiesMenuBlade/~/CollaborationSettings",
+      "fallback_notes": "If UI changes, search for 'External collaboration settings' in Entra admin center. Alternatively, verify via Graph API (GET /policies/authorizationPolicy) or PowerShell (Get-AzureADPolicy). Auditors will accept exports of guest user lists and collaboration policy settings if screenshots are unavailable.",
+      "references": [
+        "https://learn.microsoft.com/entra/external-id/collaboration-settings",
+        "https://learn.microsoft.com/entra/external-id/compare-external-collaboration-settings"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.8.2",
+      "product": "aad",
+      "title": "Only Guest Inviter role can invite guests",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.3", "title": "Least privilege and segregation of duties"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > External identities > External collaboration settings.",
+        "Locate the 'Guest invite settings' option.",
+        "Set guest invitations so that only users in the built-in 'Guest Inviter' role (or administrators) can invite external users.",
+        "Assign the Guest Inviter role only to designated staff (e.g., IT admins or trusted managers).",
+        "Document the process for requesting and approving guest invitations.",
+        "Review audit logs regularly to confirm only authorized inviters are adding guests."
+      ],
+      "evidence_guidance": [
+        "Screenshot of External collaboration settings showing invitation permissions restricted to Guest Inviter role.",
+        "Export of current role assignments showing who holds the Guest Inviter role.",
+        "Audit log entries showing guest invitations issued by authorized accounts only."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ExternalIdentitiesMenuBlade/~/CollaborationSettings",
+      "fallback_notes": "If UI navigation changes, search for 'Guest invite settings' in Entra admin center. Alternatively, confirm via Graph API (GET /policies/authorizationPolicy) or PowerShell (Get-AzureADPolicy). Auditors will accept guest invitation logs and role assignment exports as evidence if screenshots differ.",
+      "references": [
+        "https://learn.microsoft.com/entra/external-id/collaboration-settings",
+        "https://learn.microsoft.com/entra/identity/role-based-access-control/best-practices"
+      ]
+    },
+    {
+      "rule_id": "MS.AAD.8.3",
+      "product": "aad",
+      "title": "Restrict guest invitations to approved domains",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "User access authorization"}
+        ],
+        "pci": [
+          {"id": "7", "title": "Restrict access by business need to know"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "In Microsoft Entra admin center, go to Identity > External identities > Cross-tenant access settings or Collaboration restrictions.",
+        "Enable 'Allow invitations only to specified domains' and add approved business partner domains.",
+        "Maintain an allowlist of trusted domains (e.g., vendors, contractors) based on contractual agreements.",
+        "Block invitations to all other domains by default.",
+        "Document a process for periodically reviewing and updating the list of approved domains.",
+        "Test by attempting to invite a guest from a non-approved domain to confirm blocking works."
+      ],
+      "evidence_guidance": [
+        "Screenshot of Collaboration restrictions settings showing only approved domains are allowed.",
+        "Export of current allowlist of approved domains for guest invitations.",
+        "Audit log entries showing blocked attempts from non-approved domains (if available)."
+      ],
+      "console_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ExternalIdentitiesMenuBlade/~/CollaborationSettings",
+      "fallback_notes": "If UI changes, search for 'Collaboration restrictions' in Entra admin center. Alternatively, confirm via PowerShell (Get-AzureADPolicy) or Graph API (GET /policies/authorizationPolicy) to check allowed domains. Auditors will accept policy exports and logs as evidence if screenshots differ.",
+      "references": [
+        "https://learn.microsoft.com/entra/external-id/collaboration-restricted-domains",
+        "https://learn.microsoft.com/entra/external-id/collaboration-settings"
+      ]
+    }
+  ]
+}
