@@ -12,14 +12,15 @@ import (
 
 	awsScanner "github.com/guardian-nexus/auditkit/scanner/pkg/aws"
 	azureScanner "github.com/guardian-nexus/auditkit/scanner/pkg/azure"
+	"github.com/guardian-nexus/auditkit/scanner/pkg/integrations"
+	"github.com/guardian-nexus/auditkit/scanner/pkg/integrations/scubagear"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/remediation"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/report"
-	"github.com/guardian-nexus/auditkit/scanner/pkg/telemetry"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/tracker"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
 )
 
-const CurrentVersion = "v0.5.0" // Updated for Azure support
+const CurrentVersion = "v0.6.1" // ScubaGear integration + telemetry removed
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`
@@ -69,11 +70,13 @@ func main() {
 	var (
 		provider  = flag.String("provider", "aws", "Cloud provider: aws, azure (both with full SOC2/PCI support)")
 		profile   = flag.String("profile", "default", "AWS profile or Azure subscription to use")
-		framework = flag.String("framework", "all", "Compliance framework: soc2, pci, cmcc, hipaa (limited), all")
+		framework = flag.String("framework", "all", "Compliance framework: soc2, pci, cmmc, hipaa (limited), all")
 		format    = flag.String("format", "text", "Output format (text, json, html, pdf)")
 		output    = flag.String("output", "", "Output file (default: stdout)")
 		verbose   = flag.Bool("verbose", false, "Verbose output")
 		services  = flag.String("services", "all", "Comma-separated services to scan")
+		source    = flag.String("source", "", "Integration source: scubagear, prowler")
+		file      = flag.String("file", "", "Integration file to parse")
 	)
 
 	if len(os.Args) < 2 {
@@ -87,6 +90,8 @@ func main() {
 	switch command {
 	case "scan":
 		runScan(*provider, *profile, *framework, *format, *output, *verbose, *services)
+	case "integrate":
+		runIntegration(*source, *file, *format, *output, *verbose)
 	case "report":
 		generateReport(*format, *output)
 	case "evidence":
@@ -100,7 +105,7 @@ func main() {
 	case "update":
 		updater.CheckForUpdates()
 	case "version":
-		fmt.Printf("AuditKit %s - Multi-cloud compliance scanning (AWS, Azure)\n", CurrentVersion)
+		fmt.Printf("AuditKit %s - Multi-cloud compliance scanning (AWS, Azure, M365)\n", CurrentVersion)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		printUsage()
@@ -112,22 +117,25 @@ func printUsage() {
 	fmt.Println(`AuditKit - Multi-Cloud Compliance Scanner
 
 Usage:
-  auditkit scan [options]     Scan infrastructure for compliance
-  auditkit report [options]   Generate audit-ready report
-  auditkit evidence [options] Track evidence collection progress
-  auditkit fix [options]      Generate remediation script
-  auditkit progress          Show compliance improvement over time
-  auditkit compare           Compare last two scans
-  auditkit update            Check for updates
-  auditkit version           Show version
+  auditkit scan [options]        Scan infrastructure for compliance
+  auditkit integrate [options]   Import external tool results (ScubaGear, Prowler)
+  auditkit report [options]      Generate audit-ready report
+  auditkit evidence [options]    Track evidence collection progress
+  auditkit fix [options]         Generate remediation script
+  auditkit progress              Show compliance improvement over time
+  auditkit compare               Compare last two scans
+  auditkit update                Check for updates
+  auditkit version               Show version
 
 Options:
   -provider string   Cloud provider: aws, azure (default "aws")
   -profile string    AWS profile or Azure subscription (default "default")
-  -framework string  Compliance framework: soc2, pci, cmcc, hipaa, all (default "all")
+  -framework string  Compliance framework: soc2, pci, cmmc, hipaa, all (default "all")
   -format string     Output format (text, json, html, pdf) (default "text")
   -output string     Output file (default: stdout)
   -services string   Services to scan (default "all")
+  -source string     Integration source: scubagear, prowler
+  -file string       File to parse for integration
   -verbose          Verbose output
 
 Frameworks:
@@ -138,11 +146,17 @@ Frameworks:
   hipaa   HIPAA Security Rule (experimental)
   all     Run all available frameworks
 
+Integration Examples:
+  # Import ScubaGear M365 results
+  auditkit integrate -source scubagear -file ScubaResults.json
+
+  # Generate unified PDF with M365 findings
+  auditkit integrate -source scubagear -file ScubaResults.json -format pdf
+
 CMMC Level 2 Upgrade:
   Unlock 110 additional CMMC Level 2 practices required for DoD contracts
   Visit: https://auditkit.io/pro
   Email: sales@auditkit.io
-
 
 Examples:
   # AWS SOC2 scan
@@ -157,26 +171,269 @@ Examples:
 For more information: https://github.com/guardian-nexus/auditkit`)
 }
 
-func runScan(provider, profile, framework, format, output string, verbose bool, services string) {
-	startTime := time.Now()
+func runIntegration(source, file, format, output string, verbose bool) {
+	if source == "" || file == "" {
+		fmt.Fprintf(os.Stderr, "Error: Both -source and -file are required for integration\n")
+		fmt.Fprintf(os.Stderr, "Example: auditkit integrate -source scubagear -file ScubaResults.json\n")
+		os.Exit(1)
+	}
 
+	ctx := context.Background()
+
+	switch strings.ToLower(source) {
+	case "scubagear":
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Loading ScubaGear integration...\n")
+		}
+
+		// Get mappings directory
+		mappingsDir := filepath.Join("mappings", "scubagear")
+		
+		// Check if mappings exist
+		if _, err := os.Stat(mappingsDir); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "Error: ScubaGear mappings not found at %s\n", mappingsDir)
+			fmt.Fprintf(os.Stderr, "Make sure entra.json exists in mappings/scubagear/\n")
+			os.Exit(1)
+		}
+
+		integration := scubagear.NewScubaGearIntegration(mappingsDir)
+		
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Loading mappings from %s...\n", mappingsDir)
+		}
+
+		if err := integration.LoadMappings(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading mappings: %v\n", err)
+			os.Exit(1)
+		}
+
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Parsing ScubaGear results from %s...\n", file)
+		}
+
+		results, err := integration.ParseFile(ctx, file)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing ScubaGear file: %v\n", err)
+			os.Exit(1)
+		}
+
+		if verbose {
+			fmt.Fprintf(os.Stderr, "Found %d M365 findings\n", len(results))
+		}
+
+		// Convert to ComplianceResult format
+		integrationResult := convertIntegrationResults(results, "M365")
+
+		// Output results
+		switch format {
+		case "text":
+			printIntegrationSummary(integrationResult)
+		case "json":
+			data, _ := json.MarshalIndent(integrationResult, "", "  ")
+			if output != "" {
+				os.WriteFile(output, data, 0644)
+				fmt.Printf("Results saved to %s\n", output)
+			} else {
+				fmt.Println(string(data))
+			}
+		case "pdf":
+			if output == "" {
+				output = fmt.Sprintf("auditkit-m365-report-%s.pdf", time.Now().Format("2006-01-02-150405"))
+			}
+			pdfResult := report.ComplianceResult{
+				Timestamp:       integrationResult.Timestamp,
+				Provider:        integrationResult.Provider,
+				AccountID:       integrationResult.AccountID,
+				Score:           integrationResult.Score,
+				TotalControls:   integrationResult.TotalControls,
+				PassedControls:  integrationResult.PassedControls,
+				FailedControls:  integrationResult.FailedControls,
+				Controls:        convertControlsForPDF(integrationResult.Controls),
+				Recommendations: integrationResult.Recommendations,
+				Framework:       integrationResult.Framework,
+			}
+			err := report.GeneratePDF(pdfResult, output)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error generating PDF: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("M365 compliance report saved to %s\n", output)
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown format: %s\n", format)
+			os.Exit(1)
+		}
+
+	case "prowler":
+		fmt.Fprintf(os.Stderr, "Prowler integration coming soon\n")
+		fmt.Fprintf(os.Stderr, "For now, use native AWS/Azure scanning:\n")
+		fmt.Fprintf(os.Stderr, "  auditkit scan -provider aws -framework soc2\n")
+		os.Exit(1)
+
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown integration source: %s\n", source)
+		fmt.Fprintf(os.Stderr, "Supported sources: scubagear, prowler (coming soon)\n")
+		os.Exit(1)
+	}
+}
+
+func convertIntegrationResults(results []integrations.IntegrationResult, provider string) ComplianceResult {
+	controls := []ControlResult{}
+	passed := 0
+	failed := 0
+
+	for _, r := range results {
+		control := ControlResult{
+			ID:              r.RuleID,
+			Name:            r.Title,
+			Category:        r.Product,
+			Severity:        getSeverityFromStatus(r.Status),
+			Status:          r.Status,
+			Evidence:        r.Evidence,
+			Remediation:     r.Remediation,
+			ScreenshotGuide: r.ScreenshotGuide,
+			ConsoleURL:      r.ConsoleURL,
+			Frameworks:      r.Frameworks,
+		}
+
+		controls = append(controls, control)
+
+		if r.Status == "PASS" {
+			passed++
+		} else if r.Status == "FAIL" {
+			failed++
+		}
+	}
+
+	score := 0.0
+	if len(controls) > 0 {
+		score = float64(passed) / float64(len(controls)) * 100
+	}
+
+	return ComplianceResult{
+		Timestamp:       time.Now(),
+		Provider:        provider,
+		Framework:       "soc2", // ScubaGear results map to multiple frameworks
+		AccountID:       "M365-tenant",
+		Score:           score,
+		TotalControls:   len(controls),
+		PassedControls:  passed,
+		FailedControls:  failed,
+		Controls:        controls,
+		Recommendations: generateIntegrationRecommendations(controls),
+	}
+}
+
+func getSeverityFromStatus(status string) string {
+	switch status {
+	case "FAIL":
+		return "HIGH"
+	case "PASS":
+		return "PASSED"
+	default:
+		return "MEDIUM"
+	}
+}
+
+func generateIntegrationRecommendations(controls []ControlResult) []string {
+	recs := []string{}
+	failedCount := 0
+
+	for _, c := range controls {
+		if c.Status == "FAIL" {
+			failedCount++
+		}
+	}
+
+	if failedCount > 0 {
+		recs = append(recs, fmt.Sprintf("Fix %d failed M365 security controls", failedCount))
+	}
+
+	recs = append(recs, "Review Microsoft Entra ID conditional access policies")
+	recs = append(recs, "Ensure MFA is enforced for all users")
+	recs = append(recs, "Configure identity protection policies")
+	recs = append(recs, "Enable security defaults if not using conditional access")
+
+	return recs
+}
+
+func printIntegrationSummary(result ComplianceResult) {
+	fmt.Printf("\n")
+	fmt.Printf("AuditKit M365 Integration Results\n")
+	fmt.Printf("===================================\n")
+	fmt.Printf("Provider: %s\n", result.Provider)
+	fmt.Printf("Scan Time: %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
+	fmt.Printf("\n")
+	
+	scoreColor := "\033[32m" // green
+	if result.Score < 80 {
+		scoreColor = "\033[33m" // yellow
+	}
+	if result.Score < 60 {
+		scoreColor = "\033[31m" // red
+	}
+	fmt.Printf("Compliance Score: %s%.1f%%\033[0m\n", scoreColor, result.Score)
+	fmt.Printf("Controls Passed: %d/%d\n", result.PassedControls, result.TotalControls)
+	fmt.Printf("\n")
+
+	// Show failed controls
+	if result.FailedControls > 0 {
+		fmt.Printf("\033[31mFailed M365 Controls:\033[0m\n")
+		fmt.Printf("------------------------\n")
+		for _, control := range result.Controls {
+			if control.Status == "FAIL" {
+				fmt.Printf("\033[31m[FAIL]\033[0m %s - %s\n", control.ID, control.Name)
+				fmt.Printf("  Issue: %s\n", control.Evidence)
+				if control.Remediation != "" {
+					fmt.Printf("  Fix: %s\n", control.Remediation)
+				}
+				if control.ConsoleURL != "" {
+					fmt.Printf("  URL: %s\n", control.ConsoleURL)
+				}
+				fmt.Printf("\n")
+			}
+		}
+	}
+
+	// Show passed controls
+	fmt.Printf("\n\033[32mPassed Controls:\033[0m\n")
+	fmt.Printf("-------------------\n")
+	for _, control := range result.Controls {
+		if control.Status == "PASS" {
+			fmt.Printf("  - %s - %s\n", control.ID, control.Name)
+		}
+	}
+
+	if len(result.Recommendations) > 0 {
+		fmt.Printf("\nRecommendations:\n")
+		fmt.Printf("------------------\n")
+		for i, rec := range result.Recommendations {
+			fmt.Printf("  %d. %s\n", i+1, rec)
+		}
+	}
+
+	fmt.Printf("\nFor detailed report:\n")
+	fmt.Printf("   auditkit integrate -source scubagear -file <file> -format pdf\n")
+	fmt.Printf("\n")
+}
+
+func runScan(provider, profile, framework, format, output string, verbose bool, services string) {
 	// Validate framework
 	validFrameworks := map[string]bool{
 		"soc2":  true,
 		"pci":   true,
 		"hipaa": true,
-                "cmmc": true,
-                "all":   true,
+		"cmmc":  true,
+		"all":   true,
 	}
 
 	if !validFrameworks[strings.ToLower(framework)] {
-	    fmt.Fprintf(os.Stderr, "Error: Invalid framework: %s\n", framework)
-	    fmt.Fprintf(os.Stderr, "Valid options: soc2, pci, cmmc (Level 1 only), hipaa, all\n")
-	    fmt.Fprintf(os.Stderr, "\n")
-	    fmt.Fprintf(os.Stderr, "CMMC Level 2 requires upgrade to Pro:\n")
-	    fmt.Fprintf(os.Stderr, "  Visit: https://auditkit.io/pro\n")
-	    fmt.Fprintf(os.Stderr, "  Email: sales@auditkit.io\n")
-	    os.Exit(1)
+		fmt.Fprintf(os.Stderr, "Error: Invalid framework: %s\n", framework)
+		fmt.Fprintf(os.Stderr, "Valid options: soc2, pci, cmmc (Level 1 only), hipaa, all\n")
+		fmt.Fprintf(os.Stderr, "\n")
+		fmt.Fprintf(os.Stderr, "CMMC Level 2 requires upgrade to Pro:\n")
+		fmt.Fprintf(os.Stderr, "  Visit: https://auditkit.io/pro\n")
+		fmt.Fprintf(os.Stderr, "  Email: sales@auditkit.io\n")
+		os.Exit(1)
 	}
 
 	if verbose {
@@ -185,13 +442,9 @@ func runScan(provider, profile, framework, format, output string, verbose bool, 
 	}
 
 	result := performScan(provider, profile, framework, verbose, services)
-	duration := time.Since(startTime)
 
 	// Save progress for tracking
 	saveProgress(result.AccountID, result.Score, result.Controls, framework)
-
-	// Send telemetry if opted in
-	telemetry.SendTelemetry(result.AccountID, result.Score, convertToTelemetryControls(result.Controls), duration)
 
 	if result.Score >= 90 {
 		fmt.Printf("\nCONGRATULATIONS! %.1f%% %s compliance!\n", result.Score, strings.ToUpper(framework))
@@ -429,6 +682,9 @@ func performScan(provider, profile, framework string, verbose bool, services str
 	}
 }
 
+// Helper functions continue below (saveProgress, showProgress, compareScan, etc.)
+// These remain the same as your original main.go, just ensuring no telemetry calls
+
 func saveProgress(accountID string, score float64, controls []ControlResult, framework string) error {
 	homeDir, _ := os.UserHomeDir()
 	dataPath := filepath.Join(homeDir, ".auditkit", accountID+".json")
@@ -579,8 +835,7 @@ func compareScan(provider, profile string) {
 	curr := progress.ScoreHistory[len(progress.ScoreHistory)-1]
 	
 	fmt.Println("\nCompliance Progress Report")
-	
-fmt.Println("============================")
+	fmt.Println("============================")
 	fmt.Printf("Previous: %.1f%% [%s] (%s)\n", prev.Score, prev.Framework, prev.Date.Format("Jan 2, 3:04 PM"))
 	fmt.Printf("Current:  %.1f%% [%s] (%s)\n", curr.Score, curr.Framework, curr.Date.Format("Jan 2, 3:04 PM"))
 	
@@ -626,7 +881,6 @@ func generateFixScript(provider, profile, output string) {
 			})
 		}
 	case "azure":
-		// Azure fix scripts would use Azure CLI commands
 		fmt.Println("Azure fix script generation coming soon")
 		return
 	}
@@ -708,7 +962,6 @@ func runEvidenceTracker(provider, profile, output string) {
 	fmt.Println("Open this file in your browser and check off evidence as you collect it!")
 }
 
-
 func getPriorityAndImpact(controlID, severity, status, framework string) (string, string) {
 	if status == "PASS" {
 		return "PASSED", "Control is properly configured"
@@ -767,12 +1020,12 @@ func printTextSummary(result ComplianceResult) {
 	fmt.Printf("Scan Time: %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
 	fmt.Printf("\n")
 	
-	scoreColor := "\033[32m" // green
+	scoreColor := "\033[32m"
 	if result.Score < 80 {
-		scoreColor = "\033[33m" // yellow
+		scoreColor = "\033[33m"
 	}
 	if result.Score < 60 {
-		scoreColor = "\033[31m" // red
+		scoreColor = "\033[31m"
 	}
 	fmt.Printf("Compliance Score: %s%.1f%%\033[0m\n", scoreColor, result.Score)
 	fmt.Printf("Controls Passed: %d/%d\n", result.PassedControls, result.TotalControls)
@@ -797,7 +1050,6 @@ func printTextSummary(result ComplianceResult) {
 	}
 	fmt.Printf("\n")
 	
-	// Show failures first, grouped by priority
 	if result.FailedControls > 0 {
 		hasCritical := false
 		for _, control := range result.Controls {
@@ -981,19 +1233,6 @@ func generatePrioritizedRecommendations(controls []ControlResult, criticalCount,
 	return recs
 }
 
-// Continue with remaining helper functions...
-func convertToTelemetryControls(controls []ControlResult) []telemetry.ControlResult {
-	var result []telemetry.ControlResult
-	for _, c := range controls {
-		result = append(result, telemetry.ControlResult{
-			ID:       c.ID,
-			Status:   c.Status,
-			Severity: c.Severity,
-		})
-	}
-	return result
-}
-
 func convertControlsForPDF(controls []ControlResult) []report.ControlResult {
 	pdfControls := []report.ControlResult{}
 	for _, c := range controls {
@@ -1057,7 +1296,6 @@ func getControlName(controlID string) string {
 		"PI1.6": "Data Quality",
 		"C1.1":  "Confidentiality Controls",
 		"C1.2":  "Data Classification",
-		// PCI-specific controls
 		"PCI-1.2.1": "Network Segmentation",
 		"PCI-1.3.1": "No Direct Public Access",
 		"PCI-2.2.2": "Default Configuration Changes",
@@ -1096,7 +1334,6 @@ func getControlCategory(controlID string) string {
 	return "Security"
 }
 
-// Other output functions remain the same...
 func outputTextToFile(result ComplianceResult, output string) {
 	var sb strings.Builder
 	frameworkLabel := "Multi-Framework"
@@ -1181,28 +1418,6 @@ func generateHTML(result ComplianceResult) string {
 
 func generateEvidenceTrackerHTML(controls []tracker.ControlResult, accountID string) string {
 	return ""
-}
-
-func generateCriticalAlert(controls []ControlResult) string {
-	return ""
-}
-
-func generateControlRows(controls []ControlResult) string {
-	// Table row generation
-	return ""
-}
-
-func generateRecommendationHTML(recommendations []string) string {
-	return ""
-}
-
-func getScoreColor(score float64) string {
-	if score >= 80 {
-		return "#28a745"
-	} else if score >= 60 {
-		return "#ffc107"
-	}
-	return "#dc3545"
 }
 
 func generateReport(format, output string) {
