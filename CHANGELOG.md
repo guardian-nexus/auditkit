@@ -1,5 +1,33 @@
 # Changelog
 
+## [v0.6.1] - 2025-10-07
+
+### Added
+- **M365 Integration**: New `integrate` command for importing ScubaGear M365 security results
+- **Community Contribution**: Comprehensive Entra ID mappings (29 rules) contributed by community member
+- Unified compliance reporting across AWS, Azure, and M365
+- Step-by-step remediation guidance for M365 controls
+- Screenshot evidence collection instructions for Entra ID policies
+- Direct Azure portal console URLs for each control
+- Framework mappings: M365 findings now map to SOC2, PCI-DSS, HIPAA
+
+### Changed
+- Updated version to v0.6.1
+- Improved error messages for integration failures
+- Enhanced verbose mode for debugging integration parsing
+
+### Removed
+- Telemetry tracking completely removed (no analytics or usage tracking)
+
+### Technical
+- New integration framework at `pkg/integrations/`
+- ScubaGear parser implementation
+- Community-contributed mappings at `mappings/scubagear/entra.json`
+
+### Credits
+Special thanks to our community contributor for the comprehensive Entra ID security mappings that make AuditKit the first open-source tool providing unified AWS, Azure, and M365 compliance reporting.
+
+
 ## [v0.6.0] - 2025-09-27
 Added
 
