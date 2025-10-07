@@ -1,21 +1,22 @@
 # AuditKit - Multi-Cloud Compliance Scanner & Evidence Collection
 
-**Open-source compliance scanner for AWS and Azure with auditor-ready evidence collection guides.**
+**Open-source compliance scanner for AWS, Azure, and M365 with auditor-ready evidence collection guides.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-v0.6.0-green)
+![Version](https://img.shields.io/badge/version-v0.6.1-green)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
 
 AuditKit scans your cloud infrastructure against SOC2, PCI-DSS, and CMMC controls and provides:
 
-1. **Multi-Cloud Support** - AWS (production), Azure (v0.5.0) 
+1. **Multi-Cloud Support** - AWS, Azure, M365 (via ScubaGear integration)
 2. **Clear Pass/Fail Status** - 64 SOC2 controls, 30 PCI-DSS controls, 17 CMMC Level 1 controls
 3. **Exact Fix Commands** - Cloud-specific CLI commands for remediation
 4. **Evidence Collection Guides** - Step-by-step screenshots auditors accept
 5. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
+6. **Unified Reporting** - Combine AWS, Azure, and M365 findings in one report
 
 ## Quick Start
 
@@ -34,7 +35,7 @@ auditkit scan -provider aws -framework cmmc
 auditkit scan -provider aws -framework soc2 -format pdf -output aws-soc2.pdf
 ```
 
-### Azure (v0.5.0)
+### Azure
 ```bash
 # Configure Azure credentials
 az login
@@ -50,13 +51,50 @@ auditkit scan -provider azure -framework cmmc
 auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 ```
 
+### M365 (NEW in v0.6.1)
+```bash
+# Import ScubaGear M365 security results
+auditkit integrate -source scubagear -file ScubaResults.json -format text
+
+# Generate M365 compliance report
+auditkit integrate -source scubagear -file ScubaResults.json -format pdf -output m365-report.pdf
+
+# Combine with AWS/Azure for complete coverage
+auditkit scan -provider aws -framework soc2 -output aws-report.pdf
+auditkit integrate -source scubagear -file ScubaResults.json -output m365-report.pdf
+```
+
 ## Recent Updates
 
-**v0.6.0 (Sept 2025)** - CMMC Level 1 support with November 10, 2025 deadline tracking + CMMC Level 2 Pro available  
+**v0.6.1 (Oct 2025)** - M365/Entra ID integration via ScubaGear + Community-contributed mappings  
+**v0.6.0 (Sept 2025)** - CMMC Level 1 support with November 10, 2025 deadline tracking  
 **v0.5.0 (Sept 2025)** - Azure provider support with full SOC2/PCI-DSS implementation  
 **v0.4.1 (Sept 2025)** - Complete SOC2 implementation (all 64 Common Criteria)  
 **v0.4.0 (Sept 2025)** - Multi-framework support with PCI-DSS v4.0  
-**v0.3.0 (Sept 2025)** - Evidence collection guides based on Reddit feedback
+
+## What's New in v0.6.1
+
+### M365/Entra ID Integration
+- **ScubaGear support** - Import CISA's M365 security assessment results
+- **29 Entra ID rules** - Community-contributed mappings for authentication, MFA, and access controls
+- **Unified reporting** - Combine AWS, Azure, and M365 findings in one compliance report
+- **Framework mappings** - M365 findings mapped to SOC2, PCI-DSS, HIPAA, and CMMC
+- **Step-by-step remediation** - Detailed fix instructions for every M365 control
+- **Screenshot guidance** - Exact Azure Portal navigation for evidence collection
+- **Fallback notes** - Instructions for when Microsoft changes the UI
+
+### Integration Command
+```bash
+# New 'integrate' command for external tools
+auditkit integrate -source scubagear -file ScubaResults.json
+
+# Supported integrations:
+- scubagear (M365/Entra ID security)
+- prowler (coming soon)
+```
+
+### Community Contribution
+Special thanks to our community contributor for comprehensive Entra ID security mappings that make AuditKit the **first open-source tool providing unified AWS, Azure, and M365 compliance reporting**.
 
 ## Current Implementation Status
 
@@ -65,85 +103,92 @@ auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 |----------|-------|--------|--------|----------------|
 | **AWS** | 17 check files | ~150 checks | ✅ Production | AWS CLI, IAM roles |
 | **Azure** | 12 check files | ~110 checks | ✅ Production | CLI, Service Principal, Managed Identity |
+| **M365/Entra** | Integration | 29 rules | ✅ Via ScubaGear | ScubaGear output |
 | **GCP** | Not started | 0 | 🚧 Planned v0.7.0 | - |
 
 ### Framework Coverage
-| Framework | AWS Controls | Azure Controls | Status |
-|-----------|--------------|----------------|--------|
-| **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | ✅ Production Ready |
-| **PCI-DSS v4.0** | 30 technical | 30 technical | ✅ Production Ready |
-| **CMMC Level 1** | 17 practices | 17 practices | ✅ Production Ready |
-| **CMMC Level 2** | 110 practices (Pro) | 110 practices (Pro) | 🔥 Pro Feature - [AuditKit Pro](https://auditkit.io/pro/) or e-mail hello@auditkit.io |
-| **HIPAA** | ~10 mapped | ~10 mapped | 🧪 Experimental Only |
-| **ISO 27001** | ~5 mapped | ~5 mapped | 🧪 Experimental Only |
+| Framework | AWS Controls | Azure Controls | M365 Controls | Status |
+|-----------|--------------|----------------|---------------|--------|
+| **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | 29 Entra rules | ✅ Production Ready |
+| **PCI-DSS v4.0** | 30 technical | 30 technical | 29 Entra rules | ✅ Production Ready |
+| **CMMC Level 1** | 17 practices | 17 practices | - | ✅ Production Ready |
+| **CMMC Level 2** | 110 practices | 110 practices | - | 🔥 [Pro Feature](https://auditkit.io/pro/) |
+| **HIPAA** | ~10 mapped | ~10 mapped | 29 Entra rules | 🧪 Experimental |
+| **ISO 27001** | ~5 mapped | ~5 mapped | - | 🧪 Experimental |
 
-### CMMC Compliance (NEW in v0.6.0)
+### M365/Entra ID Coverage (NEW in v0.6.1)
+Thanks to our community contributor, the following Entra ID security controls are now mapped:
+- **Legacy Authentication**: Conditional access policies blocking legacy auth
+- **Identity Protection**: Risk-based sign-in and user risk policies
+- **Multi-Factor Authentication**: Phishing-resistant MFA enforcement
+- **Privileged Access**: PIM/PAM for privileged role management
+- **Guest Access**: Guest user restrictions and access controls
+- **Application Security**: App registration and consent policies
+- **Password Policies**: Modern password guidance aligned with NIST
+- **Security Monitoring**: Alerting on privileged role activations
+
+All 29 rules include:
+- SOC2 and PCI-DSS mappings
+- Step-by-step remediation instructions
+- Evidence collection guidance
+- Direct Azure Portal URLs
+- Microsoft Learn references
+
+### CMMC Compliance
 - **CMMC Level 1**: 17 foundational practices for Federal Contract Information (FCI)
 - **Deadline**: November 10, 2025 - All DoD contracts will require CMMC compliance
 - **Coverage**: Both AWS and Azure providers support complete Level 1 assessment
 - **Evidence**: Screenshot guides for all 17 practices with exact Azure Portal/AWS Console URLs
 
-### Azure Services Covered (v0.5.0+)
-- **Azure AD (Entra ID)**: MFA, privileged roles, guest access, password policies
-- **Full SOC2 Implementation**: All 64 Common Criteria controls (CC1-CC9)
-- **CMMC Implementation**: All 17 Level 1 practices with DoD deadline tracking
-- **Storage Accounts**: Public access, encryption, secure transfer, access keys
-- **Virtual Machines**: Disk encryption, managed disks, security extensions
-- **Network Security Groups**: Open ports, dangerous rules, flow logs
-- **Key Vault**: Soft delete, purge protection, access policies
-- **Activity Logs**: Retention, log profiles, diagnostic settings
-- **Azure SQL**: Transparent encryption, auditing, firewall rules
-- **Managed Identities**: System vs user-assigned configuration
-
 ## What Makes AuditKit Different
 
-### 1. Evidence Collection That Auditors Accept
+### 1. Unified Multi-Cloud Compliance
 
 ```yaml
-Control Failed: CC6.2 - Public S3 Bucket
-Fix Command: aws s3api put-public-access-block --bucket my-bucket --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+# First open-source tool to unify AWS + Azure + M365
+AWS Scan:
+  Provider: aws
+  Findings: 64 SOC2 controls checked
+  Output: aws-soc2-report.pdf
 
-Evidence Required:
-1. Navigate to: https://s3.console.aws.amazon.com/s3/buckets/my-bucket
-2. Click "Permissions" tab
-3. Screenshot showing all 4 "Block public access" settings = ON
-4. Save as: SOC2_CC6.2_S3_Public_Access.png
+Azure Scan:
+  Provider: azure
+  Findings: 64 SOC2 controls checked
+  Output: azure-soc2-report.pdf
+
+M365 Integration:
+  Source: ScubaGear
+  Findings: 29 Entra ID rules mapped
+  Output: m365-soc2-report.pdf
+
+Result: Complete compliance picture across all cloud environments
 ```
 
-## What's New in v0.6.0
+### 2. Evidence Collection That Auditors Accept
 
-### CMMC Level 1 Support
-- **17 CMMC Level 1 practices** implementing foundational cybersecurity for DoD contractors
-- **November 10, 2025 deadline tracking** - Shows days remaining until mandatory compliance
-- **Both AWS and Azure support** - Complete CMMC Level 1 coverage across cloud providers
-- **Federal Contract Information (FCI) protection** - Basic safeguarding requirements
-- **Evidence collection guides** - Screenshot instructions for all 17 practices
-- **Built-in upgrade messaging** - Clear path to Level 2 Pro for CUI handling
+```yaml
+Control Failed: MS.AAD.1.1 - Legacy authentication blocked
+Evidence Requirements:
+1. Navigate to: https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/PoliciesBlade
+2. Screenshot Conditional Access policy showing legacy authentication blocked
+3. Export sign-in logs highlighting blocked legacy authentication attempts
+4. Document any approved exceptions with compensating controls
 
-### CMMC Level 2 Pro Available
-- **110 CMMC Level 2 practices** for organizations handling Controlled Unclassified Information (CUI)
-- **Enterprise features** including advanced evidence automation and reporting
-- **Priority support** for DoD contractors facing November 2025 deadline
-- **Check out [AuditKit Pro](https://auditkit.io/pro/) or Contact hello@auditkit.io** for CMMC Level 2 Pro licensing and access
+Remediation Steps:
+1. In Microsoft Entra admin center, go to Security > Conditional Access > Policies
+2. Create or edit a policy that applies to all users
+3. Under 'Client apps', select 'Other clients' and 'Legacy authentication clients'
+4. Set the access control to Block
+5. Test in Report-only mode first
+6. Enable the policy in On state
 
-### CMMC Practices Covered (Level 1 Open Source)
-- **Access Control (AC)**: Limit system access and control information flow
-- **Identification & Authentication (IA)**: User identity verification and authentication
-- **Media Protection (MP)**: Control and sanitize CUI media
-- **Personnel Security (PS)**: Screen personnel prior to system access
-- **System Protection (SC)**: Cryptographic mechanisms and session management
-- **System Integrity (SI)**: Flaw identification, malicious code protection, security monitoring
-
-### Technical Improvements
-- Enhanced deadline countdown for time-sensitive compliance requirements
-- Improved framework-specific verbose output with control counts
-- Better integration with existing SOC2 and PCI-DSS workflows
-- Consistent evidence collection format across all frameworks
+Fallback: If UI changes, use Graph API: Get-AzureADMSConditionalAccessPolicy
+```
 
 ### 3. Framework-Specific Requirements
 
 ```yaml
-CMMC Level 1 (NEW):
+CMMC Level 1:
 - 17 foundational practices for FCI protection
 - Required for all DoD contractors by November 10, 2025
 - Self-assessment certification process
@@ -168,6 +213,7 @@ SOC2 Specific:
 - **Cloud Access**: 
   - AWS: Configured AWS CLI (`aws configure`)
   - Azure: Azure CLI (`az login`) or Service Principal
+  - M365: ScubaGear results file (see [CISA ScubaGear](https://github.com/cisagov/ScubaGear))
 - **Permissions**: Read-only access to cloud resources
 
 ## Installation
@@ -182,7 +228,7 @@ go build ./cmd/auditkit
 
 ### Using Go Install
 ```bash
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.0
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.1
 ```
 
 ### Download Binary
@@ -197,7 +243,12 @@ auditkit scan -provider azure          # Azure SOC2 scan
 auditkit scan -framework pci           # PCI-DSS scan
 auditkit scan -framework cmmc          # CMMC Level 1 scan (DoD contractors)
 auditkit scan -framework all           # All frameworks
-auditkit scan -verbose                 # Detailed output with deadline tracking
+auditkit scan -verbose                 # Detailed output
+
+# M365 Integration (NEW)
+auditkit integrate -source scubagear -file ScubaResults.json
+auditkit integrate -source scubagear -file ScubaResults.json -format pdf
+auditkit integrate -source scubagear -file ScubaResults.json -verbose
 
 # Reporting
 auditkit scan -format pdf -output report.pdf    # PDF with evidence checklist
@@ -215,6 +266,42 @@ auditkit compare                       # Compare last two scans
 # Evidence Collection
 auditkit evidence                      # Generate evidence tracker
 auditkit evidence -output tracker.html  # Save tracker
+```
+
+## M365 Integration Workflow
+
+### Step 1: Run ScubaGear Assessment
+```powershell
+# Install CISA ScubaGear (Windows PowerShell)
+Install-Module -Name ScubaGear
+
+# Run M365 security assessment
+Invoke-SCuBA -ProductNames aad -OutPath ./ScubaResults
+
+# This generates ScubaResults.json
+```
+
+### Step 2: Import into AuditKit
+```bash
+# Import M365 findings
+auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json -format text
+
+# Generate M365 compliance report
+auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json -format pdf -output m365-compliance.pdf
+```
+
+### Step 3: Unified Reporting
+```bash
+# Scan AWS
+auditkit scan -provider aws -framework soc2 -output aws-soc2.pdf
+
+# Scan Azure
+auditkit scan -provider azure -framework soc2 -output azure-soc2.pdf
+
+# Import M365
+auditkit integrate -source scubagear -file ScubaResults.json -output m365-soc2.pdf
+
+# Now you have complete multi-cloud compliance coverage
 ```
 
 ## Azure Authentication Options
@@ -242,50 +329,27 @@ auditkit/
     ├── cmd/auditkit/           # CLI entry point (main.go)
     ├── go.mod                  # Go dependencies
     └── pkg/
-        ├── aws/                # AWS provider (19 files)
-        │   ├── scanner.go      
-        │   ├── priority.go     
+        ├── aws/                # AWS provider
         │   └── checks/         
-        │       ├── cloudtrail.go
-        │       ├── cmmc_level1.go       # CMMC Level 1 practices (NEW)
-        │       ├── config.go
-        │       ├── ec2.go
-        │       ├── iam.go
-        │       ├── iam_advanced.go
-        │       ├── monitoring.go
-        │       ├── pci_dss.go           # PCI-DSS v4.0 controls
-        │       ├── rds.go
-        │       ├── s3.go
-        │       ├── soc2_cc1_cc2.go      # SOC2 Common Criteria 1-2
-        │       ├── soc2_cc3_cc5.go      # SOC2 Common Criteria 3-5
-        │       ├── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
-        │       ├── systems.go
-        │       ├── types.go
-        │       └── vpc.go
-        ├── azure/              # Azure provider (15 files)
-        │   ├── scanner.go      
-        │   └── checks/         
-        │       ├── aad.go               # Azure AD/Entra ID
-        │       ├── cmmc_level1.go       # CMMC Level 1 practices (NEW)
-        │       ├── compute.go           # VMs and disks
-        │       ├── identity.go          # Managed identities
-        │       ├── keyvault.go          # Key Vault checks
-        │       ├── monitoring.go        # Activity logs
-        │       ├── network.go           # NSGs and networking
+        │       ├── cmmc_level1.go       # CMMC Level 1 practices
         │       ├── pci_dss.go           # PCI-DSS v4.0 controls
         │       ├── soc2_cc1_cc2.go      # SOC2 Common Criteria 1-2
         │       ├── soc2_cc3_cc5.go      # SOC2 Common Criteria 3-5
-        │       ├── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
-        │       ├── sql.go               # Azure SQL
-        │       ├── storage.go           # Storage accounts
-        │       └── types.go
-        ├── cache/              # Scan result caching
-        ├── evidence/           # Screenshot guidance
+        │       └── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
+        ├── azure/              # Azure provider
+        │   └── checks/         
+        │       ├── cmmc_level1.go       # CMMC Level 1 practices
+        │       ├── pci_dss.go           # PCI-DSS v4.0 controls
+        │       ├── soc2_cc1_cc2.go      # SOC2 Common Criteria 1-2
+        │       ├── soc2_cc3_cc5.go      # SOC2 Common Criteria 3-5
+        │       └── soc2_cc6_cc9.go      # SOC2 Common Criteria 6-9
+        ├── integrations/       # External tool integrations (NEW)
+        │   ├── types.go        # Integration interfaces
+        │   └── scubagear/      # ScubaGear M365 integration
+        │       └── parser.go   # ScubaGear JSON parser
         ├── remediation/        # Fix script generation
         ├── report/             # PDF/HTML generation
-        ├── telemetry/          # Anonymous usage stats
-        ├── tracker/            # Progress tracking
-        └── updater/            # Version checking
+        └── tracker/            # Progress tracking
 ```
 
 ## Roadmap
@@ -295,7 +359,9 @@ auditkit/
 - [x] v0.4.1 - Full SOC2 implementation (Sept 2025)
 - [x] v0.5.0 - Azure support (Sept 2025)
 - [x] v0.6.0 - CMMC Level 1 support (Sept 2025)
+- [x] v0.6.1 - M365 integration via ScubaGear (Oct 2025)
 - [ ] v0.7.0 - GCP support (Dec 2025)
+- [ ] v0.7.1 - Prowler integration (Dec 2025)
 - [ ] v0.8.0 - Kubernetes compliance (Jan 2026)
 - [ ] v0.9.0 - Terraform/IaC scanning (Feb 2026)
 - [ ] v1.0.0 - Automated evidence collection (Mar 2026)
@@ -309,16 +375,18 @@ auditkit/
    - HIPAA & ISO 27001: Experimental mappings only
 4. **CMMC Level 2**: Contact us for Level 2+ requirements (110 practices for CUI handling)
 5. **Manual verification required** - Some controls need human review
+6. **M365 Integration**: Requires CISA ScubaGear for M365 assessment
 
 ## Contributing
 
 We need help with:
-1. **GCP provider** - Mirror AWS/Azure structure
-2. **HIPAA controls** - Complete the 45 administrative safeguards
-3. **ISO 27001** - Map all 114 controls
-4. **CMMC Level 2** - 110 additional practices for CUI protection
-5. **Evidence automation** - Selenium/Playwright for screenshots
-6. **Container scanning** - Kubernetes, Docker compliance
+1. **Additional M365 domains** - SharePoint, Teams, Exchange mappings
+2. **GCP provider** - Mirror AWS/Azure structure
+3. **Prowler integration** - Import Prowler AWS/Azure/GCP results
+4. **HIPAA controls** - Complete the 45 administrative safeguards
+5. **ISO 27001** - Map all 114 controls
+6. **Evidence automation** - Selenium/Playwright for screenshots
+7. **Container scanning** - Kubernetes, Docker compliance
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
@@ -330,6 +398,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## FAQ
 
+**Q: How does M365 integration work?**  
+A: Run CISA's ScubaGear tool to assess your M365 environment, then use `auditkit integrate` to import the results and map them to compliance frameworks (SOC2, PCI-DSS, HIPAA).
+
+**Q: Do I need ScubaGear installed?**  
+A: Only if you want M365/Entra ID compliance checking. For AWS and Azure, AuditKit scans directly. For M365, you run ScubaGear separately and import the results.
+
+**Q: What M365 services are covered?**  
+A: Currently Entra ID (Azure AD) with 29 rules. SharePoint, Teams, and Exchange coming soon based on community contributions.
+
 **Q: Is CMMC Level 1 implementation complete?**  
 A: Yes, v0.6.0 includes full CMMC Level 1 implementation with all 17 practices for both AWS and Azure. Production-ready for DoD contractor compliance.
 
@@ -337,19 +414,16 @@ A: Yes, v0.6.0 includes full CMMC Level 1 implementation with all 17 practices f
 A: November 10, 2025. All new DoD contracts will require CMMC compliance starting this date. AuditKit shows countdown and deadline tracking.
 
 **Q: What about CMMC Level 2?**  
-A: CMMC Level 2 (110 practices for CUI handling) is available as a Pro feature with enterprise support and advanced automation. Check out [AuditKit Pro](https://auditkit.io/pro/) for licensing information.
+A: CMMC Level 2 (110 practices for CUI handling) is available as a Pro feature. Check out [AuditKit Pro](https://auditkit.io/pro/) for licensing information.
 
 **Q: Why is my compliance score low?**  
-A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs)
-
-**Q: Which cloud provider has better coverage?**  
-A: Both AWS and Azure have identical control coverage across SOC2, PCI-DSS, and CMMC Level 1. AWS has slightly more mature checks due to being implemented first.
+A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs | M365: Conditional Access, Identity Protection)
 
 **Q: Can I scan multiple AWS accounts or Azure subscriptions?**  
 A: Currently one at a time. Use different profiles: `auditkit scan -profile production`
 
 **Q: Does this replace Prowler/ScoutSuite?**  
-A: No, those are security scanners. AuditKit focuses on compliance evidence collection for auditors with framework-specific mappings.
+A: No, those are security scanners. AuditKit focuses on compliance evidence collection for auditors with framework-specific mappings. However, we're working on Prowler integration!
 
 ## License
 
@@ -357,4 +431,6 @@ Apache 2.0 - Use freely, even commercially.
 
 ---
 
-**Built by engineers who've been through too many compliance audits. Special thanks to the off-the-cuff contributions from Jordan**
+**Built by engineers who've been through too many compliance audits.**
+
+**Special thanks to our community contributors, especially for the comprehensive Entra ID mappings that enable unified multi-cloud compliance reporting.**
