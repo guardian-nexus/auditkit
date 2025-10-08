@@ -1,0 +1,1844 @@
+{
+    "source": "scubagear",
+    "domain": "spo",
+    "version": "v1",
+    "rules": [
+        {
+            "rule_id": "MS.EXO.1.1",
+            "product": "exo",
+            "title": "Disable automatic email forwarding to external domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    },
+                    {
+                        "id": "10.2",
+                        "title": "Track and monitor all access to network resources and cardholder data"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Exchange admin center (https://admin.exchange.microsoft.com).",
+                "Navigate to Mail flow > Remote domains.",
+                "Select the 'Default' remote domain and choose 'Edit reply types'.",
+                "Clear the checkbox 'Allow automatic forwarding' and select 'Save'.",
+                "Repeat this process for each additional remote domain, allowing forwarding only for explicitly approved domains when justified.",
+                "Optionally, create an organizational policy defining approval criteria and exception handling for business-critical external forwarding."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Default remote domain configuration showing 'Allow automatic forwarding' unchecked.",
+                "PowerShell output confirming forwarding is disabled: Get-RemoteDomain | Select Name, AutoForwardEnabled.",
+                "Documentation or approval record for any exceptions where forwarding is allowed to a specific external domain."
+            ],
+            "console_url": "https://admin.exchange.microsoft.com/#/remotedomains",
+            "fallback_notes": "If the Exchange admin UI changes, confirm via PowerShell: Get-RemoteDomain | Select Name, AutoForwardEnabled — should return False for all but approved domains. Auditors will accept PowerShell exports, screenshots, and approval logs as valid evidence.",
+            "references": [
+                "https://learn.microsoft.com/en-us/exchange/mail-flow-best-practices/mail-flow-best-practices",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/outbound-spam-policies-configure"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.2.2",
+            "product": "exo",
+            "title": "Publish an SPF record for all domains and enforce hard fail for non-approved senders",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event detection and monitoring"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards to prevent unauthorized access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and security events"
+                    },
+                    {
+                        "id": "8.7",
+                        "title": "Ensure user identification and authentication for system components"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Identify all domains used to send mail on behalf of your organization (including third-party vendors and marketing tools).",
+                "In your DNS management console, create or update the TXT record for each domain with an SPF entry that includes authorized senders and ends with '-all' to enforce a hard fail.",
+                "For Microsoft 365, the recommended SPF record format is: v=spf1 include:spf.protection.outlook.com -all.",
+                "Validate your SPF configuration using public tools or PowerShell: Resolve-DnsName <domain> -Type TXT and confirm the record returns a valid SPF string.",
+                "If any third-party services send on your behalf, add them to the SPF policy using 'include:' or their documented sending hosts, but avoid exceeding the DNS lookup limit (10).",
+                "Document and review all approved senders quarterly to ensure the SPF record remains current."
+            ],
+            "evidence_guidance": [
+                "DNS TXT record output showing valid SPF entries ending in '-all' for each organizational domain.",
+                "Screenshot or export from DNS management console showing SPF record configuration.",
+                "Documentation or ticket evidence showing review and approval of authorized sending hosts."
+            ],
+            "console_url": "https://security.microsoft.com/emailauthentication",
+            "fallback_notes": "If the DNS is hosted externally or on-premises, provide DNS TXT record exports. Auditors will accept command-line validation results (Resolve-DnsName or nslookup) and policy documentation as valid evidence. SPF policies must be reviewed regularly for accuracy.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/email-authentication-spf-configure",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/how-office-365-uses-spf-to-prevent-spoofing",
+                "https://csrc.nist.gov/pubs/sp/800/177/r1/final"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.3.1",
+            "product": "exo",
+            "title": "Enable DKIM for all custom domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards to prevent unauthorized access"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event detection and monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10",
+                        "title": "Log and monitor all access"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Microsoft 365 Defender portal, go to Email and collaboration > Policies and rules > Threat policies > DKIM.",
+                "Select a custom domain and choose Create DKIM keys to get the two CNAME values (selector1 and selector2).",
+                "Publish the two CNAME records in external DNS for the domain, exactly as shown in the portal.",
+                "After DNS propagates, return to DKIM and select Enable for the domain.",
+                "Repeat for every custom sending domain and any subdomains used for mail.",
+                "Send a test message from the domain and review headers to confirm the DKIM-Signature with d=<yourdomain> is present and passing."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the DKIM page showing each custom domain with DKIM status Enabled.",
+                "DNS export or screenshots showing the two CNAME records for selector1 and selector2.",
+                "Sample message headers displaying DKIM-Signature with your domain in the d= tag and Authentication-Results showing dkim=pass."
+            ],
+            "console_url": "https://security.microsoft.com/dkimv2",
+            "fallback_notes": "If the DKIM menu moved, open Microsoft 365 Defender portal and search for DKIM under Email and collaboration. As a fallback, provide DNS CNAME record proofs and message headers from a test email showing DKIM pass. Auditors accept these when UI paths change.",
+            "references": [
+                "https://learn.microsoft.com/defender-office-365/email-authentication-dkim-configure",
+                "https://learn.microsoft.com/defender-office-365/email-authentication-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.4.1",
+            "product": "exo",
+            "title": "Publish a DMARC policy for all second-level domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring and detection"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10",
+                        "title": "Log and monitor all access"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Identify all organizational second-level domains used for email (e.g., example.com, example.org).",
+                "Access your DNS hosting provider and create a TXT record for each domain with the following format:",
+                "    Name: _dmarc.example.com",
+                "    Value: v=DMARC1; p=reject; rua=mailto:reports@example.com; ruf=mailto:reports@example.com; pct=100",
+                "Publish the record at the second-level domain (e.g., example.com) so that all subdomains inherit protection.",
+                "Verify propagation using PowerShell (Resolve-DnsName _dmarc.example.com -Type TXT) or online tools.",
+                "Document the configuration and review DMARC reports monthly to detect spoofing attempts."
+            ],
+            "evidence_guidance": [
+                "DNS TXT record export showing valid DMARC records at all second-level domains.",
+                "Command output (Resolve-DnsName _dmarc.example.com TXT) verifying policy presence and syntax.",
+                "DMARC aggregate report samples showing enforcement and report receipt addresses."
+            ],
+            "console_url": "https://security.microsoft.com/emailauthentication",
+            "fallback_notes": "If DNS management is external, provide TXT record exports and validation screenshots. Auditors will accept verified DNS lookups and sample aggregate reports as sufficient evidence when UI integration is unavailable.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure",
+                "https://www.rfc-editor.org/rfc/rfc7489"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.4.2",
+            "product": "exo",
+            "title": "Set DMARC policy enforcement to p=reject",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Security response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10",
+                        "title": "Log and monitor all access"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Confirm a valid DMARC record exists for each organizational domain.",
+                "Update the TXT record to enforce rejection of failed messages using p=reject (not quarantine or none). Example:",
+                "    v=DMARC1; p=reject; rua=mailto:reports@example.com; ruf=mailto:reports@example.com; pct=100",
+                "Allow sufficient monitoring time before moving to full enforcement if transitioning from p=none or p=quarantine.",
+                "Validate DMARC enforcement with a test message from an unauthorized sender and confirm it is rejected.",
+                "Review DMARC reports to ensure legitimate sources are not blocked."
+            ],
+            "evidence_guidance": [
+                "DNS TXT record export showing p=reject in each DMARC record.",
+                "Screenshots or logs showing test messages from unauthorized senders being rejected.",
+                "Sample DMARC aggregate reports showing enforcement actions."
+            ],
+            "console_url": "https://security.microsoft.com/emailauthentication",
+            "fallback_notes": "If the security portal UI changes, validate DMARC configuration through DNS TXT record lookups. Auditors accept DNS evidence, policy documentation, and test rejection logs.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure",
+                "https://www.rfc-editor.org/rfc/rfc7489"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.4.3",
+            "product": "exo",
+            "title": "Include reports@dmarc.cyber.dhs.gov in DMARC aggregate reports",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.4",
+                        "title": "Security threat intelligence sharing"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "12.10",
+                        "title": "Respond to security incidents and share information as required"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Edit existing DMARC TXT records to add reports@dmarc.cyber.dhs.gov as an additional aggregate report address.",
+                "Ensure the rua (aggregate report) field includes both the agency and CISA addresses, separated by commas. Example:",
+                "    v=DMARC1; p=reject; rua=mailto:reports@dmarc.cyber.dhs.gov, mailto:reports@example.com; ruf=mailto:reports@example.com",
+                "Republish the updated DMARC TXT record and confirm DNS propagation.",
+                "Validate that aggregate reports are being received at both addresses."
+            ],
+            "evidence_guidance": [
+                "DNS TXT record export showing reports@dmarc.cyber.dhs.gov listed in the rua field.",
+                "DMARC aggregate report samples confirming successful delivery to CISA address.",
+                "Documentation confirming that only federal or authorized government domains include this address."
+            ],
+            "console_url": "https://security.microsoft.com/emailauthentication",
+            "fallback_notes": "If the DMARC reporting process is managed by an external DNS provider, provide evidence of the DNS record content and report delivery confirmations. Auditors accept DMARC report headers as sufficient evidence.",
+            "references": [
+                "https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security",
+                "https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.4.4",
+            "product": "exo",
+            "title": "Include agency-specific contact addresses in DMARC aggregate and failure reports",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    },
+                    {
+                        "id": "CC7.4",
+                        "title": "Threat intelligence and reporting"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "12.10",
+                        "title": "Develop and maintain an incident response plan"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Identify internal security or email administration mailboxes designated to receive DMARC aggregate (rua) and failure (ruf) reports.",
+                "Edit each DMARC TXT record to include these internal contacts in addition to any regulatory or third-party addresses. Example:",
+                "    v=DMARC1; p=reject; rua=mailto:reports@example.com; ruf=mailto:dmarc-failures@example.com; pct=100",
+                "Validate DNS propagation and ensure the designated mailboxes can receive XML and forensic report data.",
+                "Establish a process for periodic DMARC report review to identify spoofing or delivery anomalies."
+            ],
+            "evidence_guidance": [
+                "DNS TXT record export showing internal addresses in rua and ruf fields.",
+                "Sample DMARC report headers or XML files showing delivery to the internal address.",
+                "Documentation or ticket confirming periodic review of DMARC data by the security team."
+            ],
+            "console_url": "https://security.microsoft.com/emailauthentication",
+            "fallback_notes": "If DNS administration is outsourced, request TXT record exports and mail logs confirming report delivery to the designated agency mailboxes. Auditors accept DNS and email evidence showing DMARC reporting in place.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure",
+                "https://www.rfc-editor.org/rfc/rfc7489"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.5.1",
+            "product": "exo",
+            "title": "Disable SMTP AUTH for the organization",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Least privilege and segregation of duties"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "2.2",
+                        "title": "Develop configuration standards to address security vulnerabilities"
+                    },
+                    {
+                        "id": "8.2",
+                        "title": "Use strong cryptography and authentication mechanisms"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Exchange admin center (https://admin.exchange.microsoft.com).",
+                "Navigate to Settings > Mail flow.",
+                "Under SMTP AUTH, check the box 'Turn off SMTP AUTH protocol for your organization'.",
+                "Save the configuration.",
+                "If legacy applications require SMTP AUTH, disable it globally and enable only for specific accounts as a documented exception.",
+                "Verify that all remaining applications use modern authentication methods (OAuth2) or service principals instead of basic authentication."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Exchange admin center > Settings > Mail flow showing 'Turn off SMTP AUTH' enabled.",
+                "PowerShell output confirming configuration: Get-TransportConfig | Select SmtpClientAuthenticationDisabled — value should be True.",
+                "Documentation listing any approved exceptions with business justification and alternative controls."
+            ],
+            "console_url": "https://admin.exchange.microsoft.com/#/settings/mailflow",
+            "fallback_notes": "If the interface changes, use Exchange Online PowerShell: Get-TransportConfig | Select SmtpClientAuthenticationDisabled. Auditors will accept PowerShell configuration exports or screenshots as evidence of enforcement.",
+            "references": [
+                "https://learn.microsoft.com/exchange/clients-and-mobile-in-exchange-online/authenticated-client-smtp-submission",
+                "https://learn.microsoft.com/en-us/defender-office-365/secure-by-default",
+                "https://techcommunity.microsoft.com/t5/exchange-team-blog/disabling-basic-authentication-in-exchange-online/ba-p/3609437"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.6.1",
+            "product": "exo",
+            "title": "Restrict contact folder sharing with all domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC6.3",
+                        "title": "Least privilege and segregation of duties"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    },
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict inbound and outbound traffic to that which is necessary"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Exchange admin center (https://admin.exchange.microsoft.com).",
+                "Navigate to Organization > Sharing.",
+                "Select 'Individual Sharing' and review all existing sharing policies.",
+                "For each policy, select 'Manage domains' and ensure 'Sharing with all domains' is not selected.",
+                "If necessary, add only approved domains that are authorized for contact sharing.",
+                "Save changes and review policy scope to ensure contact sharing is limited to intended recipients only."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Exchange admin center showing sharing policies with 'Sharing with all domains' unchecked.",
+                "PowerShell output: Get-SharingPolicy | Select Name, Domains | Format-Table confirming restricted domain list.",
+                "Documentation or approval record listing authorized domains for contact sharing, reviewed quarterly."
+            ],
+            "console_url": "https://admin.exchange.microsoft.com/#/organization/sharing",
+            "fallback_notes": "If sharing policy management moves, use Exchange Online PowerShell: Get-SharingPolicy to list domain permissions. Auditors accept PowerShell exports or policy screenshots showing restricted domain sharing.",
+            "references": [
+                "https://learn.microsoft.com/exchange/sharing/organization-relationships/organization-relationships",
+                "https://learn.microsoft.com/exchange/sharing/sharing-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.6.2",
+            "product": "exo",
+            "title": "Restrict calendar detail sharing with all domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC6.3",
+                        "title": "Least privilege and segregation of duties"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    },
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict inbound and outbound traffic to that which is necessary"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Exchange admin center (https://admin.exchange.microsoft.com).",
+                "Navigate to Organization > Sharing.",
+                "Select 'Individual Sharing' and review all existing policies governing calendar sharing.",
+                "For each policy, select 'Manage domains' and ensure that 'Sharing with all domains' is not selected.",
+                "Restrict sharing to specific, approved domains if legitimate collaboration requires it.",
+                "Save changes and confirm that users cannot publish calendar details broadly outside the organization."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Exchange admin center showing calendar sharing policies limited to specific domains.",
+                "PowerShell output: Get-SharingPolicy | Select Name, Domains | Format-Table confirming restricted calendar sharing.",
+                "Documented review or approval list for domains allowed calendar access, reviewed at least quarterly."
+            ],
+            "console_url": "https://admin.exchange.microsoft.com/#/organization/sharing",
+            "fallback_notes": "If the UI layout changes, use PowerShell: Get-SharingPolicy to verify that external sharing of calendar details is limited to approved domains only. Auditors accept policy exports or screenshots as evidence of configuration.",
+            "references": [
+                "https://learn.microsoft.com/exchange/sharing/organization-relationships/organization-relationships",
+                "https://learn.microsoft.com/exchange/sharing/sharing-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.7.1",
+            "product": "exo",
+            "title": "Implement external sender warnings in Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and security events"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Implement incident response procedures for detected anomalies"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Exchange admin center (https://admin.exchange.microsoft.com).",
+                "Navigate to Mail flow > Rules.",
+                "Select '+ Add a rule' and choose 'Modify messages...'.",
+                "Name the rule 'External sender warning'.",
+                "Under 'Apply this rule if...', select 'The sender is external/internal' and choose 'Outside the organization'.",
+                "Under 'Do the following...', select 'Prepend the subject of the message with...' and enter '[External]' (without quotes).",
+                "Choose 'Enforce' mode and save the rule.",
+                "Enable the rule and test by sending an email from an external address to confirm the subject tag appears correctly."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Mail flow rule named 'External sender warning' with conditions and actions clearly visible.",
+                "Test message showing the subject line prepended with '[External]' from an external address.",
+                "Audit log or Exchange Online message trace confirming rule application to inbound external emails."
+            ],
+            "console_url": "https://admin.exchange.microsoft.com/#/transportrules",
+            "fallback_notes": "If the rule creation UI changes, use PowerShell: New-TransportRule -Name 'External sender warning' -FromScope NotInOrganization -SetHeaderName 'X-MS-Exchange-Organization-Disclaimer-Text' -SetHeaderValue '[External]' or use equivalent subject prepend action. Auditors accept rule exports and test message evidence if UI differs.",
+            "references": [
+                "https://learn.microsoft.com/exchange/security-and-compliance/mail-flow-rules/mail-flow-rules",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/recommended-settings-for-eop-and-office365"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.8.1",
+            "product": "exo",
+            "title": "Implement a Data Loss Prevention (DLP) solution for Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3",
+                        "title": "Protect stored cardholder data"
+                    },
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Purview compliance portal (https://compliance.microsoft.com).",
+                "Navigate to Data loss prevention > Policies > Create policy.",
+                "Choose a template such as 'U.S. Personally Identifiable Information (PII)' or 'Financial data' to detect sensitive information types.",
+                "Scope the policy to Exchange Online mailboxes and select 'Block access or send incident report' as the enforcement action.",
+                "Enable policy tips or user notifications to educate users when sensitive data is detected.",
+                "Publish the policy and verify detection by testing with sample data."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Purview DLP policy list showing Exchange Online scope and enabled status.",
+                "Policy configuration export showing sensitive info types and enforcement actions.",
+                "Test email alert or incident report confirming DLP triggers are active."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If the DLP menu changes, search for 'Data loss prevention' in the Purview compliance portal. Auditors will accept policy exports and sample detection evidence if the UI differs.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies",
+                "https://learn.microsoft.com/microsoft-365/compliance/create-test-tune-dlp-policy"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.8.2",
+            "product": "exo",
+            "title": "Ensure DLP policies protect personally identifiable and sensitive information",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive authentication data"
+                    },
+                    {
+                        "id": "7.2",
+                        "title": "Implement role-based access control"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Microsoft Purview compliance portal, edit existing DLP policies or create new ones for Exchange Online.",
+                "Include sensitive information types such as 'U.S. Social Security Number', 'Credit Card Number', 'Taxpayer Identification Number', and any organization-specific data types.",
+                "Configure rules to block or encrypt emails containing these identifiers or to send incident alerts to administrators.",
+                "Enable user notifications and policy tips to reinforce secure behavior.",
+                "Test using sample data to verify DLP rules detect and act correctly."
+            ],
+            "evidence_guidance": [
+                "Screenshot or export of DLP rule configuration listing sensitive info types and Exchange Online scope.",
+                "Incident report samples showing detections of test PII data.",
+                "Change management record confirming periodic DLP policy review and updates."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If DLP configuration pages move, use PowerShell (Get-DlpCompliancePolicy) to export policies. Auditors will accept PowerShell output, policy screenshots, or incident samples as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies",
+                "https://learn.microsoft.com/microsoft-365/compliance/sensitive-information-type-learn-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.8.3",
+            "product": "exo",
+            "title": "If using third-party DLP, ensure feature parity with Microsoft native capabilities",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3",
+                        "title": "Protect sensitive data"
+                    },
+                    {
+                        "id": "10",
+                        "title": "Track and monitor access"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "If using a non-Microsoft DLP solution, review product documentation to confirm it provides equivalent capabilities to Microsoft Purview DLP.",
+                "Validate that the tool inspects message content and attachments, identifies sensitive data, and enforces blocking or encryption rules.",
+                "Ensure alerting, reporting, and audit integration are available for Exchange Online data flows.",
+                "Document the vendor solution’s mapping to SOC 2 and PCI DSS requirements.",
+                "Test the third-party DLP in sandbox mode to verify detection and enforcement parity."
+            ],
+            "evidence_guidance": [
+                "Vendor documentation or SOC 2 report confirming feature equivalence to Microsoft Purview DLP.",
+                "Test reports showing successful detection of sensitive data types (PII, financial info, etc.).",
+                "Configuration screenshots or exports confirming Exchange Online integration."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "For third-party DLP, auditors will accept vendor attestation, SOC 2 Type 2 reports, or integration documentation demonstrating comparable protection coverage.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies",
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies#dlp-policy-templates"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.8.4",
+            "product": "exo",
+            "title": "Restrict sharing of PII including credit card numbers, SSNs, and ITINs via email",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.4",
+                        "title": "Render cardholder data unreadable wherever stored"
+                    },
+                    {
+                        "id": "7",
+                        "title": "Restrict access to system components and cardholder data"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "In Microsoft Purview compliance portal, open Data loss prevention > Policies.",
+                "Edit the applicable Exchange Online policy and add sensitive information types: 'Credit Card Number', 'U.S. Individual Taxpayer Identification Number (ITIN)', and 'U.S. Social Security Number (SSN)'.",
+                "Configure enforcement actions to block or encrypt outbound messages containing these data types and notify administrators.",
+                "Enable user education tips to warn senders when policy violations occur.",
+                "Test using controlled examples of each identifier to confirm detection and blocking."
+            ],
+            "evidence_guidance": [
+                "Screenshot of DLP rule configuration listing PII identifiers and Exchange Online as the protected location.",
+                "Incident report or message trace showing blocked email containing test PII.",
+                "Documentation confirming periodic testing of DLP effectiveness."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If DLP settings move, verify using PowerShell (Get-DlpComplianceRule) to confirm rule scope and sensitive info types. Auditors accept rule exports, test results, and incident evidence as valid proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies",
+                "https://learn.microsoft.com/microsoft-365/compliance/sensitive-information-type-learn-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.9.1",
+            "product": "exo",
+            "title": "Enable attachment file type filtering in Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review security events and alerts"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Anti-malware.",
+                "Edit the preset or custom anti-malware policy.",
+                "Enable 'Common Attachment Types Filter' and select the disallowed file extensions list.",
+                "Save the policy and confirm it applies to all users or security groups handling email.",
+                "Test by sending a known blocked file type (e.g., .exe) to confirm the policy functions."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Anti-malware policy showing 'Common Attachment Types Filter' enabled.",
+                "Test email result or message trace showing blocked attachment.",
+                "Policy export or JSON file confirming enforcement is applied to all users."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "If the UI path changes, search 'Anti-malware' in Microsoft Defender portal. Auditors accept configuration exports, screenshots, or trace logs demonstrating blocked file types.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.9.2",
+            "product": "exo",
+            "title": "Ensure the attachment filter verifies true file type and file extension consistency",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.2",
+                        "title": "Ensure anti-malware mechanisms are current and functioning"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Defender portal, open Anti-malware policy settings.",
+                "Confirm that attachment filtering includes file type inspection (content-based detection, not just extension-based).",
+                "If using a third-party email security gateway, enable or verify MIME type and header inspection to detect disguised files.",
+                "Regularly review vendor documentation to confirm file-type verification remains active and updated.",
+                "Perform quarterly tests using renamed malicious file samples (e.g., .exe renamed as .txt) to confirm detection."
+            ],
+            "evidence_guidance": [
+                "Policy configuration screenshots showing content-based inspection or true file-type detection enabled.",
+                "Test logs or blocked message samples demonstrating detection of renamed executable files.",
+                "Vendor attestation or configuration export confirming inspection of MIME/file headers."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "If direct configuration is unavailable, document controls via vendor SOC 2 report or configuration statement. Auditors accept policy exports or test evidence showing true-file-type inspection.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.9.3",
+            "product": "exo",
+            "title": "Determine and enforce list of disallowed email attachment file types",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1.2",
+                        "title": "Ensure anti-malware mechanisms are configured to detect all known types"
+                    },
+                    {
+                        "id": "7",
+                        "title": "Restrict access to system components and data"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Define an organizational list of disallowed file types (e.g., .exe, .vbs, .bat, .cmd, .js, .scr).",
+                "In Microsoft Defender portal, go to Email & collaboration > Threat policies > Anti-malware.",
+                "Under 'Common Attachment Types Filter', verify the list includes all defined high-risk file types.",
+                "Update the policy as new file formats or attack techniques emerge.",
+                "Communicate policy scope and allowed alternatives (e.g., secure file transfer portals) to end users."
+            ],
+            "evidence_guidance": [
+                "Screenshot or export of disallowed attachment types list.",
+                "Policy review record showing periodic update to file type restrictions.",
+                "Incident reports confirming blocked malicious attachments."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "If Microsoft Defender is not used, provide third-party policy export or documentation showing equivalent enforcement. Auditors accept screenshots, exports, or blocked-message evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.9.4",
+            "product": "exo",
+            "title": "Ensure third-party attachment filtering matches Microsoft Defender baseline",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.2",
+                        "title": "Ensure anti-malware mechanisms are current and functioning"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and alerts"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Review the feature set of any third-party email security gateway used in place of Microsoft Defender.",
+                "Confirm that it supports attachment file-type filtering, content-based detection, and real-time malware scanning.",
+                "Ensure logging and alerting features are enabled for blocked attachments.",
+                "Document and validate equivalence against Microsoft anti-malware baseline annually.",
+                "Retain vendor SOC 2 Type 2 or penetration-test reports as supporting evidence."
+            ],
+            "evidence_guidance": [
+                "Vendor attestation or SOC 2 report demonstrating comparable attachment filtering capabilities.",
+                "Test evidence confirming detection of disallowed file types.",
+                "Configuration screenshots showing policy enforcement."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "For third-party solutions, provide vendor documentation and proof of filtering configuration. Auditors accept evidence of equivalence through reports or test results.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.9.5",
+            "product": "exo",
+            "title": "Block common click-to-run file types (e.g., .exe, .cmd, .vbe)",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor security events"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "In the Microsoft Defender portal, edit the active Anti-malware policy.",
+                "Under 'Common Attachment Types Filter', ensure .exe, .cmd, .vbe, and similar high-risk executable types are listed.",
+                "Save the policy and apply it organization-wide.",
+                "Test by sending a .exe or .cmd file attachment from an external email address to confirm it is blocked or quarantined.",
+                "Document test results and keep change management records for policy updates."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-malware policy showing blocked file extensions (.exe, .cmd, .vbe).",
+                "Test email message trace confirming attachment blocked.",
+                "Audit record of policy review confirming enforcement remains in place."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "If UI path changes, use PowerShell (Get-MalwareFilterPolicy) to verify blocked file types. Auditors will accept PowerShell output or test evidence as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.10.1",
+            "product": "exo",
+            "title": "Enable malware scanning for all inbound and outbound emails",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms on all systems"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security events"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Anti-malware.",
+                "Edit the preset or custom anti-malware policy and ensure 'Turn on malware filtering' is enabled.",
+                "Verify scanning is applied to both inbound and outbound mail.",
+                "Enable the 'Remove attachments if malware is detected' option.",
+                "Save and enforce the policy globally."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-malware policy showing malware filtering enabled.",
+                "Policy export confirming inbound and outbound scanning enabled.",
+                "Test message trace showing malware detection or quarantine action."
+            ],
+            "console_url": "https://security.microsoft.com/antimalwarev2",
+            "fallback_notes": "If UI changes, confirm using PowerShell: Get-MalwareFilterPolicy | Select Name, EnableFileFilter. Auditors accept PowerShell exports or policy screenshots as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.10.2",
+            "product": "exo",
+            "title": "Quarantine or drop emails detected as containing malware",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.2",
+                        "title": "Ensure anti-malware mechanisms are current and functioning"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Defender portal, open the active Anti-malware policy.",
+                "Enable 'Quarantine messages detected as malware' or equivalent enforcement setting.",
+                "Optionally configure notifications to administrators for quarantined malware messages.",
+                "Review the quarantine folder in the Security & Compliance Center to ensure policy actions occur.",
+                "Test by sending a known malware test file (e.g., EICAR) to confirm quarantine works."
+            ],
+            "evidence_guidance": [
+                "Screenshot of malware policy showing quarantine action selected.",
+                "Message trace or alert confirming EICAR or test malware was quarantined.",
+                "Administrator notification sample demonstrating quarantine workflow."
+            ],
+            "console_url": "https://security.microsoft.com/quarantine",
+            "fallback_notes": "If the quarantine view changes, verify via PowerShell: Get-QuarantineMessage or alert reports. Auditors accept trace logs and quarantine evidence as sufficient proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/quarantine-email-messages"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.10.3",
+            "product": "exo",
+            "title": "Enable post-delivery scanning to detect and remove malware from delivered messages",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1.2",
+                        "title": "Configure anti-malware to detect all known types"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review and monitor alerts"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Defender portal, go to Email & collaboration > Policies & rules > Threat policies.",
+                "Under preset or custom policies, ensure 'Zero-hour Auto Purge (ZAP)' is enabled.",
+                "Confirm that ZAP covers both malware and phishing message types.",
+                "Validate configuration using PowerShell: Get-HostedContentFilterPolicy | Select ZapEnabled — should return True.",
+                "Test by delivering a benign EICAR sample and confirming it is automatically purged post-delivery."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Threat policy showing ZAP enabled for malware and phishing.",
+                "PowerShell output confirming ZapEnabled = True.",
+                "Message trace or audit log showing ZAP removal of a test message."
+            ],
+            "console_url": "https://security.microsoft.com/threatpolicy",
+            "fallback_notes": "If ZAP settings move, use PowerShell verification or review message trace logs for post-delivery actions. Auditors accept ZAP reports or logs as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/zero-hour-auto-purge",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-malware-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.11.1",
+            "product": "exo",
+            "title": "Enable impersonation protection checks in Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event detection and monitoring"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and security events"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Implement incident response procedures"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Anti-phishing.",
+                "Edit or create an anti-phishing policy and enable 'User impersonation protection' and 'Domain impersonation protection'.",
+                "Add key users and trusted domains to the impersonation protection lists.",
+                "Enable mailbox intelligence for personalized protection against lookalike attacks.",
+                "Save and apply the policy globally or to high-risk user groups (e.g., executives)."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-phishing policy showing impersonation protection enabled for users and domains.",
+                "Export of configuration showing protected users and enabled mailbox intelligence.",
+                "Test email demonstrating a blocked or flagged impersonation attempt."
+            ],
+            "console_url": "https://security.microsoft.com/antiphishingv2",
+            "fallback_notes": "If the Anti-phishing page moves, use PowerShell: Get-AntiPhishPolicy | Select Name,EnableMailboxIntelligenceProtection. Auditors accept screenshots or PowerShell exports showing impersonation protection in effect.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-protection-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/learn-about-spoof-intelligence"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.11.2",
+            "product": "exo",
+            "title": "Display user warnings and safety tips for suspected phishing emails",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring and user alerting"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and escalation"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "12.6",
+                        "title": "Implement a security awareness program"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and alert on security events"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, navigate to Threat policies > Anti-phishing.",
+                "Open the active anti-phishing policy and enable 'Show user safety tips in email'.",
+                "Ensure users receive clear banner warnings for messages from external or first-time senders.",
+                "Optionally configure policy tips with organization-specific guidance (e.g., 'Verify sender before clicking links').",
+                "Save and enforce the policy globally."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing user safety tips enabled in Anti-phishing policy.",
+                "Example phishing email displaying a visible warning banner.",
+                "Awareness documentation or training record explaining safety tip behavior to end users."
+            ],
+            "console_url": "https://security.microsoft.com/antiphishingv2",
+            "fallback_notes": "If policy UI moves, confirm via PowerShell: Get-AntiPhishPolicy | Select Name,EnableSafetyTips. Auditors accept screenshots of warning banners or policy exports as sufficient evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-protection-about",
+                "https://learn.microsoft.com/en-us/defender-office-365/anti-phishing-policies-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.11.3",
+            "product": "exo",
+            "title": "Enable AI-based phishing detection using Mailbox Intelligence",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and automated monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and alerts"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Develop incident response mechanisms"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Threat policies > Anti-phishing.",
+                "Edit or create an anti-phishing policy and enable 'Mailbox Intelligence'.",
+                "Verify that Mailbox Intelligence protection and impersonation protection are both enabled.",
+                "Review and tune detection thresholds periodically to reduce false positives.",
+                "Test by sending a simulated phishing email to confirm AI-based detection triggers."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-phishing policy showing Mailbox Intelligence enabled.",
+                "PowerShell output: Get-AntiPhishPolicy | Select Name,EnableMailboxIntelligenceProtection — should return True.",
+                "Test simulation results showing AI detection of impersonation or suspicious email patterns."
+            ],
+            "console_url": "https://security.microsoft.com/antiphishingv2",
+            "fallback_notes": "If the Anti-phishing configuration path changes, verify via PowerShell and export policy settings. Auditors will accept PowerShell output, configuration screenshots, or phishing simulation results as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-protection-about",
+                "https://learn.microsoft.com/en-us/defender-office-365/anti-phishing-policies-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.12.1",
+            "product": "exo",
+            "title": "Avoid use of IP allow lists that bypass spam and authentication checks",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict inbound and outbound traffic to that which is necessary"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Anti-spam.",
+                "Under Connection filter policy (Default), select Edit connection filter policy.",
+                "Ensure the field 'Always allow messages from the following IP addresses or address range' is empty.",
+                "Confirm that the option 'Turn on safe list' is **not** selected.",
+                "Save the configuration and re-test mail flow to verify legitimate senders are unaffected."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Connection filter policy showing empty allow-list field and safe list disabled.",
+                "PowerShell output: Get-HostedConnectionFilterPolicy | Select-Object Name,IPAllowList — should return empty.",
+                "Change-control record confirming review of connection filter policy."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "If the portal path changes, use Exchange Online PowerShell to verify settings: Get-HostedConnectionFilterPolicy. Auditors will accept PowerShell exports or screenshots confirming no active IP allow list.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/connection-filter-policies-configure",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-spam-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.12.2",
+            "product": "exo",
+            "title": "Disable global safe lists to prevent bypassing security mechanisms",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict network connections to necessary sources"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, navigate to Email & collaboration > Policies & rules > Threat policies > Anti-spam.",
+                "Select the Connection filter policy (Default).",
+                "Open 'Edit connection filter policy' and confirm that 'Turn on safe list' is unchecked.",
+                "Optionally use a connection filter block list to prevent known malicious IPs instead of whitelisting senders.",
+                "Save changes and verify by sending a message from a domain previously on the safe list — it should now be filtered normally."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-spam policy showing 'Turn on safe list' disabled.",
+                "PowerShell output: Get-HostedConnectionFilterPolicy | Select-Object Name,EnableSafeList — should return False.",
+                "Policy review documentation confirming safe list remains disabled."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "If the UI location changes, confirm configuration with PowerShell or export settings. Auditors will accept command output and screenshots showing no safe list enabled.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/connection-filter-policies-configure",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-spam-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.13.1",
+            "product": "exo",
+            "title": "Enable mailbox auditing for all Exchange Online users",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.2",
+                        "title": "Implement automated audit trails for all system components"
+                    },
+                    {
+                        "id": "10.5",
+                        "title": "Secure audit trails so they cannot be altered"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and respond to anomalies"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Connect to Exchange Online PowerShell: Connect-ExchangeOnline -UserPrincipalName <admin@domain>.",
+                "Run the following command to verify mailbox auditing status:",
+                "    Get-OrganizationConfig | Format-List AuditDisabled",
+                "If AuditDisabled is True, enable auditing organization-wide using:",
+                "    Set-OrganizationConfig -AuditDisabled $false",
+                "Confirm auditing is enabled for all mailbox types (User, Shared, Discovery).",
+                "Optionally, verify default audit actions using:",
+                "    Get-Mailbox -ResultSize 1 | Select-Object -ExpandProperty AuditOwner,AuditAdmin,AuditDelegate"
+            ],
+            "evidence_guidance": [
+                "PowerShell output showing AuditDisabled : False in organizational config.",
+                "Audit log entries from Microsoft Purview confirming mailbox activity is being recorded.",
+                "Internal change-control record documenting enabling of mailbox auditing."
+            ],
+            "console_url": "https://compliance.microsoft.com/auditlogsearch",
+            "fallback_notes": "If PowerShell connection is not possible, capture screenshots from Purview Audit Log search confirming mailbox audit events are being recorded. Auditors accept either PowerShell evidence or log exports.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/enable-mailbox-auditing",
+                "https://learn.microsoft.com/en-us/exchange/policy-and-compliance/mailbox-audit-logging/mailbox-audit-logging"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.14.1",
+            "product": "exo",
+            "title": "Enable spam filtering for inbound email in Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and alerting"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security events"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Anti-spam.",
+                "Edit the default or custom anti-spam policy.",
+                "Ensure 'Spam filtering' is enabled and applied to all recipients.",
+                "Select aggressive filtering thresholds appropriate for your organization.",
+                "Save and apply the policy globally."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Anti-spam policy showing spam filtering enabled.",
+                "Policy export confirming global enforcement scope.",
+                "Test message trace demonstrating successful spam detection or quarantine."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "If portal layout changes, confirm via PowerShell: Get-HostedContentFilterPolicy | Select Name, EnableSpamFiltering. Auditors accept PowerShell output or screenshots as evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-spam-protection-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/configure-your-spam-filter-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.14.2",
+            "product": "exo",
+            "title": "Quarantine or move spam and high-confidence spam to junk folders",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, open the active Anti-spam policy.",
+                "Ensure 'Action for spam' is set to 'Move message to Junk Email folder' or 'Quarantine'.",
+                "Set 'Action for high-confidence spam' to 'Quarantine message'.",
+                "Save changes and test by sending a sample spam message.",
+                "Review quarantine and Junk Email reports to confirm policy enforcement."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing spam and high-confidence spam actions configured.",
+                "Message trace or quarantine log confirming blocked messages.",
+                "Periodic review record verifying quarantine effectiveness."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "If the interface changes, use PowerShell: Get-HostedContentFilterPolicy | Select Name, SpamAction, HighConfidenceSpamAction. Auditors accept output or screenshots.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/configure-your-spam-filter-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.14.3",
+            "product": "exo",
+            "title": "Prohibit adding entire domains to inbound allow lists in spam policies",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Least privilege and segregation of duties"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict connections to necessary sources"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, go to Email & collaboration > Threat policies > Anti-spam.",
+                "Open the connection or content filter policies and review allow-lists.",
+                "Remove any broad domain entries (e.g., *@domain.com or *.tld).",
+                "If necessary, use sender-specific safe senders instead of domain-wide allows.",
+                "Save changes and test inbound email filtering."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Anti-spam policy showing no full-domain allows.",
+                "PowerShell output: Get-HostedContentFilterPolicy | Select Name, AllowedSenderDomains — should be empty or restricted.",
+                "Change-control record documenting removal of domain allow-lists."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "If UI changes, confirm configuration with PowerShell or exported JSON. Auditors accept evidence of restricted sender lists and policy documentation.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/connection-filter-policies-configure"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.14.4",
+            "product": "exo",
+            "title": "Validate third-party spam filtering is equivalent to Microsoft Defender baseline",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.2",
+                        "title": "Ensure anti-malware mechanisms are current and functioning"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security alerts"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "If using a third-party email security solution, verify its spam filtering capabilities match or exceed Microsoft Defender’s baseline.",
+                "Confirm it supports reputation filtering, heuristics, sandboxing, and quarantine management.",
+                "Ensure integration with Exchange Online via connectors and audit logging.",
+                "Maintain vendor attestation (SOC 2 Type 2 or ISO 27001 certification) for equivalence documentation.",
+                "Review test results and detection efficacy quarterly."
+            ],
+            "evidence_guidance": [
+                "Vendor documentation or SOC 2 report confirming anti-spam capabilities.",
+                "Integration configuration screenshots or connector settings.",
+                "Test logs showing successful spam detection and quarantine."
+            ],
+            "console_url": "https://security.microsoft.com/antispamv2",
+            "fallback_notes": "For third-party gateways, auditors will accept SOC 2 reports, configuration screenshots, and testing evidence showing parity with Microsoft Defender features.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-spam-protection-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.15.1",
+            "product": "exo",
+            "title": "Enable Safe Links URL scanning and block-list comparison for incoming email",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event detection and monitoring"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and alerting"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Threat policies > Safe Links.",
+                "Edit or create a policy and enable 'Turn on Safe Links in email messages sent to this organization'.",
+                "Confirm that URLs are checked against Microsoft’s block list before delivery.",
+                "Save and apply the policy to all users or high-risk groups.",
+                "Test by sending an email containing a known malicious URL and confirm it is rewritten or blocked."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Safe Links policy showing email protection enabled.",
+                "Test email headers showing URL rewritten to safelinks.protection.outlook.com.",
+                "Message trace log confirming blocked or rewritten URL."
+            ],
+            "console_url": "https://security.microsoft.com/safelinksv2",
+            "fallback_notes": "If portal layout changes, verify Safe Links status using PowerShell: Get-SafeLinksPolicy | Select Name,EnableSafeLinksForEmail. Auditors accept policy exports and rewritten message samples as evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-links-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.15.2",
+            "product": "exo",
+            "title": "Enable real-time malware scanning for direct download links in emails",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event detection and monitoring"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and alerting"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review and respond to security alerts"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, open Threat policies > Safe Links.",
+                "Ensure the option 'Scan links to files and downloads in real time' is enabled.",
+                "Confirm the policy applies to Exchange Online and Microsoft 365 Apps.",
+                "Test by sending an email with a malicious file URL and verify Defender scans or blocks access.",
+                "Review reports under Security & Compliance > Threat Explorer to confirm detections."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Safe Links real-time scanning enabled.",
+                "Threat Explorer log showing blocked download URL.",
+                "Policy export listing Safe Links real-time scanning enabled for email and Office apps."
+            ],
+            "console_url": "https://security.microsoft.com/safelinksv2",
+            "fallback_notes": "If settings move, search for 'Safe Links' in the Defender portal or confirm with PowerShell (Get-SafeLinksPolicy). Auditors accept logs and test evidence as proof of real-time protection.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-links-about"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.15.3",
+            "product": "exo",
+            "title": "Enable user click tracking for Safe Links-protected emails",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and alerting"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and respond to security events"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Establish incident response processes"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, navigate to Threat policies > Safe Links.",
+                "Edit the policy and enable 'Track user clicks on Safe Links'.",
+                "Confirm that click tracking applies to email and Office applications.",
+                "Review the 'Safe Links click report' to validate data collection and visibility.",
+                "Integrate click tracking events with your SIEM for threat response correlation."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Safe Links policy showing 'Track user clicks' enabled.",
+                "Example Safe Links report showing click events captured.",
+                "SIEM log extract demonstrating user click events ingested for monitoring."
+            ],
+            "console_url": "https://security.microsoft.com/safelinksv2",
+            "fallback_notes": "If Safe Links reporting path changes, use Threat Explorer or Microsoft 365 Defender API to export click events. Auditors accept reports or SIEM integration logs as evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-links-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/office-365-ti"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.16.1",
+            "product": "exo",
+            "title": "Enable alert policies for suspicious and service-impacting activities in Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event monitoring and alerting"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and remediation"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and respond to anomalies"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Establish and maintain incident response procedures"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft 365 Defender portal (https://security.microsoft.com).",
+                "Navigate to Email & collaboration > Policies & rules > Alert policies.",
+                "Confirm the following alerts are active or create them if missing:",
+                "  - Suspicious email sending patterns detected",
+                "  - Suspicious connector activity",
+                "  - Suspicious email forwarding activity",
+                "  - Messages have been delayed",
+                "  - Tenant restricted from sending unprovisioned email",
+                "  - Tenant restricted from sending email",
+                "  - Potentially malicious URL click detected",
+                "Set alert severity to 'High' and ensure delivery to security administrators.",
+                "Save changes and test by simulating an outbound spam or forwarding rule event."
+            ],
+            "evidence_guidance": [
+                "Screenshot of alert policy list showing required alerts enabled.",
+                "Sample alert notification email or portal screenshot of triggered event.",
+                "Audit trail or system log demonstrating active alert generation."
+            ],
+            "console_url": "https://security.microsoft.com/alerts",
+            "fallback_notes": "If UI differs, use PowerShell: Get-ProtectionAlert | Select Name,Enabled. Auditors accept portal screenshots or alert export CSVs as proof of coverage.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/alert-policies",
+                "https://learn.microsoft.com/en-us/defender-office-365/alert-policies-defender-portal"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.16.2",
+            "product": "exo",
+            "title": "Send alerts to monitored mailbox or integrate with SIEM for central review",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Security event detection and alerting"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident management and escalation"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6.1",
+                        "title": "Respond to anomalies detected in security logs"
+                    },
+                    {
+                        "id": "12.10.3",
+                        "title": "Alert personnel to suspected security events"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, open Email & collaboration > Alert policies.",
+                "Edit each alert policy and under 'Recipients', specify a monitored SOC mailbox or SIEM connector address.",
+                "For larger environments, use Microsoft Sentinel or a third-party SIEM integration via the Office 365 Management API.",
+                "Verify alert notifications are received by performing a simulated alert trigger (e.g., send suspicious test message).",
+                "Document the alert routing logic and maintain evidence of SIEM data ingestion."
+            ],
+            "evidence_guidance": [
+                "Screenshot of alert configuration showing monitored mailbox or SIEM destination.",
+                "SIEM dashboard or log capture showing received Exchange Online alerts.",
+                "Internal response procedure describing alert triage workflow."
+            ],
+            "console_url": "https://security.microsoft.com/alerts",
+            "fallback_notes": "If Microsoft changes alert configuration flow, confirm via Compliance Portal or export alert configuration using Get-ProtectionAlert. Auditors accept notification evidence or SIEM ingestion logs.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-xdr/alert-policies",
+                "https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-reference"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.17.1",
+            "product": "exo",
+            "title": "Enable Unified Audit Logging in Microsoft 365 for Exchange Online",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Incident response and analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.2",
+                        "title": "Implement automated audit trails for all system components"
+                    },
+                    {
+                        "id": "10.5",
+                        "title": "Secure audit trails against unauthorized modification"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and respond to anomalies"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Purview compliance portal (https://compliance.microsoft.com).",
+                "Navigate to Audit > Audit Search.",
+                "If prompted to start recording user and admin activity, select 'Start recording now'.",
+                "Alternatively, use PowerShell: Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true.",
+                "Confirm configuration using: Get-AdminAuditLogConfig | Select UnifiedAuditLogIngestionEnabled — should return True.",
+                "Verify audit events are being ingested by performing an administrative action and confirming it appears in the audit search results."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Audit Search showing 'Unified Audit Logging' enabled.",
+                "PowerShell output confirming UnifiedAuditLogIngestionEnabled = True.",
+                "Audit log entries showing recent Exchange Online admin or user actions."
+            ],
+            "console_url": "https://compliance.microsoft.com/auditlogsearch",
+            "fallback_notes": "If interface differs, validate via PowerShell as above. Auditors will accept PowerShell outputs or exported audit logs showing active ingestion.",
+            "references": [
+                "https://learn.microsoft.com/en-us/purview/audit-log-enable-disable",
+                "https://learn.microsoft.com/en-us/purview/audit-search"
+            ]
+        },
+        {
+            "rule_id": "MS.EXO.17.3",
+            "product": "exo",
+            "title": "Retain Unified Audit Logs for minimum 12 months active and 18 months cold storage",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event logging and detection"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Anomaly detection and alerting"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.7",
+                        "title": "Retain audit trail history for at least one year"
+                    },
+                    {
+                        "id": "10.5",
+                        "title": "Secure and protect audit logs from alteration"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Purview portal, navigate to Audit > Audit retention policies.",
+                "Create or edit a policy to retain audit logs for 12 months (E5/G5 default) or longer per organizational or OMB M-21-31 requirements.",
+                "For additional retention, export logs to a secure storage solution (e.g., Azure Storage, Sentinel, or on-prem SIEM) for 18 months cold storage.",
+                "Confirm retention policies apply to all Exchange Online events and user activity categories.",
+                "Document retention configuration and evidence of secure offloading."
+            ],
+            "evidence_guidance": [
+                "Screenshot of audit retention policy showing 12-month or longer duration.",
+                "PowerShell output: Get-UnifiedAuditLogRetentionPolicy confirming retention settings.",
+                "Export record or SIEM log snapshot showing audit data older than 12 months retained."
+            ],
+            "console_url": "https://compliance.microsoft.com/auditretention",
+            "fallback_notes": "If the portal changes, verify via PowerShell or exported retention configuration. Auditors will accept policy exports, screenshots, or archived log samples.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/audit-log-retention-policies",
+                "https://www.whitehouse.gov/wp-content/uploads/2021/08/M-21-31-Improving-the-Federal-Governments-Investigative-and-Remediation-Capabilities-Related-to-Cybersecurity-Incidents.pdf"
+            ]
+        }
+    ]
+}
