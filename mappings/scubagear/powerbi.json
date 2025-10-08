@@ -1,0 +1,374 @@
+{
+    "source": "scubagear",
+    "domain": "powerbi",
+    "version": "v1",
+    "rules": [
+        {
+            "rule_id": "MS.POWERBI.1.1",
+            "product": "powerbi",
+            "title": "Disable Publish to Web feature unless business-justified",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Restrict public data exposure"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and prevent unauthorized data publication"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.4",
+                        "title": "Protect stored and transmitted cardholder data"
+                    },
+                    {
+                        "id": "12.3",
+                        "title": "Establish secure usage policies for cloud services"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Navigate to the Power BI Admin Portal.",
+                "Select Tenant settings > Export and sharing settings.",
+                "Locate 'Publish to web' and set to Disabled.",
+                "If required for specific use cases, enable only for approved security groups.",
+                "Review quarterly to confirm no unintended web-published content exists."
+            ],
+            "evidence_guidance": [
+                "Screenshot from Admin Portal showing 'Publish to web' set to Disabled.",
+                "Exported tenant settings JSON showing publish_to_web:false.",
+                "Exception register documenting any approved business justifications."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "If UI changes, verify through PowerShell: Get-PowerBIAdminTenantSettings | Select PublishToWebEnabled.",
+            "references": [
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.2.1",
+            "product": "powerbi",
+            "title": "Restrict or disable Power BI guest access",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.1",
+                        "title": "Restrict logical access to authorized users"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent external unauthorized access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.1",
+                        "title": "Limit access to system components and data to authorized users"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Establish policies to restrict remote and external access"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Navigate to the Power BI Admin Portal.",
+                "Go to Tenant settings > Export and sharing settings.",
+                "Set 'Allow Microsoft Entra guest users to edit and manage content' to Disabled.",
+                "If guest access is required, enable only for specific approved security groups.",
+                "Revalidate guest memberships monthly."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing guest access set to Disabled.",
+                "Tenant settings export verifying guest access policy.",
+                "List of approved guest groups and risk acceptance record."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "If the setting moves, use PowerShell Get-PowerBITenantSettings to confirm AllowExternalGuestAccess=false.",
+            "references": [
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.3.1",
+            "product": "powerbi",
+            "title": "Disable external invitations unless required by mission need",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Enforce least privilege on data sharing"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized external collaboration"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2",
+                        "title": "Grant access based on job function and need-to-know"
+                    },
+                    {
+                        "id": "12.3.8",
+                        "title": "Restrict user provisioning and sharing with external entities"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Power BI Admin Portal, open Tenant Settings > Export and sharing settings.",
+                "Locate 'Invite external users to your organization' and set to Disabled.",
+                "If required for collaboration, enable only for specific groups defined by business policy.",
+                "Review guest invitation logs quarterly."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing external invite feature set to Disabled.",
+                "Audit report of guest invitations confirming compliance.",
+                "Exception log for any enabled domains or groups."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "Verify using Get-PowerBITenantSettings | Select InviteExternalUsersEnabled for automation checks.",
+            "references": [
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.4.1",
+            "product": "powerbi",
+            "title": "Restrict Power BI service principal API access to approved groups",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "Restrict system access to necessary functions"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Protect integration points from misuse"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "8.6",
+                        "title": "Authenticate and authorize all application interfaces"
+                    },
+                    {
+                        "id": "7.2",
+                        "title": "Limit application access to required personnel or systems"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Go to the Power BI Admin Portal > Tenant settings > Developer settings.",
+                "Locate 'Allow service principals to use Power BI APIs'.",
+                "Set to Enabled for approved security groups only.",
+                "Store service principal credentials in Azure Key Vault.",
+                "Review group membership quarterly."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing API access restricted to named security group.",
+                "Azure AD group export verifying approved service principals.",
+                "Key Vault access policy report confirming key protection."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "If the UI changes, validate through PowerShell Get-PowerBITenantSettings | Select ServicePrincipalAPIEnabled.",
+            "references": [
+                "https://learn.microsoft.com/power-bi/developer/embedded/embed-service-principal",
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.4.2",
+            "product": "powerbi",
+            "title": "Restrict service principals creating or using profiles to approved groups",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict elevated privileges to authorized entities"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Prevent unauthorized actions via automation interfaces"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2",
+                        "title": "Limit administrative access to essential roles"
+                    },
+                    {
+                        "id": "10.2",
+                        "title": "Track administrative access to APIs"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "In Power BI Admin Portal > Tenant settings > Developer settings, locate 'Allow service principals to create and use profiles'.",
+                "Set to Enabled only for approved security groups.",
+                "Document purpose and access rationale for each group.",
+                "Revalidate permissions semi-annually."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing 'Allow service principals to create and use profiles' enabled for a named group.",
+                "Audit log showing changes to service principal profiles.",
+                "Access control list report for security groups involved."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "Validate through PowerShell using Get-PowerBITenantSettings | Select ServicePrincipalProfileCreationEnabled.",
+            "references": [
+                "https://learn.microsoft.com/power-bi/developer/embedded/embed-service-principal",
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.5.1",
+            "product": "powerbi",
+            "title": "Block ResourceKey-based authentication unless justified by design",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Protect authentication credentials from compromise"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Implement safeguards against unauthorized data injection"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "8.2",
+                        "title": "Use strong authentication mechanisms for all access"
+                    },
+                    {
+                        "id": "6.4",
+                        "title": "Ensure security of APIs and custom applications"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Open Power BI Admin Portal > Tenant settings > Developer settings.",
+                "Locate 'Block ResourceKey Authentication' and set to Enabled.",
+                "Document any exceptions for streaming or push dataset scenarios.",
+                "Review approved keys quarterly and revoke unused ones."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing ResourceKey Authentication set to Blocked.",
+                "List of approved exceptions with business justification.",
+                "Log or alert confirming no unauthorized API key use."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "Confirm via PowerShell Get-PowerBITenantSettings | Select ResourceKeyAuthBlocked.",
+            "references": [
+                "https://learn.microsoft.com/power-bi/connect-data/service-real-time-streaming",
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.6.1",
+            "product": "powerbi",
+            "title": "Disable Python and R visual sharing to reduce script-based risk",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "Restrict execution of untrusted code"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Prevent introduction of malicious code into systems"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "6.5",
+                        "title": "Address common coding vulnerabilities"
+                    },
+                    {
+                        "id": "6.6",
+                        "title": "Implement secure code reviews and script restrictions"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Go to Power BI Admin Portal > Tenant settings > R and Python Visuals.",
+                "Set 'Interact with and share R and Python visuals' to Disabled.",
+                "Allow exceptions only after security review of underlying script.",
+                "Re-evaluate this configuration after each quarterly patch cycle."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Python/R visual setting disabled.",
+                "Change management record showing last configuration review.",
+                "Security review notes for any approved R/Python use."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "Use PowerShell Get-PowerBITenantSettings | Select PythonRVisualsEnabled for verification.",
+            "references": [
+                "https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-python-scripts",
+                "https://learn.microsoft.com/en-us/power-bi/visuals/service-r-visuals"
+            ]
+        },
+        {
+            "rule_id": "MS.POWERBI.7.1",
+            "product": "powerbi",
+            "title": "Enable and enforce sensitivity labels for Power BI content",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.7",
+                        "title": "Protect information during transmission, processing, and storage"
+                    },
+                    {
+                        "id": "CC8.1",
+                        "title": "Prevent unauthorized data disclosure"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.5",
+                        "title": "Protect encryption keys and sensitive data at rest"
+                    },
+                    {
+                        "id": "12.3.10",
+                        "title": "Implement information classification and labeling mechanisms"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Power BI Admin Portal > Tenant settings > Information protection, enable 'Allow users to apply sensitivity labels for content'.",
+                "Ensure sensitivity labels are defined in Microsoft Purview Information Protection and published to the correct users.",
+                "Enable 'Apply sensitivity labels from data sources to their data in Power BI' and restrict sharing of protected content via public links.",
+                "For high-security environments, implement Bring Your Own Key (BYOK) encryption and row-level security (RLS)."
+            ],
+            "evidence_guidance": [
+                "Screenshot of tenant settings showing sensitivity labels enabled.",
+                "Label configuration export from Microsoft Purview portal.",
+                "Test report showing applied sensitivity label watermark or encryption status."
+            ],
+            "console_url": "https://app.powerbi.com/admin-portal/tenantSettings",
+            "fallback_notes": "If the Power BI admin portal changes, validate via Get-PowerBITenantSettings | Select SensitivityLabelsEnabled.",
+            "references": [
+                "https://learn.microsoft.com/en-us/fabric/admin/about-tenant-settings",
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-data-protection-overview",
+                "https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-security-sensitivity-label-overview"
+            ]
+        }
+    ]
+}
