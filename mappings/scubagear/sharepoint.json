@@ -1,0 +1,318 @@
+{
+    "source": "scubagear",
+    "domain": "spo",
+    "version": "v1",
+    "rules": [
+        {
+            "rule_id": "MS.SHAREPOINT.1.1",
+            "product": "spo",
+            "title": "Limit external sharing for SharePoint to existing guests or internal users only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Under 'External sharing', set the SharePoint sharing slider to 'Existing guests' or 'Only people in your organization'.",
+                "Save the configuration and confirm it propagates to all site collections.",
+                "Communicate this change to site owners and ensure external sharing requests follow a documented approval process."
+            ],
+            "evidence_guidance": [
+                "Screenshot of SharePoint admin center > Policies > Sharing page showing sharing limited to 'Existing guests' or 'Only people in your organization'.",
+                "Export of site collection sharing settings to confirm alignment with the tenant-level restriction.",
+                "Documentation of the approval process for any exceptions (e.g., business units requiring collaboration with vetted partners)."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If navigation changes, search for 'Sharing settings' within the SharePoint admin center. Alternatively, verify via PowerShell (Get-SPOTenant | Select SharingCapability) — acceptable values are 'ExistingExternalUserSharingOnly' or 'Disabled'. Auditors will accept PowerShell output and screenshots as valid evidence if the UI layout differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview",
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.1.2",
+            "product": "spo",
+            "title": "Limit external sharing for OneDrive to existing guests or internal users only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Under 'External sharing', adjust the OneDrive sharing slider to 'Existing guests' or 'Only people in your organization'.",
+                "Select 'Save' to apply changes across all OneDrive sites.",
+                "Communicate the policy to employees and site owners to prevent unapproved external sharing."
+            ],
+            "evidence_guidance": [
+                "Screenshot of SharePoint admin center > Policies > Sharing showing OneDrive sharing set to 'Existing guests' or 'Only people in your organization'.",
+                "Export of OneDrive site sharing configurations (Get-SPOSite -Template 'SPSPERS*' | Select Title, Url, SharingCapability).",
+                "Documented exceptions or approvals for any external collaboration use cases, reviewed periodically."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the SharePoint admin interface changes, search for 'Sharing settings' within the SharePoint admin center. Alternatively, confirm via PowerShell: Get-SPOTenant | Select OneDriveSharingCapability — acceptable values are 'ExistingExternalUserSharingOnly' or 'Disabled'. Auditors will accept PowerShell output and screenshots as evidence if UI paths differ.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview",
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.1.3",
+            "product": "spo",
+            "title": "Restrict external sharing to approved domains or security groups",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Least privilege and segregation of duties"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Expand 'More external sharing settings' and select 'Limit external sharing by domain'.",
+                "Select 'Add domains' and enter each approved external domain that collaboration is allowed with (e.g., trusted partner organizations).",
+                "Select 'Manage security groups' and specify approved security groups whose members are authorized to share externally.",
+                "Select 'Save' to apply the configuration.",
+                "Document the approved domain and security group lists and review them quarterly to confirm business justification remains valid."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Sharing page showing 'Limit external sharing by domain' enabled and configured with approved domains.",
+                "PowerShell export: Get-SPOTenant | Select SharingDomainRestrictionMode, SharingAllowedDomainList.",
+                "Approval log or access review record confirming the list of allowed domains and groups was reviewed within the last quarter."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If 'More external sharing settings' moves, search for 'Collaboration restrictions' in the SharePoint admin center. Alternatively, confirm via PowerShell that SharingDomainRestrictionMode is 'AllowList' and SharingAllowedDomainList contains only approved domains. Auditors will accept PowerShell exports and review logs as evidence if UI layout differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/restricted-domains-sharing",
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.2.1",
+            "product": "spo",
+            "title": "Set default file and folder sharing scope to Specific people",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Go to Policies > Sharing.",
+                "Under 'File and folder links', locate the setting 'Default link type'.",
+                "Select 'Specific people (only the people the user specifies)'.",
+                "Select 'Save' to apply changes to the tenant.",
+                "Communicate the updated default sharing behavior to site owners and ensure any exceptions are reviewed and documented."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the SharePoint admin center showing 'Default link type' set to 'Specific people'.",
+                "PowerShell output from Get-SPOTenant | Select DefaultSharingLinkType confirming value 'SpecificPeople'.",
+                "Documentation or communication confirming employees were informed of new sharing defaults and exception handling procedures."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the 'File and folder links' section changes, search for 'Sharing settings' in the SharePoint admin center. Alternatively, confirm configuration via PowerShell (Get-SPOTenant | Select DefaultSharingLinkType). Auditors will accept PowerShell output or screenshots as valid evidence if the interface differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off",
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off#file-and-folder-links"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.2.2",
+            "product": "spo",
+            "title": "Set default file and folder sharing permission to View only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Under 'File and folder links', locate the option 'These links can give these permissions'.",
+                "Set both 'Files' and 'Folders' options to 'View' to make View the default permission level.",
+                "Select 'Save' to apply changes across the tenant.",
+                "Communicate the policy change to users and site owners and document exceptions where Edit permissions are business-critical."
+            ],
+            "evidence_guidance": [
+                "Screenshot of SharePoint admin center showing file and folder link permissions set to 'View'.",
+                "PowerShell output from Get-SPOTenant | Select DefaultSharingLinkType, DefaultLinkPermission showing 'SpecificPeople' and 'View'.",
+                "Documentation of exception requests and business justification for any sites where Edit defaults are retained."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the 'File and folder links' layout changes, search for 'Sharing settings' in the SharePoint admin center. Alternatively, confirm via PowerShell (Get-SPOTenant | Select DefaultLinkPermission). Auditors will accept PowerShell outputs or admin screenshots as valid evidence if UI differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off#file-and-folder-links",
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.3.1",
+            "product": "spo",
+            "title": "Set expiration for Anyone links to 30 days or less",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Scroll to the section 'Choose expiration and permissions options for Anyone links'.",
+                "Select the checkbox 'These links must expire within this many days' and enter a value of 30 or less.",
+                "Select 'Save' to apply changes tenant-wide.",
+                "If 'Anyone' sharing is not allowed, document that this control is not applicable."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Sharing settings showing 'These links must expire within this many days' enabled and set to 30 or less.",
+                "PowerShell output from Get-SPOTenant | Select RequireAnonymousLinksExpireInDays confirming value ≤30.",
+                "Documentation confirming if 'Anyone' sharing is disabled, this control is not applicable."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the layout changes, search for 'Anyone link expiration' in the SharePoint admin center. Alternatively, verify via PowerShell (Get-SPOTenant | Select RequireAnonymousLinksExpireInDays). Auditors will accept PowerShell output or screenshots as valid evidence.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off#file-and-folder-links",
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.3.2",
+            "product": "spo",
+            "title": "Set permissions for Anyone links to View only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7",
+                        "title": "Restrict access by business need to know"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Scroll to 'Choose expiration and permissions options for Anyone links'.",
+                "Under 'These links can give these permissions', set both 'Files' and 'Folders' to 'View'.",
+                "Select 'Save' to apply changes across the tenant.",
+                "If 'Anyone' sharing is disabled, record the control as not applicable."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Sharing settings showing 'Files' and 'Folders' permissions set to 'View'.",
+                "PowerShell export confirming anonymous links default to view-only permissions.",
+                "Documentation or screenshot confirming 'Anyone' sharing setting, or note of N/A if disabled."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the SharePoint admin UI changes, search for 'Anyone link permissions' or use PowerShell (Get-SPOTenant | Select AnonymousLinkPermission). Auditors will accept PowerShell evidence or policy screenshots if UI differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off#file-and-folder-links",
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview"
+            ]
+        },
+        {
+            "rule_id": "MS.SHAREPOINT.3.3",
+            "product": "spo",
+            "title": "Require reauthentication for verification code users every 30 days or less",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "User access authorization"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "8.3",
+                        "title": "Multi-factor authentication for access to CDE"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Sign in to the SharePoint admin center (https://admin.microsoft.com > Admin centers > SharePoint).",
+                "Navigate to Policies > Sharing.",
+                "Expand 'More external sharing settings'.",
+                "Select 'People who use a verification code must reauthenticate after this many days' and set the value to 30 or less.",
+                "Select 'Save' to apply changes.",
+                "If verification code sharing is disabled, record this control as not applicable."
+            ],
+            "evidence_guidance": [
+                "Screenshot of 'More external sharing settings' showing reauthentication period set to 30 days or less.",
+                "PowerShell output from Get-SPOTenant | Select RequireAnonymousLinksExpireInDays or equivalent property confirming configuration.",
+                "Documentation confirming verification code sharing configuration (enabled or disabled)."
+            ],
+            "console_url": "https://admin.microsoft.com/sharepoint?page=sharing",
+            "fallback_notes": "If the setting moves, search for 'verification code reauthentication' in the SharePoint admin center. Alternatively, confirm via PowerShell (Get-SPOTenant | Select RequireAnonymousLinksExpireInDays). Auditors will accept PowerShell output or screenshots as valid evidence if the interface differs.",
+            "references": [
+                "https://learn.microsoft.com/sharepoint/turn-external-sharing-on-or-off",
+                "https://learn.microsoft.com/sharepoint/external-sharing-overview"
+            ]
+        }
+    ]
+}
