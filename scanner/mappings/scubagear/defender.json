@@ -1,0 +1,890 @@
+{
+    "source": "scubagear",
+    "domain": "defender",
+    "version": "v1",
+    "rules": [
+        {
+            "rule_id": "MS.DEFENDER.1.1",
+            "product": "defender",
+            "title": "Enable Standard and Strict preset security policies in Microsoft Defender",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Identify and protect against security threats"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor for and detect security events"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms across systems"
+                    },
+                    {
+                        "id": "6.2",
+                        "title": "Maintain secure configurations and timely updates"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender (https://security.microsoft.com).",
+                "Navigate to Email & Collaboration > Policies & Rules > Threat Policies.",
+                "Select Preset Security Policies.",
+                "Enable both 'Standard protection' and 'Strict protection' by toggling them to On.",
+                "If the toggles are unavailable, click 'Manage protection settings' and configure them manually as per Microsoft guidance."
+            ],
+            "evidence_guidance": [
+                "Screenshot of both Standard and Strict preset policies showing status = On.",
+                "Policy export or PowerShell output confirming preset policy configuration.",
+                "Change ticket or configuration record documenting activation date."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If the portal layout changes, verify status using PowerShell: Get-ProtectionPolicyRule or via the Defender API export.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies",
+                "https://learn.microsoft.com/en-us/defender-office-365/recommended-settings-for-eop-and-office365"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.1.2",
+            "product": "defender",
+            "title": "Assign all users to Exchange Online Protection (EOP) via Standard or Strict preset policies",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Implement controls to detect and prevent security incidents"
+                    },
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict access to authorized users and processes"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Implement and maintain anti-malware mechanisms"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Establish procedures for incident response"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, navigate to Email & Collaboration > Policies & Rules > Threat Policies.",
+                "Select Preset Security Policies > Manage protection settings.",
+                "On the Apply Exchange Online Protection page, select 'All recipients'.",
+                "Exclude only accounts with equivalent custom policies (e.g., service accounts).",
+                "Review policy assignment quarterly for coverage consistency."
+            ],
+            "evidence_guidance": [
+                "Screenshot of EOP assignment page showing 'All recipients' selected.",
+                "List or export of users assigned to Standard or Strict EOP protection.",
+                "Policy documentation describing any exemptions with rationale."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If the UI changes, use PowerShell: Get-HostedContentFilterPolicy and Get-HostedContentFilterRule to confirm user coverage.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/anti-spam-policies-configure",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.1.3",
+            "product": "defender",
+            "title": "Assign all users to Defender for Office 365 protection via preset policies",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor for and respond to security events"
+                    },
+                    {
+                        "id": "CC6.7",
+                        "title": "Implement boundary protections against unauthorized access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1.1",
+                        "title": "Ensure anti-malware mechanisms are maintained and updated"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Review security logs and alert notifications regularly"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender > Threat Policies > Preset Security Policies.",
+                "Select Manage protection settings for either Standard or Strict protection.",
+                "In 'Apply Defender for Office 365 protection', select 'All recipients'.",
+                "Exclude only accounts with equivalent or higher custom protection (documented separately).",
+                "Confirm both Safe Links and Safe Attachments are included in policy scope."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Defender for Office 365 policy assigned to all recipients.",
+                "Export from Get-SafeLinksPolicy and Get-SafeAttachmentPolicy showing active policies.",
+                "Audit record showing compliance check frequency."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If portal options differ, verify assignments via PowerShell cmdlets or Compliance Center > Threat policies.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/set-up-safe-links-policies",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-attachments-about"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.1.4",
+            "product": "defender",
+            "title": "Add sensitive accounts to Exchange Online Protection (EOP) strict policy",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict access and apply enhanced protections to privileged accounts"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and mitigate privileged account compromise"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2.3",
+                        "title": "Ensure privileged users have additional security controls"
+                    },
+                    {
+                        "id": "5.1",
+                        "title": "Protect systems against malware threats"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, go to Email & Collaboration > Threat Policies > Preset Security Policies.",
+                "Select 'Strict protection' > Manage protection settings.",
+                "On the 'Apply Exchange Online Protection' page, choose 'Specific recipients'.",
+                "Add all sensitive accounts (e.g., admins, executives, security roles).",
+                "Review quarterly to ensure sensitive accounts remain in scope."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing sensitive accounts explicitly assigned to Strict EOP policy.",
+                "List of sensitive accounts maintained in access control documentation.",
+                "Change record or configuration export from Get-HostedContentFilterRule showing applied users."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If portal view differs, validate assignments via PowerShell Get-ProtectionPolicyRule or Graph API export.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies",
+                "https://learn.microsoft.com/en-us/defender-office-365/anti-spam-policies-configure"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.1.5",
+            "product": "defender",
+            "title": "Add sensitive accounts to Defender for Office 365 strict policy",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Protect privileged accounts with enhanced safeguards"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Detect and respond to security incidents promptly"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2.3",
+                        "title": "Apply additional protections for privileged accounts"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor security events involving sensitive users"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender and navigate to Threat Policies > Preset Security Policies.",
+                "Select 'Strict protection' > Manage protection settings.",
+                "Under 'Apply Defender for Office 365 protection', choose 'Specific recipients' or 'Previously selected recipients'.",
+                "Add all sensitive accounts (administrators, executives, SOC users, or mailbox owners handling regulated data).",
+                "Confirm inclusion of Safe Links and Safe Attachments within applied policy."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Strict Defender for Office 365 policy showing sensitive accounts.",
+                "Policy export verifying Safe Links and Safe Attachments are active.",
+                "Access control matrix confirming alignment with privileged user list."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If UI changes, verify through PowerShell cmdlets Get-SafeLinksPolicy / Get-SafeAttachmentPolicy.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/defender-for-office-365"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.2.1",
+            "product": "defender",
+            "title": "Enable user impersonation protection for sensitive accounts in Standard and Strict policies",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Identify and respond to potential security incidents"
+                    },
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict access and apply enhanced protections to privileged accounts"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.2",
+                        "title": "Implement automated audit trails to detect unauthorized access"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Establish procedures for timely incident response"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender (https://security.microsoft.com).",
+                "Navigate to Email & Collaboration > Policies & Rules > Threat Policies.",
+                "Under Templated policies, select Preset Security Policies.",
+                "Choose Manage protection settings for either Standard or Strict protection.",
+                "Proceed to the Impersonation Protection section.",
+                "On the Protected custom users page, add all sensitive or high-value accounts (administrators, executives, finance).",
+                "Optionally add trusted senders to avoid false positives.",
+                "Save and confirm configuration."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Impersonation Protection settings showing listed sensitive users.",
+                "Policy export (PowerShell or Defender API) confirming protection is enabled.",
+                "Record of review or attestation that user list is reviewed quarterly."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If the portal layout changes, validate via PowerShell: Get-AntiPhishPolicy or Get-AntiPhishRule to confirm custom protected users.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-policies-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/preset-security-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.2.2",
+            "product": "defender",
+            "title": "Enable domain impersonation protection for all agency-owned domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and monitor potential spoofing or impersonation attacks"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Enforce authentication mechanisms to protect communications"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review and monitor security events"
+                    },
+                    {
+                        "id": "5.4",
+                        "title": "Prevent, detect, and respond to attacks against information assets"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, open Email & Collaboration > Threat Policies > Preset Security Policies.",
+                "Select Manage protection settings for Standard or Strict policy.",
+                "Advance to the Impersonation Protection section.",
+                "On the Protected custom domains page, add all agency-owned primary and secondary domains (e.g., example.com, example.co.uk).",
+                "Optionally add trusted partner domains to the allow list to avoid false detections.",
+                "Confirm changes and apply."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Defender impersonation protection showing agency domains added.",
+                "PowerShell export confirming domains under Get-AntiPhishPolicy.",
+                "Change log entry with validation by IT security or compliance."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If UI changes, confirm via PowerShell: Get-AntiPhishPolicy | Select-Object -ExpandProperty ProtectedDomains.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-policies-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/set-up-anti-phishing-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.2.3",
+            "product": "defender",
+            "title": "Enable domain impersonation protection for trusted partner domains",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor and detect potential external impersonation attempts"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Authenticate and verify communications with external entities"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs to detect unauthorized access or tampering"
+                    },
+                    {
+                        "id": "5.3",
+                        "title": "Monitor and protect communication channels from compromise"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender > Email & Collaboration > Threat Policies.",
+                "Select Preset Security Policies > Manage protection settings.",
+                "Proceed to the Impersonation Protection configuration page.",
+                "Add each partner domain that communicates with your organization regularly (e.g., payroll vendors, auditors, SaaS partners).",
+                "Review trusted sender/domain exceptions to reduce false positives.",
+                "Confirm and apply settings."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing added partner domains in impersonation protection list.",
+                "Documentation or vendor management list aligning defined partner domains with policy configuration.",
+                "Quarterly review record confirming domain list updates."
+            ],
+            "console_url": "https://security.microsoft.com/presetSecurityPolicies",
+            "fallback_notes": "If impersonation domains are managed elsewhere, verify via PowerShell Get-AntiPhishPolicy or Defender API export.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-policies-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/defender-for-office-365"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.3.1",
+            "product": "defender",
+            "title": "Enable Safe Attachments for SharePoint, OneDrive, and Microsoft Teams",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Identify and protect against malware and other system threats"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor and detect malicious or unauthorized changes to information assets"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms across all systems commonly affected by malicious software"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor security events and respond to alerts"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender (https://security.microsoft.com).",
+                "Navigate to Email & Collaboration > Policies & Rules > Threat Policies.",
+                "Select Safe Attachments > Global settings.",
+                "Toggle **Turn on Defender for Office 365 for SharePoint, OneDrive, and Microsoft Teams** to On.",
+                "Save changes and verify that policy status displays as Enabled.",
+                "Review regularly to confirm that coverage includes all relevant collaboration workloads."
+            ],
+            "evidence_guidance": [
+                "Screenshot from Microsoft 365 Defender showing Safe Attachments toggled On for SharePoint, OneDrive, and Teams.",
+                "PowerShell export from `Get-SafeAttachmentPolicy` confirming global settings are enabled.",
+                "Configuration record or ticket documenting policy activation date and responsible approver."
+            ],
+            "console_url": "https://security.microsoft.com/safeattachmentpolicies",
+            "fallback_notes": "If the Defender portal layout changes, verify through PowerShell using `Get-SafeAttachmentPolicy` or via the Security & Compliance Center.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-attachments-about",
+                "https://learn.microsoft.com/en-us/defender-office-365/safe-attachments-for-spo-odfb-teams-configure"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.1",
+            "product": "defender",
+            "title": "Configure a custom Data Loss Prevention (DLP) policy to protect PII and sensitive data",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.1",
+                        "title": "Restrict access to authorized personnel"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Identify and protect against unauthorized disclosure of information"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored cardholder and sensitive authentication data"
+                    },
+                    {
+                        "id": "7.1",
+                        "title": "Limit data access to need-to-know"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Purview compliance portal (https://compliance.microsoft.com).",
+                "Go to Solutions > Data loss prevention > Policies > Create policy.",
+                "Choose Custom policy and define conditions for Credit Card, ITIN, SSN, and other agency-defined PII.",
+                "Set the action to Block Everyone or restrict according to business justification.",
+                "Enable notifications to educate users when policy is triggered.",
+                "Activate the policy immediately and test with sample data."
+            ],
+            "evidence_guidance": [
+                "Screenshot of DLP policy conditions and actions in Purview portal.",
+                "Policy export (JSON or CSV) showing configured sensitive info types.",
+                "Test email or document demonstrating policy enforcement."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If the interface changes, confirm policy presence via PowerShell: Get-DlpCompliancePolicy.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies",
+                "https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.2",
+            "product": "defender",
+            "title": "Apply DLP policies to Exchange, SharePoint, OneDrive, Teams, and Devices",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.7",
+                        "title": "Implement boundary protections and safeguards for data transmission"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Protect information across all system components"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.4",
+                        "title": "Protect stored sensitive data across all environments"
+                    },
+                    {
+                        "id": "12.3",
+                        "title": "Ensure controls extend to all communication channels"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Edit the custom DLP policy created under MS.DEFENDER.4.1.",
+                "Ensure Status = On for Exchange email, OneDrive, SharePoint, Teams chat and channel messages, and Devices.",
+                "Save changes and publish the updated policy."
+            ],
+            "evidence_guidance": [
+                "Screenshot from Purview showing all workloads selected under 'Locations'.",
+                "Policy export indicating multiple services in scope.",
+                "Audit record verifying policy propagation across services."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If workloads appear missing, verify via Get-DlpComplianceRule with ‘ExchangeLocation’ and similar fields.",
+            "references": [
+                "https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp",
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-microsoft-teams"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.3",
+            "product": "defender",
+            "title": "Configure DLP actions to block sharing sensitive information with all users",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Enforce least-privilege access to sensitive data"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Prevent unauthorized disclosure of protected data"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.3",
+                        "title": "Mask or restrict data display to authorized parties"
+                    },
+                    {
+                        "id": "7.2",
+                        "title": "Implement access controls based on job classification and function"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Within Microsoft Purview > DLP Policies, edit the custom rule.",
+                "Under Actions, choose 'Restrict access or encrypt the content'.",
+                "Select 'Block Everyone' as the enforcement setting.",
+                "Test by attempting to share a protected file externally."
+            ],
+            "evidence_guidance": [
+                "Screenshot of rule action settings showing Block Everyone.",
+                "Activity log demonstrating a blocked sharing attempt.",
+                "Policy export verifying action configuration."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If enforcement terms differ, map to equivalent options: Restrict Access, Encrypt, or Prevent External Sharing.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-learn-about-dlp",
+                "https://learn.microsoft.com/en-us/purview/dlp-policy-tips-reference"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.4",
+            "product": "defender",
+            "title": "Enable DLP user notifications and policy tips for education and awareness",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC2.3",
+                        "title": "Provide security awareness and training"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Educate personnel on handling security events"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "12.6",
+                        "title": "Implement a formal security awareness program"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Respond to and review security events promptly"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Edit the DLP policy under Purview.",
+                "Under User notifications, enable 'Use notifications to inform your users'.",
+                "Check 'Notify users in Office 365 service with a policy tip or email notifications'.",
+                "Save and publish policy."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing notification options enabled in Purview.",
+                "Sample email or policy tip displayed to users.",
+                "Training log referencing DLP awareness messages."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If policy tip wording changes, verify user notification delivery via test incident in Compliance Center.",
+            "references": [
+                "https://learn.microsoft.com/en-us/purview/dlp-policy-tips-reference",
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-learn-about-dlp"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.5",
+            "product": "defender",
+            "title": "Define a list of restricted applications under Endpoint DLP settings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Protect data in transit and in use via system safeguards"
+                    },
+                    {
+                        "id": "CC6.2",
+                        "title": "Restrict system components to required functionality only"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "6.4.1",
+                        "title": "Develop and maintain secure system configurations"
+                    },
+                    {
+                        "id": "7.2.2",
+                        "title": "Enforce role-based restrictions on data access"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Microsoft Purview portal, go to Settings > Solution settings > Data loss prevention.",
+                "Open Endpoint DLP settings and select Restricted apps and app groups.",
+                "Add executables or app names that should be prevented from accessing protected content (e.g., file sync tools, browsers).",
+                "Save configuration and validate enforcement on test endpoint."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Endpoint DLP restricted app list.",
+                "Policy export showing app names or executables blocked.",
+                "Endpoint audit log confirming restriction applied."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention/settings",
+            "fallback_notes": "If restricted app interface moves, access via Microsoft Purview > Endpoint DLP Settings > Restricted Apps.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/endpoint-dlp-learn-about",
+                "https://learn.microsoft.com/en-us/purview/dlp-configure-endpoint-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.4.6",
+            "product": "defender",
+            "title": "Block access to sensitive information from restricted or unallowed Bluetooth applications",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.7",
+                        "title": "Prevent unauthorized data exfiltration through device interfaces"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Implement preventive and detective controls against data misuse"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "9.9",
+                        "title": "Protect devices that capture or transmit sensitive data"
+                    },
+                    {
+                        "id": "3.4",
+                        "title": "Prevent data leakage through removable or wireless interfaces"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Ensure endpoints are onboarded to Defender for Endpoint.",
+                "In Microsoft Purview > Data loss prevention > Policies, edit the custom DLP rule.",
+                "Under Actions, add 'Audit or restrict activities on device'.",
+                "Set restrictions for 'Access by restricted apps' and 'Copy or move using unallowed Bluetooth app' to Block.",
+                "Save and publish changes."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing restricted app and Bluetooth blocks enabled.",
+                "Defender for Endpoint logs verifying blocked attempts.",
+                "Configuration export confirming rule inclusion in the DLP policy."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If UI options differ, verify enforcement using Get-DlpComplianceRule with DeviceActions parameter.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/endpoint-dlp-learn-about",
+                "https://learn.microsoft.com/en-us/purview/dlp-configure-endpoint-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.5.1",
+            "product": "defender",
+            "title": "Enable mandatory alert policies to detect suspicious or malicious activities across M365 services",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor system components for potential security events"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Establish incident response mechanisms and notify relevant personnel"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review logs and security events daily"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Implement an incident response plan and alerting procedures"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to Microsoft 365 Defender (https://security.microsoft.com).",
+                "Navigate to Email & Collaboration > Policies & Rules > Alert Policy.",
+                "Enable all alerts listed under the CISA M365 Secure Baseline, including:",
+                "  a. Suspicious email sending patterns detected.",
+                "  b. Suspicious connector activity.",
+                "  c. Suspicious email forwarding activity.",
+                "  d. Messages have been delayed.",
+                "  e. Tenant restricted from sending unprovisioned email.",
+                "  f. Tenant restricted from sending email.",
+                "  g. A potentially malicious URL click was detected.",
+                "Save changes and ensure policies are active under the Enabled column."
+            ],
+            "evidence_guidance": [
+                "Screenshot from Defender showing alert policies enabled.",
+                "Export from PowerShell using Get-ProtectionAlertPolicy confirming enabled status.",
+                "Incident response log referencing alert testing or review results."
+            ],
+            "console_url": "https://security.microsoft.com/alertpolicies",
+            "fallback_notes": "If the interface changes, validate via PowerShell: Get-ProtectionAlertPolicy | Where-Object {$_.Enabled -eq $true}.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/alert-policies-defender-portal",
+                "https://www.cisa.gov/news-events/news/cisa-finalizes-microsoft-365-secure-configuration-baselines"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.5.2",
+            "product": "defender",
+            "title": "Route security alerts to a monitored mailbox or integrated SIEM for continuous monitoring",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Establish real-time alerting for detected security events"
+                    },
+                    {
+                        "id": "CC7.4",
+                        "title": "Implement centralized monitoring for timely response"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6.1",
+                        "title": "Ensure all security events are promptly reviewed"
+                    },
+                    {
+                        "id": "12.10.5",
+                        "title": "Ensure personnel are promptly notified of security incidents"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, navigate to Email & Collaboration > Policies & Rules > Alert Policy.",
+                "Open each enabled alert policy from MS.DEFENDER.5.1.",
+                "Under Recipients, enable 'Opt-in for email notifications'.",
+                "Add one or more monitored addresses (e.g., security@company.com).",
+                "If integrated with a SIEM, configure Azure Sentinel or another collector to receive Defender alerts via API or webhook.",
+                "Click Submit and validate alert delivery using a test event."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing configured alert recipients or SIEM integration.",
+                "Sample email alert received by security operations mailbox.",
+                "SIEM logs confirming Defender event ingestion and parsing."
+            ],
+            "console_url": "https://security.microsoft.com/alertpolicies",
+            "fallback_notes": "If the notification UI changes, configure via PowerShell: Set-ProtectionAlertPolicy -EmailRecipients 'security@company.com'.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/siem-server-integration",
+                "https://learn.microsoft.com/en-us/defender-office-365/alert-policies-defender-portal"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.6.1",
+            "product": "defender",
+            "title": "Enable Unified Audit Logging to capture user and administrative activity across Microsoft 365",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor system activity to identify deviations and security events"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Establish and operate an incident detection and response process"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.2",
+                        "title": "Implement automated audit trails for all access and administrative actions"
+                    },
+                    {
+                        "id": "10.5",
+                        "title": "Secure audit logs to prevent unauthorized modification"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Purview portal (https://compliance.microsoft.com).",
+                "Navigate to Solutions > Audit.",
+                "If a banner appears stating 'Start recording user and admin activity', click the button to enable auditing.",
+                "Verify that audit logging is active by searching for a recent activity (e.g., file accessed, user signed in).",
+                "Ensure key workloads — Exchange, SharePoint, OneDrive, Teams, and Entra ID — are generating logs."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Audit dashboard showing 'Recording user and admin activity' as enabled.",
+                "Export from Get-AdminAuditLogConfig in PowerShell showing AuditLogEnabled=True.",
+                "Example query results confirming log entries from key workloads."
+            ],
+            "console_url": "https://compliance.microsoft.com/auditlogsearch",
+            "fallback_notes": "If the UI changes, validate via PowerShell: Get-AdminAuditLogConfig | Select AuditLogEnabled. Alternatively, check the UnifiedAuditLogRetentionPolicy property.",
+            "references": [
+                "https://learn.microsoft.com/en-us/purview/audit-log-enable-disable",
+                "https://learn.microsoft.com/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance"
+            ]
+        },
+        {
+            "rule_id": "MS.DEFENDER.6.3",
+            "product": "defender",
+            "title": "Retain Microsoft 365 audit logs for at least 12 months active and 18 months cold storage per OMB M-21-31",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Retain audit logs for appropriate periods to support investigations"
+                    },
+                    {
+                        "id": "CC7.4",
+                        "title": "Ensure logs are protected and accessible for security analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.7",
+                        "title": "Retain audit trail history for at least one year, with 90 days immediately available"
+                    },
+                    {
+                        "id": "10.5.1",
+                        "title": "Secure audit logs so they cannot be altered"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Purview, go to Solutions > Audit > Audit retention policies.",
+                "Create or edit a retention policy to meet or exceed 12 months in active storage and 18 months in cold storage.",
+                "For tenants with E5/G5 licenses, enable Advanced Audit for extended retention.",
+                "If using external storage, export logs periodically using API or SIEM integration to maintain historical records.",
+                "Document the retention configuration and policy scope for audit readiness."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing audit log retention policy duration set to 12 months or more.",
+                "Policy export or PowerShell output from Get-UnifiedAuditLogRetentionPolicy.",
+                "Evidence of exported audit logs in cold storage or SIEM confirming compliance with retention duration."
+            ],
+            "console_url": "https://compliance.microsoft.com/auditlogretention",
+            "fallback_notes": "If retention settings are relocated, verify using PowerShell: Get-UnifiedAuditLogRetentionPolicy | Select Name, Workload, RetentionDuration.",
+            "references": [
+                "https://learn.microsoft.com/en-us/purview/audit-log-retention-policies",
+                "https://www.whitehouse.gov/wp-content/uploads/2021/08/M-21-31-Improving-the-Federal-Governments-Investigative-and-Remediation-Capabilities-Related-to-Cybersecurity-Incidents.pdf"
+            ]
+        }
+    ]
+}

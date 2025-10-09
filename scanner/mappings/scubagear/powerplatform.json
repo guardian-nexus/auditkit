@@ -1,0 +1,261 @@
+{
+  "source": "scubagear",
+  "domain": "powerplatform",
+  "version": "v1",
+  "rules": [
+
+    {
+      "rule_id": "MS.POWERPLATFORM.1.1",
+      "product": "powerplatform",
+      "title": "Restrict creation of production and sandbox environments to admins",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "Restrict system access to authorized users"},
+          {"id": "CC7.1", "title": "Prevent unauthorized configuration changes"}
+        ],
+        "pci": [
+          {"id": "7.1", "title": "Restrict access to system components to authorized administrators"},
+          {"id": "6.4", "title": "Follow change control processes for environment creation"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "Sign in to the Power Platform admin center.",
+        "Navigate to Settings > Power Platform settings.",
+        "Under 'Who can create production and sandbox environments', select 'Only specific admins'.",
+        "Restrict access to users with Global admin, Dynamics 365 admin, or Power Platform admin roles.",
+        "Review the setting quarterly."
+      ],
+      "evidence_guidance": [
+        "Screenshot showing 'Only specific admins' selected.",
+        "Exported environment creation policy from the Power Platform admin center.",
+        "List of current admins authorized to create environments."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/power-platform/admin/control-environment-creation",
+        "https://learn.microsoft.com/powerapps/administrator/admin-guide"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.1.2",
+      "product": "powerplatform",
+      "title": "Restrict creation of trial environments to admins",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "Restrict creation of temporary environments"},
+          {"id": "CC7.2", "title": "Prevent unapproved system deployments"}
+        ],
+        "pci": [
+          {"id": "7.2", "title": "Limit system provisioning to authorized personnel"},
+          {"id": "6.4.5", "title": "Test systems in controlled, approved environments"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In the Power Platform admin center, navigate to Settings > Power Platform settings.",
+        "Under 'Who can create trial environments', select 'Only specific admins'.",
+        "Confirm that only Global, Dynamics 365, or Power Platform admins have permissions."
+      ],
+      "evidence_guidance": [
+        "Screenshot showing restriction applied to trial environment creation.",
+        "Admin role assignment export confirming limited access."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/power-platform/admin/control-environment-creation"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.2.1",
+      "product": "powerplatform",
+      "title": "Create DLP policy to restrict connector access in the default environment",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.7", "title": "Protect data in storage and use"},
+          {"id": "CC8.1", "title": "Prevent data leakage across systems"}
+        ],
+        "pci": [
+          {"id": "3.4", "title": "Protect stored cardholder data"},
+          {"id": "12.3.9", "title": "Implement DLP measures to protect data across applications"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "Sign in to the Power Platform admin center.",
+        "Go to Policies > Data Policies.",
+        "Create a new policy and define Business, Non-Business, and Blocked connector groups.",
+        "Move all non-essential connectors to 'Blocked'.",
+        "Apply the DLP policy to the default environment and click Create Policy."
+      ],
+      "evidence_guidance": [
+        "Screenshot of DLP policy showing blocked connectors.",
+        "Export of connector classification policy.",
+        "Audit log confirming enforcement on the default environment."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/power-platform/admin/wp-data-loss-prevention",
+        "https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.2.2",
+      "product": "powerplatform",
+      "title": "Apply DLP policies to all non-default environments",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.8", "title": "Apply consistent data controls across environments"},
+          {"id": "CC7.2", "title": "Monitor data transfer across systems"}
+        ],
+        "pci": [
+          {"id": "3.4", "title": "Protect stored and transmitted sensitive data"},
+          {"id": "12.3.9", "title": "Ensure DLP coverage across all environments"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "In the Power Platform admin center, repeat the DLP policy creation steps.",
+        "Apply the same or stricter policy to all non-default environments.",
+        "Optionally select 'Add all environments' to automatically include future environments."
+      ],
+      "evidence_guidance": [
+        "List of DLP policies and their assigned environments.",
+        "Screenshot showing DLP scope includes non-default environments."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.3.1",
+      "product": "powerplatform",
+      "title": "Enable Power Platform tenant isolation",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.1", "title": "Prevent unauthorized access between tenants"},
+          {"id": "CC7.1", "title": "Restrict data flows to trusted boundaries"}
+        ],
+        "pci": [
+          {"id": "1.3", "title": "Restrict inbound and outbound network connections"},
+          {"id": "7.1", "title": "Limit cross-tenant access to authorized connections"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "Open the Power Platform admin center.",
+        "Navigate to Policies > Tenant Isolation.",
+        "Set the toggle to On and click Save.",
+        "Verify cross-tenant connections are blocked."
+      ],
+      "evidence_guidance": [
+        "Screenshot showing Tenant Isolation set to On.",
+        "Tenant Isolation policy export confirming status."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/en-us/power-platform/admin/cross-tenant-restrictions?tabs=new"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.3.2",
+      "product": "powerplatform",
+      "title": "Configure inbound/outbound connection allowlist",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.6", "title": "Restrict integration with external systems"},
+          {"id": "CC7.2", "title": "Monitor and control data exchange with third parties"}
+        ],
+        "pci": [
+          {"id": "1.3.7", "title": "Restrict access to trusted networks only"},
+          {"id": "7.2", "title": "Authorize inter-tenant access as per policy"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "Go to Policies > Tenant Isolation in Power Platform admin center.",
+        "Click New tenant rule to create an allowlist rule.",
+        "Select direction (inbound/outbound) and add Tenant Domain or ID.",
+        "Save configuration and verify enforcement when isolation is active."
+      ],
+      "evidence_guidance": [
+        "Screenshot of tenant allowlist configuration.",
+        "Audit log showing creation or modification of allowlist rules."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/en-us/power-platform/admin/cross-tenant-restrictions?tabs=new"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.4.1",
+      "product": "powerplatform",
+      "title": "Enforce Content Security Policy for model-driven and canvas Power Apps",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.6", "title": "Protect against code injection and web attacks"},
+          {"id": "CC7.3", "title": "Detect and mitigate security incidents in user interfaces"}
+        ],
+        "pci": [
+          {"id": "6.5.1", "title": "Prevent injection vulnerabilities"},
+          {"id": "6.6", "title": "Protect web applications with security controls such as CSP"}
+        ]
+      },
+      "severity": "HIGH",
+      "remediation_steps": [
+        "Sign in to the Power Platform admin center.",
+        "Go to Environments > Select environment > Settings > Product > Privacy + Security.",
+        "Under 'Content security policy', toggle On for both Model-driven and Canvas apps.",
+        "Enable reporting and specify a valid endpoint for CSP violation reports.",
+        "Repeat for all active environments."
+      ],
+      "evidence_guidance": [
+        "Screenshot showing CSP enabled in environment settings.",
+        "Log of CSP violation reports from configured endpoint.",
+        "Configuration export confirming enforcement across environments."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/power-platform/admin/content-security-policy"
+      ]
+    },
+
+    {
+      "rule_id": "MS.POWERPLATFORM.5.1",
+      "product": "powerplatform",
+      "title": "Restrict Power Pages creation to admins",
+      "mappings": {
+        "soc2": [
+          {"id": "CC6.2", "title": "Restrict creation of public-facing applications"},
+          {"id": "CC7.1", "title": "Prevent unapproved exposure of data"}
+        ],
+        "pci": [
+          {"id": "1.1.6", "title": "Limit externally accessible components"},
+          {"id": "6.6", "title": "Ensure secure web application deployment"}
+        ]
+      },
+      "severity": "MEDIUM",
+      "remediation_steps": [
+        "Install Power Apps PowerShell modules.",
+        "Run Add-PowerAppsAccount -Endpoint <tenantEndpoint> to authenticate.",
+        "Execute: Set-TenantSettings -RequestBody @{ \"disablePortalsCreationByNonAdminUsers\" = $true }",
+        "Confirm output and log changes."
+      ],
+      "evidence_guidance": [
+        "PowerShell transcript showing the Set-TenantSettings command execution.",
+        "Exported tenant settings JSON confirming disablePortalsCreationByNonAdminUsers = true."
+      ],
+      "console_url": "https://admin.powerplatform.microsoft.com/",
+      "references": [
+        "https://learn.microsoft.com/en-us/power-pages/configure/portal-management-app"
+      ]
+    }
+  ]
+}
