@@ -4,7 +4,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-v0.6.2-green)
+![Version](https://img.shields.io/badge/version-v0.6.3-green)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
@@ -17,6 +17,7 @@ AuditKit scans your cloud infrastructure against SOC2, PCI-DSS, and CMMC control
 4. **Evidence Collection Guides** - Step-by-step screenshots auditors accept
 5. **Priority-Based Fixes** - Critical issues that will fail your audit vs. nice-to-haves
 6. **Unified Reporting** - Combine AWS, Azure, and M365 findings in one report
+7. **Professional Reports** - Generate PDF and HTML reports with evidence checklists
 
 ## Quick Start
 
@@ -33,6 +34,9 @@ auditkit scan -provider aws -framework cmmc
 
 # Generate PDF report
 auditkit scan -provider aws -framework soc2 -format pdf -output aws-soc2.pdf
+
+# Generate interactive HTML report
+auditkit scan -provider aws -framework soc2 -format html -output aws-soc2.html
 ```
 
 ### Azure
@@ -51,10 +55,19 @@ auditkit scan -provider azure -framework cmmc
 auditkit scan -provider azure -framework pci -format pdf -output azure-pci.pdf
 ```
 
-### M365
+### M365 (Complete Coverage)
 ```bash
-# Import ScubaGear M365 security results
+# Import comprehensive M365 security results
 auditkit integrate -source scubagear -file ScubaResults.json -format text
+
+# Available M365 domains:
+# - Entra ID (AAD): Authentication, MFA, Conditional Access
+# - Exchange Online: Email security, DLP, anti-phishing
+# - SharePoint: Document security, sharing policies
+# - Teams: Chat security, meeting policies
+# - Power Platform: Data loss prevention, governance
+# - Power BI: Data security, sharing controls
+# - Defender: Threat protection, security policies
 
 # Generate M365 compliance report
 auditkit integrate -source scubagear -file ScubaResults.json -format pdf -output m365-report.pdf
@@ -66,23 +79,37 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 
 ## Recent Updates
 
-**v0.6.2 (Oct 2025)** - Hotfix: Framework scanning improvements  
-**v0.6.1 (Oct 2025)** - M365/Entra ID integration via ScubaGear + Community-contributed mappings  
+**v0.6.3 (Oct 2025)** - Enhanced reports + Complete M365 coverage  
+**v0.6.2 (Oct 2025)** - Framework scanning improvements & Hotfix  
+**v0.6.1 (Oct 2025)** - M365/Entra ID integration via ScubaGear  
 **v0.6.0 (Sept 2025)** - CMMC Level 1 support with November 10, 2025 deadline tracking  
-**v0.5.0 (Sept 2025)** - Azure provider support with full SOC2/PCI-DSS implementation  
 
-## What's New in v0.6.2
+## What's New in v0.6.3
 
-### Fixes
-- **Framework scanning improvements** - All frameworks (CMMC, SOC2, PCI) now return proper control counts
-- **Import path optimizations** - Improved scanner reliability
-- **Enhanced stability** - Better error handling for multi-cloud environments
+### Enhanced Compliance Reports
+- **Professional PDF reports** - Improved cover page with score visualization, executive summary, critical issues
+- **Interactive HTML reports** - Modern design with tabs, clickable Console URLs, copy-paste commands
+- **Better formatting** - Fixed Unicode issues, proper spacing, footer on every page
+- **Framework-specific checklists** - Comprehensive SOC2, PCI-DSS, HIPAA, CMMC evidence requirements
 
-### M365/Entra ID Integration (v0.6.1)
-- **ScubaGear support** - Import CISA's M365 security assessment results
-- **29 Entra ID rules** - Community-contributed mappings for authentication, MFA, and access controls
-- **Unified reporting** - Combine AWS, Azure, and M365 findings in one compliance report
-- **Framework mappings** - M365 findings mapped to SOC2, PCI-DSS, HIPAA, and CMMC
+### Complete M365 Security Coverage
+Thanks to community contributions, AuditKit now supports all major M365 domains:
+
+| M365 Domain | Rules Mapped | Frameworks | Status |
+|-------------|--------------|------------|--------|
+| **Entra ID (AAD)** | 29 rules | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **Exchange Online** | Security rules | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **SharePoint** | Sharing & security | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **Teams** | Chat & meeting security | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **Power Platform** | DLP & governance | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **Power BI** | Data security | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+| **Defender** | Threat protection | SOC2, PCI, HIPAA, CMMC | ✅ Complete |
+
+### Bug Fixes
+- Fixed PDF Unicode rendering (bullets, checkmarks)
+- Fixed spacing in passed controls section
+- Footer now appears on every PDF page
+- HTML reports now generate properly (was stub before)
 
 ## Current Implementation Status
 
@@ -91,17 +118,17 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 |----------|-------|--------|--------|----------------|
 | **AWS** | 17 check files | ~150 checks | ✅ Production | AWS CLI, IAM roles |
 | **Azure** | 12 check files | ~110 checks | ✅ Production | CLI, Service Principal, Managed Identity |
-| **M365/Entra** | Integration | 29 rules | ✅ Via ScubaGear | ScubaGear output |
+| **M365** | 7 domains | 100+ rules | ✅ Via ScubaGear | ScubaGear output |
 | **GCP** | Not started | 0 | 🚧 Planned v0.7.0 | - |
 
 ### Framework Coverage
 | Framework | AWS Controls | Azure Controls | M365 Controls | Status |
 |-----------|--------------|----------------|---------------|--------|
-| **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | 29 Entra rules | ✅ Production Ready |
-| **PCI-DSS v4.0** | 30 technical | 30 technical | 29 Entra rules | ✅ Production Ready |
-| **CMMC Level 1** | 17 practices | 17 practices | - | ✅ Production Ready |
-| **CMMC Level 2** | 110 practices | 110 practices | - | 🔥 [Pro Feature](https://auditkit.io/pro/) |
-| **HIPAA** | ~10 mapped | ~10 mapped | 29 Entra rules | 🧪 Experimental |
+| **SOC2** | 64 (CC1-CC9) | 64 (CC1-CC9) | 100+ rules | ✅ Production Ready |
+| **PCI-DSS v4.0** | 30 technical | 30 technical | Security rules | ✅ Production Ready |
+| **CMMC Level 1** | 17 practices | 17 practices | Mapped rules | ✅ Production Ready |
+| **CMMC Level 2** | 110 practices | 110 practices | Advanced rules | [Pro Feature](https://auditkit.io/pro/) |
+| **HIPAA** | ~10 mapped | ~10 mapped | Security rules | 🧪 Experimental |
 | **ISO 27001** | ~5 mapped | ~5 mapped | - | 🧪 Experimental |
 
 ### CMMC Compliance
@@ -112,19 +139,74 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 
 ## What Makes AuditKit Different
 
-### 1. Unified Multi-Cloud Compliance
+### 1. First True Multi-Cloud Compliance Tool
 
-First open-source tool to unify AWS + Azure + M365 compliance scanning with framework-specific controls and evidence collection guidance.
+Only open-source tool to unify AWS + Azure + M365 (all 7 domains) compliance scanning with framework-specific controls and evidence collection guidance.
 
-### 2. Evidence Collection That Auditors Accept
+### 2. Professional Reports That Auditors Accept
 
-Every control includes:
-- Screenshot navigation paths (exact console URLs)
-- Step-by-step remediation instructions
-- Framework-specific requirements
-- Evidence collection checklist
+**PDF Reports Include:**
+- Cover page with compliance score visualization
+- Executive summary in plain English
+- Critical issues with remediation commands
+- Evidence collection guides with step-by-step instructions
+- Framework-specific checklists
+- Footer on every page
 
-### 3. Framework-Specific Requirements
+**HTML Reports Include:**
+- Interactive tabs (Failed/Passed controls)
+- Clickable AWS/Azure Console URLs
+- Copy-paste ready remediation commands
+- Modern responsive design
+- Searchable and filterable
+
+### 3. Complete M365 Security Coverage
+
+```yaml
+Entra ID (AAD):
+- MFA enforcement
+- Conditional Access policies
+- Identity Protection
+- Password policies
+
+Exchange Online:
+- Anti-phishing policies
+- DLP rules
+- Email encryption
+- Malware protection
+
+SharePoint:
+- Sharing policies
+- External sharing controls
+- DLP policies
+- Access controls
+
+Teams:
+- Meeting security
+- Chat policies
+- External access
+- Recording policies
+
+Power Platform:
+- DLP policies
+- Connector governance
+- Environment controls
+- Data classification
+
+Power BI:
+- Tenant settings
+- Sharing policies
+- External sharing
+- Row-level security
+
+Defender:
+- Safe Links
+- Safe Attachments
+- Anti-phishing
+- Security policies
+```
+
+### 4. Framework-Specific Requirements
 
 ```yaml
 CMMC Level 1:
@@ -164,7 +246,7 @@ go build ./cmd/auditkit
 
 ### Using Go Install
 ```bash
-go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.2
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.3
 ```
 
 ### Download Binary
@@ -184,12 +266,14 @@ auditkit scan -verbose                 # Detailed output
 # M365 Integration
 auditkit integrate -source scubagear -file ScubaResults.json
 auditkit integrate -source scubagear -file ScubaResults.json -format pdf
+auditkit integrate -source scubagear -file ScubaResults.json -format html
 auditkit integrate -source scubagear -file ScubaResults.json -verbose
 
 # Reporting
-auditkit scan -format pdf -output report.pdf    # PDF with evidence checklist
+auditkit scan -format pdf -output report.pdf    # Professional PDF report
+auditkit scan -format html -output report.html  # Interactive HTML report
 auditkit scan -format json                       # JSON output
-auditkit scan -format html -output report.html   # HTML report
+auditkit scan -format text                       # Text summary
 
 # Remediation
 auditkit fix                           # Generate fix script
@@ -211,25 +295,37 @@ auditkit evidence -output tracker.html  # Save tracker
 # Install CISA ScubaGear (Windows PowerShell)
 Install-Module -Name ScubaGear
 
-# Run M365 security assessment
-Invoke-SCuBA -ProductNames aad -OutPath ./ScubaResults
+# Run comprehensive M365 security assessment (all domains)
+Invoke-SCuBA -ProductNames aad,exo,defender,sharepoint,teams,powerbi,powerplatform -OutPath ./ScubaResults
+
+# Or run individual domains
+Invoke-SCuBA -ProductNames aad -OutPath ./ScubaResults  # Just Entra ID
+Invoke-SCuBA -ProductNames exo -OutPath ./ScubaResults  # Just Exchange
 ```
 
 ### Step 2: Import into AuditKit
 ```bash
-# Import M365 findings
+# Import M365 findings (all domains)
 auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json -format text
 
 # Generate M365 compliance report
 auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json -format pdf -output m365-compliance.pdf
+
+# Generate HTML report with interactive tabs
+auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json -format html -output m365-compliance.html
 ```
 
 ### Step 3: Unified Reporting
 ```bash
 # Complete multi-cloud compliance coverage
-auditkit scan -provider aws -framework soc2 -output aws-soc2.pdf
-auditkit scan -provider azure -framework soc2 -output azure-soc2.pdf
-auditkit integrate -source scubagear -file ScubaResults.json -output m365-soc2.pdf
+auditkit scan -provider aws -framework soc2 -format pdf -output aws-soc2.pdf
+auditkit scan -provider azure -framework soc2 -format pdf -output azure-soc2.pdf
+auditkit integrate -source scubagear -file ScubaResults.json -format pdf -output m365-soc2.pdf
+
+# Or generate HTML reports for web viewing
+auditkit scan -provider aws -framework soc2 -format html -output aws-soc2.html
+auditkit scan -provider azure -framework soc2 -format html -output azure-soc2.html
+auditkit integrate -source scubagear -file ScubaResults.json -format html -output m365-soc2.html
 ```
 
 ## Azure Authentication Options
@@ -256,8 +352,9 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 - [x] v0.4.1 - Full SOC2 implementation (Sept 2025)
 - [x] v0.5.0 - Azure support (Sept 2025)
 - [x] v0.6.0 - CMMC Level 1 support (Sept 2025)
-- [x] v0.6.1 - M365 integration via ScubaGear (Oct 2025)
-- [x] v0.6.2 - Framework scanning improvements (Oct 2025)
+- [x] v0.6.1 - M365 Entra ID integration (Oct 2025)
+- [x] v0.6.2 - Framework scanning improvements & Hotfix (Oct 2025)
+- [x] v0.6.3 - Enhanced reports + Complete M365 coverage (Oct 2025)
 - [ ] v0.7.0 - GCP support (Dec 2025)
 - [ ] v0.7.1 - Prowler integration (Dec 2025)
 - [ ] v0.8.0 - Kubernetes compliance (Jan 2026)
@@ -273,12 +370,12 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
    - HIPAA & ISO 27001: Experimental mappings only
 4. **CMMC Level 2**: Contact us for Level 2+ requirements (110 practices for CUI handling)
 5. **Manual verification required** - Some controls need human review
-6. **M365 Integration**: Requires CISA ScubaGear for M365 assessment
+6. **M365 Integration**: Requires CISA ScubaGear for M365 assessment (free, open-source tool from CISA)
 
 ## Contributing
 
 We need help with:
-1. **Additional M365 domains** - SharePoint, Teams, Exchange mappings
+1. **Additional framework mappings** - NIST 800-53, FedRAMP, GDPR
 2. **GCP provider** - Mirror AWS/Azure structure
 3. **Prowler integration** - Import Prowler AWS/Azure/GCP results
 4. **HIPAA controls** - Complete the 45 administrative safeguards
@@ -287,6 +384,8 @@ We need help with:
 7. **Container scanning** - Kubernetes, Docker compliance
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+**Special thanks to our community contributors** for comprehensive M365 domain mappings (Entra ID, Exchange, SharePoint, Teams, Power Platform, Power BI, Defender) that enable true multi-cloud compliance reporting!
 
 ## Support
 
@@ -297,7 +396,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 ## FAQ
 
 **Q: How does M365 integration work?**  
-A: Run CISA's ScubaGear tool to assess your M365 environment, then use `auditkit integrate` to import the results and map them to compliance frameworks.
+A: Run CISA's ScubaGear tool to assess your M365 environment (all 7 domains supported), then use `auditkit integrate` to import the results and map them to compliance frameworks (SOC2, PCI-DSS, HIPAA, CMMC).
+
+**Q: What M365 domains are supported?**  
+A: All 7 major domains: Entra ID (AAD), Exchange Online, SharePoint, Teams, Power Platform, Power BI, and Defender for Office 365.
 
 **Q: Is CMMC Level 1 implementation complete?**  
 A: Yes, v0.6.0 includes full CMMC Level 1 implementation with all 17 practices for both AWS and Azure.
@@ -308,8 +410,14 @@ A: November 10, 2025. All new DoD contracts will require CMMC compliance startin
 **Q: What about CMMC Level 2?**  
 A: CMMC Level 2 (110 practices for CUI handling) is available as a Pro feature. Check out [AuditKit Pro](https://auditkit.io/pro/).
 
+**Q: What's the difference between PDF and HTML reports?**  
+A: PDF reports are professional documents for auditors with evidence checklists. HTML reports are interactive with tabs, clickable links, and copy-paste commands - better for internal use.
+
 **Q: Why is my compliance score low?**  
-A: Enable security services first (AWS: GuardDuty, Config, CloudTrail | Azure: Defender, Policy, Activity Logs | M365: Conditional Access, Identity Protection)
+A: Enable security services first:
+- **AWS**: GuardDuty, Config, CloudTrail, Security Hub
+- **Azure**: Defender for Cloud, Azure Policy, Activity Logs, Sentinel
+- **M365**: Conditional Access, Identity Protection, DLP policies, Defender for Office 365
 
 **Q: Can I scan multiple AWS accounts or Azure subscriptions?**  
 A: Currently one at a time. Use different profiles: `auditkit scan -profile production`
@@ -325,4 +433,4 @@ Apache 2.0 - Use freely, even commercially.
 
 **Built by engineers who've been through too many compliance audits.**
 
-**Special thanks to our community contributors for comprehensive Entra ID mappings that enable unified multi-cloud compliance reporting.**
+**Huge thanks to our community contributors for M365 domain mappings that make AuditKit the first truly unified multi-cloud compliance tool!**
