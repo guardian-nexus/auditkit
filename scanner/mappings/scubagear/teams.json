@@ -1,0 +1,957 @@
+{
+    "source": "scubagear",
+    "domain": "teams",
+    "version": "v1",
+    "rules": [
+        {
+            "rule_id": "MS.TEAMS.1.1",
+            "product": "teams",
+            "title": "Disable external participants from requesting control of shared screens in Teams meetings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict logical access based on least privilege"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.1",
+                        "title": "Limit access to system components and data to only those whose job requires it"
+                    },
+                    {
+                        "id": "12.3.8",
+                        "title": "Restrict remote access to authorized users"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft Teams admin center (https://admin.teams.microsoft.com).",
+                "Go to Meetings > Meeting policies.",
+                "Select the Global (Org-wide default) policy or an applicable custom policy.",
+                "Under Content sharing, set 'External participants can give or request control' to Off.",
+                "If custom policies exist, repeat for each policy to ensure consistent control.",
+                "Save the configuration and notify affected users if changes impact collaboration workflows."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Teams Meeting Policy page showing 'External participants can give or request control' set to Off.",
+                "Policy export from PowerShell confirming the setting: Get-CsTeamsMeetingPolicy | Select AllowExternalParticipantGiveRequestControl.",
+                "Documentation describing approved exceptions (if any) with justification and risk acceptance."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If the Teams Admin Center layout changes, verify via PowerShell: Get-CsTeamsMeetingPolicy. Auditors accept PowerShell output or admin screenshots confirming the setting is disabled.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams",
+                "https://insider.teams.com/blog/give-take-control-when-screen-sharing-on-teams/",
+                "https://support.microsoft.com/en-au/office/show-your-screen-during-a-meeting-90c84e5a-b6fe-4ed4-9687-5923d230d3a7"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.2",
+            "product": "teams",
+            "title": "Prevent anonymous users from starting Microsoft Teams meetings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Monitor for and detect security events"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "8.1",
+                        "title": "Define and identify users and restrict access"
+                    },
+                    {
+                        "id": "8.2",
+                        "title": "Ensure user identification and authentication before access"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Teams admin center (https://admin.teams.microsoft.com).",
+                "Go to Meetings > Meeting policies.",
+                "Select the Global (Org-wide default) policy.",
+                "Under Meeting join & lobby, ensure 'Anonymous users and dial-in callers can start a meeting' is set to Off.",
+                "Save changes and confirm that no custom policies override this setting."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Global policy showing 'Anonymous users and dial-in callers can start a meeting' = Off.",
+                "Policy export using PowerShell: Get-CsTeamsMeetingPolicy | Select AllowAnonymousUsersToStartMeeting.",
+                "Change management record confirming the policy setting and review frequency."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If the option is relocated, verify via PowerShell cmdlet Get-CsTeamsMeetingPolicy. Auditors will accept PowerShell output or configuration screenshots.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams",
+                "https://learn.microsoft.com/en-us/microsoftteams/meeting-policies-overview"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.3",
+            "product": "teams",
+            "title": "Require lobby admission for anonymous and dial-in users in Teams meetings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict logical access based on roles and responsibilities"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.1",
+                        "title": "Limit access to system components and data to only those whose job requires it"
+                    },
+                    {
+                        "id": "8.1",
+                        "title": "Assign unique IDs to each person with computer access"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Teams admin center, go to Meetings > Meeting policies.",
+                "Open the Global policy and under Meeting join & lobby, set 'Who can bypass the lobby' to 'People in my organization'.",
+                "Ensure 'People dialing in can bypass the lobby' is set to Off.",
+                "Save and verify by creating a test meeting and attempting external/anonymous join."
+            ],
+            "evidence_guidance": [
+                "Screenshot of meeting policy showing lobby bypass limited to internal users.",
+                "Meeting policy export from PowerShell showing 'WhoCanBypassLobby' = Organization.",
+                "Test documentation confirming anonymous users wait in the lobby until admitted."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If UI differs, validate via PowerShell: Get-CsTeamsMeetingPolicy | Select WhoCanBypassLobby, AllowAnonymousUsersToJoinMeeting.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams",
+                "https://learn.microsoft.com/microsoftteams/meeting-settings-in-teams"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.4",
+            "product": "teams",
+            "title": "Allow internal users to bypass the lobby automatically in Teams meetings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "Authorized user access"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Logical access safeguards"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.1",
+                        "title": "Limit access to system components to business need"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Activate access control systems for approved personnel"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "Open the Teams admin center and navigate to Meetings > Meeting policies.",
+                "Under Meeting join & lobby, set 'Who can bypass the lobby' to 'People in my organization'.",
+                "Ensure this applies to both global and custom policies where applicable.",
+                "Save and verify using a test meeting with internal users."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing 'Who can bypass the lobby' = People in my organization.",
+                "Policy export via PowerShell confirming same setting across all meeting policies.",
+                "Change-control or configuration management record showing this policy in effect."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If settings move, verify in PowerShell with Get-CsTeamsMeetingPolicy. Auditors will accept configuration outputs or screenshots.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.5",
+            "product": "teams",
+            "title": "Require dial-in users to wait in the lobby before joining Teams meetings",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict access to systems and information"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2",
+                        "title": "Establish access control mechanisms for all users"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Implement access controls for remote access sessions"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Teams admin center, go to Meetings > Meeting policies.",
+                "Under Meeting join & lobby, set 'People dialing in can bypass the lobby' to Off.",
+                "Save configuration and test by joining a meeting using a dial-in number to ensure lobby enforcement."
+            ],
+            "evidence_guidance": [
+                "Screenshot of policy page showing 'People dialing in can bypass the lobby' = Off.",
+                "PowerShell output verifying configuration consistency across policies.",
+                "Meeting test record confirming dial-in users wait in the lobby."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If settings move, verify via PowerShell cmdlet Get-CsTeamsMeetingPolicy. Auditors will accept screenshots or test documentation as proof.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.6",
+            "product": "teams",
+            "title": "Disable default meeting recording in Teams to prevent unauthorized data exposure",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict logical access and data exposure"
+                    },
+                    {
+                        "id": "CC8.1",
+                        "title": "Safeguard confidential information during transmission and storage"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive data"
+                    },
+                    {
+                        "id": "7.1",
+                        "title": "Restrict access to data on a need-to-know basis"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Teams admin center, navigate to Meetings > Meeting policies.",
+                "Select the Global (Org-wide default) policy.",
+                "Under Recording & transcription, set 'Meeting recording' to Off.",
+                "Save changes and notify users if new procedures are introduced for recording requests."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Meeting recording = Off in Teams policies.",
+                "PowerShell export confirming MeetingRecordingEnabled = False.",
+                "Policy documentation or request process for approved recording exceptions."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/meetings",
+            "fallback_notes": "If settings move, verify using PowerShell cmdlet Get-CsTeamsMeetingPolicy | Select AllowCloudRecording.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/cloud-recording",
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.1.7",
+            "product": "teams",
+            "title": "Disable 'Always record' for Teams Live Events and restrict to organizer discretion",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict system access and use based on job responsibilities"
+                    },
+                    {
+                        "id": "CC8.1",
+                        "title": "Protect confidential information during system use"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive data"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict data capture and storage during remote sessions"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Teams admin center (https://admin.teams.microsoft.com).",
+                "Navigate to Meetings > Live events policies.",
+                "Select the Global (Org-wide default) policy.",
+                "Set 'Record an event' to 'Organizer can record' or 'Never record'.",
+                "Save configuration and verify for all custom live event policies."
+            ],
+            "evidence_guidance": [
+                "Screenshot of the Live events policy showing 'Record an event' = Organizer can record or Never record.",
+                "PowerShell export confirming AllowBroadcastRecording = False or OrganizerOnly.",
+                "Internal documentation describing Live Event recording approval workflow."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/liveevents",
+            "fallback_notes": "If UI changes, verify using PowerShell cmdlet Get-CsTeamsMeetingBroadcastPolicy. Auditors accept configuration exports or screenshots.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/meeting-policies-in-teams",
+                "https://learn.microsoft.com/microsoftteams/cloud-recording"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.2.1",
+            "product": "teams",
+            "title": "Restrict external access in Teams to specific approved domains only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.2",
+                        "title": "Authorized user access"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "1.2.1",
+                        "title": "Restrict inbound and outbound traffic to that which is necessary"
+                    },
+                    {
+                        "id": "7.1",
+                        "title": "Limit access to system components based on need to know"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Sign in to the Microsoft Teams admin center (https://admin.teams.microsoft.com).",
+                "Go to Users > External access > Organization settings.",
+                "Under 'Teams and Skype for Business users in external organizations', select 'Allow only specific external domains'.",
+                "Add trusted partner or agency domains as approved entries.",
+                "Remove any wildcard entries such as '*', and save the configuration."
+            ],
+            "evidence_guidance": [
+                "Screenshot of External access settings showing 'Allow only specific external domains' selected.",
+                "List of allowed domains reviewed and approved by IT security.",
+                "PowerShell export using Get-CsTenantFederationConfiguration confirming AllowAllKnownDomains = False."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/company-wide-settings/external-communications",
+            "fallback_notes": "If the interface changes, confirm with PowerShell: Get-CsTenantFederationConfiguration. Auditors will accept PowerShell output or screenshots confirming per-domain restriction.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/manage-external-access",
+                "https://learn.microsoft.com/en-us/microsoftteams/trusted-organizations-external-meetings-chat"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.2.2",
+            "product": "teams",
+            "title": "Block unmanaged Teams users from initiating contact with internal users",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Detect and prevent unauthorized system use"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "1.3.6",
+                        "title": "Implement controls to prevent direct public access to internal networks"
+                    },
+                    {
+                        "id": "8.1",
+                        "title": "Identify and authenticate access to system components"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In the Teams admin center, navigate to Users > External access > Policies.",
+                "Select Global (Org-wide default).",
+                "Under Edit policy details, set 'People in my organization can communicate with unmanaged Teams accounts' to Off.",
+                "Save the configuration and confirm that unmanaged users cannot start chats or calls with internal accounts."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing unmanaged Teams contact toggle set to Off.",
+                "PowerShell export confirming AllowTeamsConsumer = False.",
+                "Security policy reference identifying unmanaged users as restricted entities."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/external-access",
+            "fallback_notes": "If Teams layout changes, validate via PowerShell using Get-CsTenantFederationConfiguration or Get-CsExternalAccessPolicy.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/manage-external-access",
+                "https://learn.microsoft.com/en-us/skypeforbusiness/manage/federation-and-external-access/external-access-policies/manage-external-access-policy-for-your-organization"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.2.3",
+            "product": "teams",
+            "title": "Prevent internal users from initiating chats with unmanaged Teams users",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict logical access based on role and responsibility"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized data exchange"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "7.2.2",
+                        "title": "Grant access based on least privilege"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict remote access to authorized personnel"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "In the Teams admin center, navigate to Users > External access > Policies.",
+                "Select Global (Org-wide default).",
+                "Under Edit policy details, disable 'People in my organization can communicate with unmanaged Teams accounts'.",
+                "Save and confirm internal users can no longer initiate communication with unmanaged users unless approved via B2B guest access."
+            ],
+            "evidence_guidance": [
+                "Screenshot of External access policy showing internal-to-unmanaged communication disabled.",
+                "PowerShell export confirming AllowTeamsConsumer = False and AllowTeamsConsumerInbound = False.",
+                "Change-control record documenting policy update and rationale."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/external-access",
+            "fallback_notes": "If policy names or structure differ, verify with PowerShell using Get-CsExternalAccessPolicy. Auditors accept PowerShell output or screenshots as evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/teams-external-access-policies",
+                "https://learn.microsoft.com/en-us/microsoftteams/trusted-organizations-external-meetings-chat?tabs=organization-settings"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.4.1",
+            "product": "teams",
+            "title": "Disable Teams channel email integration to prevent external message routing",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict system access based on least privilege"
+                    },
+                    {
+                        "id": "CC8.1",
+                        "title": "Protect confidential information during transmission and storage"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive data"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Ensure secure remote communication channels"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft Teams admin center (https://admin.teams.microsoft.com).",
+                "Navigate to Teams > Teams settings.",
+                "Under the Email integration section, set 'Users can send emails to a channel email address' to Off.",
+                "Save the configuration.",
+                "Communicate the policy to Teams owners to ensure no channel relies on external email delivery."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Teams admin settings showing email integration disabled.",
+                "PowerShell output from Get-CsTeamsClientConfiguration confirming AllowEmailIntoChannel = False.",
+                "Documentation or meeting notes showing business justification if exceptions exist."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/teams-settings",
+            "fallback_notes": "If Teams admin UI changes, validate using PowerShell cmdlet Get-CsTeamsClientConfiguration. Auditors will accept exported settings or screenshots confirming the control is enforced.",
+            "references": [
+                "https://support.microsoft.com/en-gb/office/send-an-email-to-a-channel-in-microsoft-teams-d91db004-d9d7-4a47-82e6-fb1b16dfd51e",
+                "https://support.microsoft.com/en-us/office/manage-team-settings-and-permissions-in-microsoft-teams-ce053b04-1b8e-4796-baa8-90dc427b3acc",
+                "https://support.microsoft.com/en-au/office/change-settings-in-microsoft-teams-b506e8f1-1a96-4cf1-8c6b-b6ed4f424bc7"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.5.1",
+            "product": "teams",
+            "title": "Restrict Teams integration to approved Microsoft apps only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict system access to authorized components"
+                    },
+                    {
+                        "id": "CC6.6",
+                        "title": "Prevent unauthorized logical access"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "6.2",
+                        "title": "Ensure systems and applications are securely configured"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict the use of insecure or unauthorized software"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Sign in to the Microsoft Teams admin center (https://admin.teams.microsoft.com).",
+                "Navigate to Teams apps > Manage apps.",
+                "Select Actions > Org-wide app settings.",
+                "Under 'Microsoft apps', select On to allow only approved Microsoft-published apps.",
+                "Review all installed Microsoft apps and disable any not required for business operations."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Org-wide app settings showing 'Microsoft apps' set to On and restricted.",
+                "List of approved Microsoft apps maintained in policy documentation.",
+                "PowerShell export confirming allowed apps via Get-CsTeamsAppPermissionPolicy."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/manage-apps",
+            "fallback_notes": "If the UI changes, verify via PowerShell: Get-CsTeamsAppPermissionPolicy. Auditors accept exports showing allowed apps and approval documentation.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/teams-app-permission-policies",
+                "https://learn.microsoft.com/microsoftteams/manage-apps"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.5.2",
+            "product": "teams",
+            "title": "Restrict installation of third-party apps to approved selections only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict logical access and integration capabilities"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Monitor and control system components"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "6.2",
+                        "title": "Secure configuration and vulnerability management"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict unapproved third-party components"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Open Microsoft Teams admin center > Teams apps > Manage apps.",
+                "Select Actions > Org-wide app settings.",
+                "Under 'Third-party apps', set to Off to block by default.",
+                "If certain third-party apps are needed, explicitly approve them under 'Manage apps' by selecting individual apps and assigning access to specific users or groups only."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Org-wide app settings showing Third-party apps = Off.",
+                "Export list of enabled third-party apps with approval documentation.",
+                "Change record or policy reference defining app review and approval process."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/manage-apps",
+            "fallback_notes": "If UI changes, validate via PowerShell cmdlet Get-CsTeamsAppPermissionPolicy. Auditors accept policy exports and internal approval documentation.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/teams-app-permission-policies",
+                "https://learn.microsoft.com/microsoftteams/manage-apps"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.5.3",
+            "product": "teams",
+            "title": "Restrict Teams custom app installation to approved and verified apps only",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC6.3",
+                        "title": "Restrict installation of unauthorized components"
+                    },
+                    {
+                        "id": "CC7.1",
+                        "title": "Monitor and detect unauthorized changes"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "6.3.2",
+                        "title": "Protect custom application code from unauthorized modification"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict installation of unauthorized software"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Go to Teams admin center > Teams apps > Manage apps.",
+                "Select Actions > Org-wide app settings.",
+                "Set 'Custom apps' to Off to disable sideloading of unapproved apps.",
+                "If approved custom apps are needed, allow them explicitly for specific users or groups and maintain documentation of the review process."
+            ],
+            "evidence_guidance": [
+                "Screenshot of Org-wide app settings showing 'Custom apps' = Off.",
+                "PowerShell output confirming AllowSideloading = False.",
+                "Approval documentation for any permitted custom apps."
+            ],
+            "console_url": "https://admin.teams.microsoft.com/policies/manage-apps",
+            "fallback_notes": "If layout differs, validate via PowerShell: Get-CsTeamsAppSetupPolicy. Auditors accept exports and approval documentation.",
+            "references": [
+                "https://learn.microsoft.com/microsoftteams/upload-custom-apps",
+                "https://learn.microsoft.com/microsoftteams/teams-app-permission-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.6.1",
+            "product": "teams",
+            "title": "Enable a Data Loss Prevention (DLP) solution to monitor and prevent data leakage in Teams",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC8.1",
+                        "title": "Protect confidential information during transmission and storage"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and respond to security events"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive data"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict unauthorized data transfers"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Access Microsoft Purview (https://compliance.microsoft.com) or equivalent DLP solution.",
+                "Navigate to Data loss prevention > Policy > Create policy.",
+                "Select locations including Microsoft Teams chats and channel messages.",
+                "Define DLP rules to detect and block PII, credit card, and sensitive keywords.",
+                "Review DLP alerts and refine rules to balance false positives with coverage."
+            ],
+            "evidence_guidance": [
+                "Screenshot of active DLP policies covering Teams.",
+                "DLP rule configuration export showing applied conditions and actions.",
+                "Alert logs confirming DLP policy enforcement."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If using a third-party DLP, provide equivalent configuration screenshots and enforcement logs. Auditors accept reports showing coverage for Teams chat and channels.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-microsoft-teams",
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.6.1",
+            "product": "teams",
+            "title": "Enable a Data Loss Prevention (DLP) solution to monitor and prevent data leakage in Teams",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC8.1",
+                        "title": "Protect confidential information during transmission and storage"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and respond to security events"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.2",
+                        "title": "Protect stored sensitive data"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict unauthorized data transfers"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "Access Microsoft Purview (https://compliance.microsoft.com) or equivalent DLP solution.",
+                "Navigate to Data loss prevention > Policy > Create policy.",
+                "Select locations including Microsoft Teams chats and channel messages.",
+                "Define DLP rules to detect and block PII, credit card, and sensitive keywords.",
+                "Review DLP alerts and refine rules to balance false positives with coverage."
+            ],
+            "evidence_guidance": [
+                "Screenshot of active DLP policies covering Teams.",
+                "DLP rule configuration export showing applied conditions and actions.",
+                "Alert logs confirming DLP policy enforcement."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If using a third-party DLP, provide equivalent configuration screenshots and enforcement logs. Auditors accept reports showing coverage for Teams chat and channels.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-microsoft-teams",
+                "https://learn.microsoft.com/microsoft-365/compliance/data-loss-prevention-policies"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.6.2",
+            "product": "teams",
+            "title": "Configure DLP to detect and protect PII and sensitive information shared in Teams",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC8.1",
+                        "title": "Protect confidential information during processing"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect security events involving data exfiltration"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "3.4",
+                        "title": "Render PAN unreadable where stored"
+                    },
+                    {
+                        "id": "12.3.9",
+                        "title": "Restrict unauthorized data transfers or sharing"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft Purview, edit your existing DLP policy or create a new one.",
+                "Include sensitive info types such as Credit Card Number, U.S. SSN, or ITIN.",
+                "Set actions to block or notify users when these data types are detected in Teams messages or file uploads.",
+                "Review DLP incident reports regularly to verify proper enforcement."
+            ],
+            "evidence_guidance": [
+                "Screenshot of DLP policy rule showing detection of PII (SSN, PAN, ITIN).",
+                "Incident log showing blocked message or file transmission.",
+                "Export of DLP rule configuration and alert settings."
+            ],
+            "console_url": "https://compliance.microsoft.com/datalossprevention",
+            "fallback_notes": "If a non-Microsoft DLP is used, provide configuration evidence and incident logs. Auditors accept equivalent proof of detection and enforcement.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-microsoft-teams",
+                "https://learn.microsoft.com/microsoft-365/compliance/dlp-learn-about-dlp"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.7.1",
+            "product": "teams",
+            "title": "Enable malware scanning for Teams file attachments",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event detection and response"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor for malicious activity"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "5.2",
+                        "title": "Ensure anti-malware software is current and active"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "Enable Safe Attachments in Microsoft Defender for Office 365 (https://security.microsoft.com).",
+                "Navigate to Policies & rules > Threat policies > Safe Attachments.",
+                "Enable 'Turn on Safe Attachments for SharePoint, OneDrive, and Microsoft Teams'.",
+                "Save changes and verify by uploading a known test malware file to a Teams chat or channel."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Safe Attachments enabled for Teams.",
+                "Threat Explorer log confirming malware detection or blocked upload.",
+                "Policy export from Microsoft Defender portal or PowerShell."
+            ],
+            "console_url": "https://security.microsoft.com/safeattachmentv2",
+            "fallback_notes": "If using a third-party anti-malware solution, provide logs and screenshots of Teams-integrated scanning results.",
+            "references": [
+                "https://learn.microsoft.com/en-us/defender-office-365/safe-attachments-for-spo-odfb-teams-about"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.7.2",
+            "product": "teams",
+            "title": "Prevent users from opening or downloading malware-detected files in Teams",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Security event detection"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Incident containment and response"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware mechanisms"
+                    },
+                    {
+                        "id": "5.2",
+                        "title": "Ensure detected malware is quarantined or removed"
+                    }
+                ]
+            },
+            "severity": "CRITICAL",
+            "remediation_steps": [
+                "In Microsoft Defender for Office 365, confirm Safe Attachments is enabled for Teams.",
+                "Set policy action to 'Block' or 'Replace' when a file is identified as malware.",
+                "Test by attempting to open a blocked file and verifying the error notification.",
+                "Monitor Threat Explorer or Security alerts for malware event logs."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Safe Attachments policy action = Block or Replace.",
+                "Sample alert showing blocked file in Teams.",
+                "Policy export and threat detection log demonstrating control effectiveness."
+            ],
+            "console_url": "https://security.microsoft.com/safeattachmentv2",
+            "fallback_notes": "If using alternative anti-malware, show equivalent enforcement via logs and alerts.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-attachments-about"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.8.1",
+            "product": "teams",
+            "title": "Enable Safe Links protection for URLs shared in Teams messages",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.1",
+                        "title": "Detect and prevent malicious activity"
+                    },
+                    {
+                        "id": "CC7.2",
+                        "title": "Monitor user activity and alert on threats"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "5.1",
+                        "title": "Deploy anti-malware and link protection"
+                    },
+                    {
+                        "id": "10.6",
+                        "title": "Monitor and review security alerts"
+                    }
+                ]
+            },
+            "severity": "HIGH",
+            "remediation_steps": [
+                "In Microsoft 365 Defender, go to Policies & rules > Threat policies > Safe Links.",
+                "Enable 'Turn on Safe Links in Microsoft Teams'.",
+                "Apply policy to all users or high-risk groups.",
+                "Test by sending a message containing a known test URL and confirming redirection through Safe Links proxy."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing Safe Links enabled for Teams.",
+                "Threat Explorer report showing rewritten URLs (safelinks.protection.outlook.com).",
+                "Policy export confirming inclusion of Teams as a protected workload."
+            ],
+            "console_url": "https://security.microsoft.com/safelinksv2",
+            "fallback_notes": "If UI differs, verify via PowerShell Get-SafeLinksPolicy. Auditors accept policy exports and threat reports as evidence.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-links-about"
+            ]
+        },
+        {
+            "rule_id": "MS.TEAMS.8.2",
+            "product": "teams",
+            "title": "Enable user click tracking for Safe Links in Teams messages",
+            "mappings": {
+                "soc2": [
+                    {
+                        "id": "CC7.2",
+                        "title": "Detect and investigate security events"
+                    },
+                    {
+                        "id": "CC7.3",
+                        "title": "Perform incident response analysis"
+                    }
+                ],
+                "pci": [
+                    {
+                        "id": "10.6",
+                        "title": "Review security events and respond to alerts"
+                    },
+                    {
+                        "id": "12.10",
+                        "title": "Establish and maintain incident response procedures"
+                    }
+                ]
+            },
+            "severity": "MEDIUM",
+            "remediation_steps": [
+                "In Microsoft 365 Defender portal, navigate to Threat policies > Safe Links.",
+                "Under policy settings, enable 'Track user clicks on Safe Links'.",
+                "Apply to all Teams users or specific high-risk groups.",
+                "Review click data under Threat Explorer > Click Reports for anomalies."
+            ],
+            "evidence_guidance": [
+                "Screenshot showing 'Track user clicks' enabled in Safe Links policy.",
+                "Threat Explorer report or SIEM log showing captured click events.",
+                "Documentation showing review process for malicious click alerts."
+            ],
+            "console_url": "https://security.microsoft.com/safelinksv2",
+            "fallback_notes": "If UI differs, confirm via Defender API or Threat Explorer export. Auditors accept evidence of click tracking in logs or dashboards.",
+            "references": [
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/safe-links-about",
+                "https://learn.microsoft.com/microsoft-365/security/office-365-security/office-365-ti"
+            ]
+        }
+    ]
+}
