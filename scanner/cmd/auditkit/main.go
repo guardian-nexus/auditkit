@@ -1458,22 +1458,44 @@ func outputJSON(result ComplianceResult, output string) {
 }
 
 func outputHTML(result ComplianceResult, output string) {
-	html := generateHTML(result)
-	
-	if output != "" {
-		err := os.WriteFile(output, []byte(html), 0644)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing to file: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("HTML report saved to %s\n", output)
-	} else {
-		fmt.Print(html)
+	// Convert to report.ComplianceResult format
+	htmlResult := report.ComplianceResult{
+		Timestamp:       result.Timestamp,
+		Provider:        result.Provider,
+		AccountID:       result.AccountID,
+		Score:           result.Score,
+		TotalControls:   result.TotalControls,
+		PassedControls:  result.PassedControls,
+		FailedControls:  result.FailedControls,
+		Controls:        convertControlsForPDF(result.Controls), // Same conversion works for HTML
+		Recommendations: result.Recommendations,
+		Framework:       result.Framework,
 	}
+	
+	html := report.GenerateHTML(htmlResult)
+
+	if output == "" {
+		output = fmt.Sprintf("auditkit-%s-%s-report-%s.html", 
+			strings.ToLower(result.Provider),
+			strings.ToLower(result.Framework), 
+			time.Now().Format("2006-01-02-150405"))
+	}
+
+	err := os.WriteFile(output, []byte(html), 0644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing HTML file: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("HTML report saved to %s\n", output)
+	fmt.Printf("Open in browser: file://%s/%s\n", getCurrentDir(), output)
 }
 
-func generateHTML(result ComplianceResult) string {
-	return ""
+func getCurrentDir() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return dir
 }
 
 func generateEvidenceTrackerHTML(controls []tracker.ControlResult, accountID string) string {

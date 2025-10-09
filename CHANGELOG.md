@@ -1,5 +1,28 @@
 # Changelog
 
+## [v0.6.3] - 2025-10-09
+
+### Fixed
+- PDF Unicode rendering issues (bullets, checkmarks now display correctly)
+- Spacing in passed controls section ([PASS] now has proper spacing)
+
+### Added
+- Professional PDF cover page with circular compliance score
+- Executive summary section in plain English
+- Full HTML report generator with modern, responsive design
+- Interactive tabs in HTML reports (Failed/Passed controls)
+- Clickable Console URLs in HTML reports
+- Copy-paste ready remediation commands in code blocks
+
+### Changed
+- Improved evidence collection guide formatting
+- Enhanced visual hierarchy in both PDF and HTML outputs
+
+### Technical
+- Created new `/pkg/report/html.go` with 644 lines of clean HTML generation
+- Refactored PDF generation functions to avoid naming conflicts
+- Updated `main.go` HTML output to use new generator
+
 ## [v0.6.2] - 2025-10-09
 
 ### Fixed
