@@ -1,5 +1,3 @@
-// Path: /home/dijital/Documents/auditkit-all/auditkit-pro/scanner/pkg/integrations/scubagear/parser.go
-
 package scubagear
 
 import (

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+//	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -28,7 +29,6 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/aws/checks"
 )
 
-// AWSScanner matches what main.go expects
 type AWSScanner struct {
 	cfg          aws.Config
 	s3Client     *s3.Client
@@ -44,8 +44,6 @@ type AWSScanner struct {
 	snsClient    *sns.Client
 	ssmClient    *ssm.Client
 	asClient     *autoscaling.Client
-	
-	// Additional clients for complete SOC2 and PCI-DSS
 	orgClient        *organizations.Client
 	inspector2Client *inspector2.Client
 	backupClient     *backup.Client
@@ -73,7 +71,7 @@ func NewScanner(profile string) (*AWSScanner, error) {
 		return nil, fmt.Errorf("failed to load AWS config: %v", err)
 	}
 
-	scanner := &AWSScanner{
+	return &AWSScanner{
 		cfg:              cfg,
 		s3Client:         s3.NewFromConfig(cfg),
 		iamClient:        iam.NewFromConfig(cfg),
@@ -93,9 +91,7 @@ func NewScanner(profile string) (*AWSScanner, error) {
 		backupClient:     backup.NewFromConfig(cfg),
 		kmsClient:        kms.NewFromConfig(cfg),
 		lambdaClient:     lambda.NewFromConfig(cfg),
-	}
-
-	return scanner, nil
+	}, nil
 }
 
 func (s *AWSScanner) GetAccountID(ctx context.Context) string {
@@ -106,75 +102,75 @@ func (s *AWSScanner) GetAccountID(ctx context.Context) string {
 	return *identity.Account
 }
 
-// ScanServices runs the modular checks and converts to the format main.go expects
-// Now properly handles framework selection
 func (s *AWSScanner) ScanServices(ctx context.Context, services []string, verbose bool, framework string) ([]ScanResult, error) {
-	// Check AWS connectivity first
 	_, err := s.stsClient.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		if verbose {
 			fmt.Println("Error: Not connected to AWS. Please configure AWS credentials.")
-			fmt.Println("   Run: aws configure")
 		}
-		return nil, fmt.Errorf("AWS connection failed: %v. Please configure AWS credentials", err)
+		return nil, fmt.Errorf("AWS connection failed: %v", err)
 	}
 	
 	var results []ScanResult
-	
-	// Normalize framework name
 	framework = strings.ToLower(framework)
 	
-	if verbose {
-		if framework == "pci" {
-			fmt.Println("Running PCI-DSS v4.0 compliance scan...")
-			fmt.Println("   Checking requirements 1, 2, 3, 8, 10, 11")
-		} else if framework == "soc2" {
-			fmt.Println("Running complete SOC2 Common Criteria scan...")
-			fmt.Println("   This includes all 64 controls across CC1-CC9")
-		} else if framework == "cmmc" {
-		        fmt.Println("Running CMMC Level 1 compliance scan...")
-		        fmt.Println("For Level 2 upgrade to Pro")
-		} else if framework == "all" {
-		        fmt.Println("Running multi-framework compliance scan...")
-		        fmt.Println("   SOC2 (64 controls) + PCI-DSS (40 controls) + CMMC Level 1 (17 controls)")
-		}
-	}
-
-	// Run framework-specific checks
 	switch framework {
 	case "soc2":
 		results = append(results, s.runSOC2Checks(ctx, verbose)...)
 	case "pci", "pci-dss":
 		results = append(results, s.runPCIChecks(ctx, verbose)...)
-	case "hipaa":
-		// For now, use basic checks with HIPAA mappings
-		results = append(results, s.runBasicChecks(ctx, services, verbose)...)
-		if verbose {
-			fmt.Println(" HIPAA checks are experimental - limited coverage")
-		}
 	case "cmmc":
-	    results = append(results, s.runCMMCChecks(ctx, verbose)...)
-	    if verbose {
-	        fmt.Println("AWS CMMC Level 1 scan complete")
-	    }
+		results = append(results, s.runCMMCChecks(ctx, verbose)...)
 	case "all":
-		// Run everything
 		results = append(results, s.runSOC2Checks(ctx, verbose)...)
 		results = append(results, s.runPCIChecks(ctx, verbose)...)
-                results = append(results, s.runCMMCChecks(ctx, verbose)...)
+		results = append(results, s.runCMMCChecks(ctx, verbose)...)
 	default:
-		// Default to SOC2
 		results = append(results, s.runSOC2Checks(ctx, verbose)...)
-	}
-
-	if verbose {
-		fmt.Printf("Scan complete - %d total checks performed\n", len(results))
 	}
 
 	return results, nil
 }
 
-// runSOC2Checks executes all SOC2 Common Criteria checks
+func (s *AWSScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResult {
+	var results []ScanResult
+	
+	if verbose {
+		fmt.Println("Running CMMC Level 1 (17 practices) - Open Source")
+	}
+	
+	// ONLY Level 1 (17 practices)
+	level1 := checks.NewAWSCMMCLevel1Checks(s.iamClient, s.s3Client, s.ec2Client, s.ctClient)
+	results1, _ := level1.Run(ctx)
+	for _, cr := range results1 {
+		results = append(results, ScanResult{
+			Control:           cr.Control,
+			Status:            cr.Status,
+			Evidence:          cr.Evidence,
+			Remediation:       cr.Remediation,
+			RemediationDetail: cr.RemediationDetail,
+			Severity:          cr.Severity,
+			ScreenshotGuide:   cr.ScreenshotGuide,
+			ConsoleURL:        cr.ConsoleURL,
+			Frameworks:        cr.Frameworks,
+		})
+	}
+	
+	if verbose {
+		fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
+		fmt.Println("")
+		fmt.Println("UPGRADE TO CMMC LEVEL 2:")
+		fmt.Println("  110 additional practices for CUI handling")
+		fmt.Println("  Required for DoD contractors processing CUI")
+		fmt.Println("  Complete evidence collection guides")
+		fmt.Println("  November 10, 2025 deadline compliance")
+		fmt.Println("")
+		fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
+	}
+	
+	return results
+}
+
 func (s *AWSScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanResult {
 	var results []ScanResult
 	
@@ -208,7 +204,7 @@ func (s *AWSScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanResu
 	
 	for _, check := range soc2Checks {
 		if verbose {
-			fmt.Printf("  Running %s checks...\n", check.Name())
+			fmt.Printf("  Running %s ...\n", check.Name())
 		}
 		
 		checkResults, err := check.Run(ctx)
@@ -235,7 +231,6 @@ func (s *AWSScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanResu
 	return results
 }
 
-// runPCIChecks executes PCI-DSS specific checks
 func (s *AWSScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResult {
 	var results []ScanResult
 	
@@ -243,12 +238,12 @@ func (s *AWSScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResul
 	pciChecks := checks.NewPCIDSSChecks(s.iamClient, s.ec2Client, s.s3Client, s.ctClient, s.configClient)
 	
 	if verbose {
-		fmt.Printf("  Running PCI-DSS v4.0 requirement checks...\n")
+		fmt.Printf("  Running PCI-DSS v4.0 requirements...\n")
 	}
 	
 	checkResults, err := pciChecks.Run(ctx)
 	if err != nil && verbose {
-		fmt.Printf("     Warning in PCI-DSS checks: %v\n", err)
+		fmt.Printf("    Warning in PCI-DSS checks: %v\n", err)
 	}
 	
 	// Convert CheckResult to ScanResult
@@ -282,7 +277,7 @@ func (s *AWSScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResul
 				results = append(results, ScanResult{
 					Control:           cr.Control,
 					Status:            cr.Status,
-					Evidence:          cr.Evidence + " | PCI-DSS: " + cr.Frameworks["PCI-DSS"],
+					Evidence:          cr.Evidence,
 					Remediation:       cr.Remediation,
 					RemediationDetail: cr.RemediationDetail,
 					Severity:          cr.Severity,
@@ -295,90 +290,4 @@ func (s *AWSScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResul
 	}
 	
 	return results
-}
-
-// runBasicChecks runs the original checks (for backward compatibility)
-func (s *AWSScanner) runBasicChecks(ctx context.Context, services []string, verbose bool) []ScanResult {
-	var results []ScanResult
-	
-	basicChecks := []checks.Check{
-		checks.NewS3Checks(s.s3Client),
-		checks.NewIAMChecks(s.iamClient),
-		checks.NewEC2Checks(s.ec2Client),
-		checks.NewCloudTrailChecks(s.ctClient),
-		checks.NewConfigChecks(s.configClient),
-		checks.NewGuardDutyChecks(s.gdClient),
-		checks.NewRDSChecks(s.rdsClient),
-		checks.NewVPCChecks(s.ec2Client),
-		checks.NewIAMAdvancedChecks(s.iamClient),
-		checks.NewMonitoringChecks(s.cwClient, s.snsClient),
-		checks.NewSystemsChecks(s.ssmClient, s.asClient),
-	}
-	
-	for _, check := range basicChecks {
-		if verbose {
-			fmt.Printf("  Running %s checks...\n", check.Name())
-		}
-		
-		checkResults, err := check.Run(ctx)
-		if err != nil && verbose {
-			fmt.Printf("     Warning in %s: %v\n", check.Name(), err)
-		}
-		
-		// Convert CheckResult to ScanResult
-		for _, cr := range checkResults {
-			results = append(results, ScanResult{
-				Control:           cr.Control,
-				Status:            cr.Status,
-				Evidence:          cr.Evidence,
-				Remediation:       cr.Remediation,
-				RemediationDetail: cr.RemediationDetail,
-				Severity:          cr.Severity,
-				ScreenshotGuide:   cr.ScreenshotGuide,
-				ConsoleURL:        cr.ConsoleURL,
-				Frameworks:        cr.Frameworks,
-			})
-		}
-	}
-	
-	return results
-}
-
-func (s *AWSScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResult {
-    var results []ScanResult
-    
-    if verbose {
-        fmt.Println("Running CMMC Level 1 (17 practices) - Open Source")
-    }
-    
-    level1 := checks.NewAWSCMMCLevel1Checks(s.iamClient, s.s3Client, s.ec2Client, s.ctClient)
-    checkResults, _ := level1.Run(ctx)
-    
-    for _, cr := range checkResults {
-        results = append(results, ScanResult{
-            Control: cr.Control,
-            Status: cr.Status,
-            Evidence: cr.Evidence,
-            Remediation: cr.Remediation,
-            RemediationDetail: cr.RemediationDetail,
-            Severity: cr.Severity,
-            ScreenshotGuide: cr.ScreenshotGuide,
-            ConsoleURL: cr.ConsoleURL,
-            Frameworks: cr.Frameworks,
-        })
-    }
-    
-    if verbose {
-        fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
-        fmt.Println("")
-        fmt.Println("UPGRADE TO CMMC LEVEL 2:")
-        fmt.Println("  110 additional practices for CUI handling")
-        fmt.Println("  Required for DoD contractors processing CUI")
-        fmt.Println("  Complete evidence collection guides")
-        fmt.Println("  November 10, 2025 deadline compliance")
-        fmt.Println("")
-        fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
-    }
-    
-    return results
 }

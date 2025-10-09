@@ -1,5 +1,3 @@
-// Path: /home/dijital/Documents/auditkit/scanner/pkg/aws/checks/pci_dss.go
-
 package checks
 
 import (

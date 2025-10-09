@@ -20,7 +20,7 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
 )
 
-const CurrentVersion = "v0.6.1" // ScubaGear integration + telemetry removed
+const CurrentVersion = "v0.6.2" // ScubaGear integration + telemetry removed
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`
@@ -643,10 +643,28 @@ func performScan(provider, profile, framework string, verbose bool, services str
 		}
 		
 		// Filter by framework if not "all"
-		if framework != "all" && control.Frameworks != nil {
-			if _, hasFramework := control.Frameworks[strings.ToUpper(framework)]; !hasFramework {
-				continue
-			}
+		if framework != "all" && control.Frameworks != nil && len(control.Frameworks) > 0 {
+		    // Check if control has the requested framework
+		    hasRequestedFramework := false
+		    requestedUpper := strings.ToUpper(framework)
+		    
+		    for fw := range control.Frameworks {
+		        fwUpper := strings.ToUpper(fw)
+		        // Handle framework name variations
+		        if fwUpper == requestedUpper || 
+		           (requestedUpper == "PCI" && fwUpper == "PCI-DSS") ||
+		           (requestedUpper == "PCI-DSS" && fwUpper == "PCI") ||
+		           (requestedUpper == "SOC2" && (fwUpper == "SOC2" || fwUpper == "SOC 2")) ||
+		           (requestedUpper == "CMMC" && fwUpper == "CMMC") {
+		            hasRequestedFramework = true
+		            break
+		        }
+		    }
+		    
+		    // Only skip if control has framework mappings but NOT this framework
+		    if !hasRequestedFramework {
+		        continue
+		    }
 		}
 		
 		controls = append(controls, control)
@@ -1051,81 +1069,121 @@ func printTextSummary(result ComplianceResult) {
 	fmt.Printf("\n")
 	
 	if result.FailedControls > 0 {
+		// CRITICAL failures with full details
 		hasCritical := false
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && strings.Contains(control.Priority, "CRITICAL") {
 				if !hasCritical {
-					fmt.Printf("\033[31mCRITICAL - Fix These NOW or Fail %s:\033[0m\n", frameworkLabel)
-					fmt.Printf("----------------------------------------\n")
+					fmt.Printf("\033[31mCRITICAL - Fix These NOW:\033[0m\n")
+					fmt.Printf("================================\n")
 					hasCritical = true
 				}
 				
-				frameworkReq := ""
-				if control.Frameworks != nil && result.Framework != "all" && result.Framework != "" {
-					if req, ok := control.Frameworks[strings.ToUpper(result.Framework)]; ok {
-						frameworkReq = fmt.Sprintf(" [%s %s]", strings.ToUpper(result.Framework), req)
-					}
+				fmt.Printf("\n\033[31m[FAIL]\033[0m %s - %s\n", control.ID, control.Name)
+				fmt.Printf("  Issue: %s\n", control.Evidence)
+				
+				if control.Remediation != "" {
+					fmt.Printf("  Fix: %s\n", control.Remediation)
 				}
 				
-				fmt.Printf("\033[31m[%s]\033[0m %s - %s%s\n", control.Severity, control.ID, control.Name, frameworkReq)
-				fmt.Printf("  Issue: %s\n", control.Evidence)
-				fmt.Printf("  Impact: %s\n", control.Impact)
-				if control.Remediation != "" {
-					remediation := control.Remediation
-					if len(remediation) > 100 {
-						remediation = "See PDF report for full command"
-					}
-					fmt.Printf("  Fix: %s\n", remediation)
+				if control.ScreenshotGuide != "" {
+					fmt.Printf("  Evidence: %s\n", control.ScreenshotGuide)
+				}
+				
+				if control.ConsoleURL != "" {
+					fmt.Printf("  Console: %s\n", control.ConsoleURL)
 				}
 				fmt.Printf("\n")
 			}
 		}
 		
+		// HIGH priority failures with full details
 		hasHigh := false
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && strings.Contains(control.Priority, "HIGH") {
 				if !hasHigh {
 					fmt.Printf("\033[33mHIGH Priority Issues:\033[0m\n")
-					fmt.Printf("------------------------\n")
+					fmt.Printf("========================\n")
 					hasHigh = true
 				}
-				fmt.Printf("\033[33m[%s]\033[0m %s - %s\n", control.Severity, control.ID, control.Name)
+				
+				fmt.Printf("\n\033[33m[FAIL]\033[0m %s - %s\n", control.ID, control.Name)
 				fmt.Printf("  Issue: %s\n", control.Evidence)
+				
 				if control.Remediation != "" {
-					remediation := control.Remediation
-					if len(remediation) > 100 {
-						remediation = "See PDF report for full command"
-					}
-					fmt.Printf("  Fix: %s\n", remediation)
+					fmt.Printf("  Fix: %s\n", control.Remediation)
+				}
+				
+				if control.ScreenshotGuide != "" {
+					fmt.Printf("  Evidence: %s\n", control.ScreenshotGuide)
+				}
+				
+				if control.ConsoleURL != "" {
+					fmt.Printf("  Console: %s\n", control.ConsoleURL)
 				}
 				fmt.Printf("\n")
 			}
 		}
 		
+		// Other failures (condensed)
 		hasOther := false
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && !strings.Contains(control.Priority, "CRITICAL") && !strings.Contains(control.Priority, "HIGH") {
 				if !hasOther {
 					fmt.Printf("Other Issues:\n")
-					fmt.Printf("----------------\n")
+					fmt.Printf("================\n")
 					hasOther = true
 				}
-				fmt.Printf("[%s] %s - %s: %s\n", control.Severity, control.ID, control.Name, control.Evidence)
+				fmt.Printf("[FAIL] %s - %s\n", control.ID, control.Name)
+				fmt.Printf("  Issue: %s\n", control.Evidence)
+				if control.Remediation != "" {
+					fmt.Printf("  Fix: %s\n", control.Remediation)
+				}
+				fmt.Printf("\n")
+			}
+		}
+		
+		// INFO status (guidance only)
+		hasInfo := false
+		for _, control := range result.Controls {
+			if control.Status == "INFO" {
+				if !hasInfo {
+					fmt.Printf("Manual Documentation Required:\n")
+					fmt.Printf("=================================\n")
+					hasInfo = true
+				}
+				fmt.Printf("[INFO] %s - %s\n", control.ID, control.Name)
+				fmt.Printf("  Guidance: %s\n", control.Evidence)
+				if control.ScreenshotGuide != "" {
+					fmt.Printf("  Evidence: %s\n", control.ScreenshotGuide)
+				}
+				fmt.Printf("\n")
 			}
 		}
 	}
 	
-	fmt.Printf("\n\033[32mPassed Controls:\033[0m\n")
-	fmt.Printf("-------------------\n")
+	// Passed controls (condensed)
+	fmt.Printf("\033[32mPassed Controls:\033[0m\n")
+	fmt.Printf("===================\n")
+	passCount := 0
 	for _, control := range result.Controls {
 		if control.Status == "PASS" {
-			fmt.Printf("  - %s - %s: %s\n", control.ID, control.Name, control.Evidence)
+			fmt.Printf("  - %s - %s\n", control.ID, control.Name)
+			passCount++
+			if passCount >= 10 {
+				remaining := result.PassedControls - 10
+				if remaining > 0 {
+					fmt.Printf("  ... and %d more passing controls\n", remaining)
+				}
+				break
+			}
 		}
 	}
 	
+	// Recommendations
 	if len(result.Recommendations) > 0 {
 		fmt.Printf("\nPriority Action Items:\n")
-		fmt.Printf("-------------------------\n")
+		fmt.Printf("=========================\n")
 		for i, rec := range result.Recommendations {
 			if i >= 5 {
 				break
@@ -1135,8 +1193,10 @@ func printTextSummary(result ComplianceResult) {
 	}
 	
 	fmt.Printf("\n")
-	fmt.Printf("For detailed %s report with evidence checklist:\n", frameworkLabel)
+	fmt.Printf("For detailed %s report with full evidence checklist:\n", frameworkLabel)
 	fmt.Printf("   auditkit scan -provider %s -framework %s -format pdf -output report.pdf\n", result.Provider, strings.ToLower(result.Framework))
+	fmt.Printf("\nTo track evidence collection progress:\n")
+	fmt.Printf("   auditkit evidence -provider %s\n", result.Provider)
 	fmt.Printf("\n")
 }
 

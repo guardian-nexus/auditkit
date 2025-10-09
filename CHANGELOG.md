@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.6.2] - 2025-10-09
+
+### Fixed
+- Fixed CMMC showing 0/17 controls (now properly returns results)
+- Fixed SOC2 showing 0/0 controls (framework filtering bug)
+- Fixed PCI showing 0/0 controls (framework filtering bug)
+- Fixed import path issues
+
+**This is a hotfix for v0.6.1**
+
 ## [v0.6.1] - 2025-10-07
 
 ### Added
