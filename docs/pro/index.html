@@ -228,6 +228,7 @@
             overflow-x: auto;
             line-height: 2;
             margin: 20px 0;
+            white-space: pre-wrap;
         }
         
         .faq {
@@ -397,10 +398,10 @@ go install github.com/guardian-nexus/auditkit-pro/scanner/cmd/auditkit-pro@lates
 <span style="color: #608b4e;"># Run complete CMMC Level 2 scan</span>
 auditkit-pro scan -framework cmmc-level2 -provider aws
 
-<span style="color: #4ec9b0;"># Scanning for all 110 CMMC Level 2 practices...</span>
-<span style="color: #4ec9b0;"># ✓ AC.L2-3.1.5: Prevent non-privileged users from executing privileged functions</span>
-<span style="color: #4ec9b0;"># ✓ AC.L2-3.1.6: Limit unsuccessful logon attempts</span>
-<span style="color: #f48771;"># X AT.L2-3.2.3: Monitor personnel security training compliance - MANUAL</span>
+<span style="color: #608b4e;"># Scanning for all 110 CMMC Level 2 practices...</span>
+<span style="color: #608b4e;"># ✓ AC.L2-3.1.5: Prevent non-privileged users from executing privileged functions</span>
+<span style="color: #608b4e;"># ✓ AC.L2-3.1.6: Limit unsuccessful logon attempts</span>
+<span style="color: #608b4e;"># X AT.L2-3.2.3: Monitor personnel security training compliance - MANUAL</span>
 
 <span style="color: #608b4e;"># Generate C3PAO-ready report</span>
 auditkit-pro scan -framework cmmc-level2 -format pdf -output cmmc-l2-assessment.pdf
