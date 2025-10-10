@@ -1,528 +1,487 @@
-<!-- Path: /home/dijital/Documents/auditkit/docs/pro/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuditKit Pro - CMMC Level 2 Compliance in 30 Days</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="AuditKit Pro: Complete CMMC Level 2 compliance automation for defense contractors. 110 practices, evidence collection, audit-ready reports. $297/month vs $100K+ assessments.">
-    
-    <meta property="og:title" content="AuditKit Pro - CMMC Level 2 Compliance Automation">
-    <meta property="og:description" content="Defense contractors: Get CMMC Level 2 compliant in 30 days, not 6 months. $297/month vs $100K consultant fees.">
-    <meta property="og:url" content="https://auditkit.io/pro">
-    
+    <meta name="description" content="Complete CMMC Level 2 compliance automation for defense contractors. 110 practices, evidence collection, audit-ready reports. $297/month vs $100K+ assessments.">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        body { 
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: #fafafa;
+            background: #fff;
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
         
-        /* Header */
+        .alert-bar {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
         header {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 30px 0;
-            margin-bottom: 40px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 80px 20px;
             text-align: center;
         }
         
-        h1 {
-            font-size: 32px;
-            font-weight: normal;
-            margin-bottom: 10px;
-            color: #dc3545;
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
         
-        .tagline {
-            color: #666;
-            font-size: 18px;
-            margin-bottom: 15px;
+        header .subtitle {
+            font-size: 1.5em;
+            margin-bottom: 30px;
         }
         
-        .deadline-badge {
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 3px;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        
-        /* Terminal Box */
-        .terminal {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 20px;
-            border-radius: 4px;
-            margin: 30px 0;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-            font-size: 14px;
-        }
-        
-        .terminal .prompt {
-            color: #6a9955;
-        }
-        
-        .terminal .output {
-            color: #ce9178;
-            margin-left: 20px;
-        }
-        
-        .terminal .critical {
-            color: #f48771;
-        }
-        
-        .terminal .comment {
-            color: #608b4e;
-        }
-        
-        .terminal .framework-ref {
-            color: #9cdcfe;
-            font-size: 12px;
-        }
-        
-        /* Info Boxes */
-        .urgent-box {
-            background: #fff5f5;
-            border: 1px solid #dc3545;
-            border-left: 4px solid #dc3545;
-            padding: 20px;
-            margin: 30px 0;
-        }
-        
-        .savings-box {
-            background: #f0f8ff;
-            border: 1px solid #0066cc;
-            border-left: 4px solid #0066cc;
-            padding: 20px;
-            margin: 30px 0;
-        }
-        
-        .feature-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-left: 4px solid #28a745;
-            padding: 20px;
-            margin: 30px 0;
-        }
-        
-        /* Main Content */
-        .section {
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
             margin: 40px 0;
         }
         
-        h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            font-weight: 600;
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
         }
         
-        h3 {
-            font-size: 16px;
+        .hero-stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
             margin-bottom: 10px;
-            font-weight: 600;
         }
         
-        p {
-            margin-bottom: 15px;
-            line-height: 1.7;
+        .hero-stat-label {
+            font-size: 1em;
         }
         
-        ul {
-            margin-left: 30px;
-            margin-bottom: 20px;
-        }
-        
-        li {
-            margin-bottom: 8px;
-        }
-        
-        /* Comparison table */
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-        
-        .comparison-table th {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        .comparison-table td {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-        }
-        
-        .comparison-table tr:nth-child(even) {
-            background: #fff;
-        }
-        
-        /* Buttons */
-        .buttons {
-            display: flex;
-            gap: 15px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #dc3545;
-            color: white;
+        .btn {
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 8px;
             text-decoration: none;
-            border-radius: 3px;
-            font-size: 16px;
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
             font-weight: 600;
-            transition: background 0.2s;
-            text-align: center;
+            margin: 10px;
         }
         
-        .button:hover {
-            background: #c82333;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         
-        .button-secondary {
-            background: #fff;
-            color: #0066cc;
-            border: 1px solid #0066cc;
-        }
-        
-        .button-secondary:hover {
-            background: #f0f8ff;
-        }
-        
-        .button-large {
-            font-size: 18px;
-            padding: 16px 32px;
-        }
-        
-        /* Stats */
-        .stats {
-            display: flex;
-            gap: 40px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .stat {
-            flex: 1;
-            min-width: 150px;
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 24px;
-            font-weight: 600;
+        .btn-primary {
+            background: white;
             color: #dc3545;
         }
         
-        .stat-label {
-            color: #666;
-            font-size: 14px;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
         }
         
-        /* Back link */
-        .back-link {
+        section {
+            padding: 60px 20px;
+        }
+        
+        section h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        .deadline-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 30px;
+            margin: 40px 0;
+            border-radius: 8px;
+        }
+        
+        .deadline-warning h3 {
+            color: #e65100;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .cost-comparison {
+            background: #f8f9fa;
+            padding: 60px 20px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .comparison-card {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-card.traditional {
+            border-top: 4px solid #6c757d;
+        }
+        
+        .comparison-card.auditkit {
+            border-top: 4px solid #28a745;
+        }
+        
+        .comparison-card h3 {
+            font-size: 1.8em;
             margin-bottom: 20px;
         }
         
-        .back-link a {
-            color: #0066cc;
-            text-decoration: none;
-            font-size: 14px;
+        .comparison-card .price {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 20px 0;
         }
         
-        .back-link a:hover {
-            text-decoration: underline;
+        .comparison-card.traditional .price {
+            color: #6c757d;
         }
         
-        /* Footer */
+        .comparison-card.auditkit .price {
+            color: #28a745;
+        }
+        
+        .comparison-card ul {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .comparison-card ul li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .comparison-card ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 30px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            overflow-x: auto;
+            line-height: 2;
+            margin: 20px 0;
+        }
+        
+        .faq {
+            background: #f8f9fa;
+        }
+        
+        .faq-item {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .faq-item h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
         footer {
-            margin-top: 80px;
-            padding-top: 30px;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
-            font-size: 14px;
+            background: #2c3e50;
+            color: white;
+            padding: 40px 20px;
             text-align: center;
         }
         
         footer a {
-            color: #0066cc;
+            color: #dc3545;
             text-decoration: none;
         }
         
         footer a:hover {
             text-decoration: underline;
         }
-        
-        /* Mobile */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .tagline {
-                font-size: 16px;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-            
-            .button {
-                width: 100%;
-            }
-            
-            .comparison-table {
-                font-size: 12px;
-            }
-            
-            .comparison-table th,
-            .comparison-table td {
-                padding: 6px;
-            }
-        }
     </style>
-    <script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="back-link">
-            <a href="/">← Back to AuditKit Open Source</a>
-        </div>
-        
-        <header>
+    <div class="alert-bar">
+        Defense Contractors: The November 10, 2025 CMMC deadline is 32 days away. Traditional assessments take 6+ months and cost $100K+.
+    </div>
+
+    <header>
+        <div class="container">
             <h1>AuditKit Pro</h1>
-            <p class="tagline">CMMC Level 2 compliance in 30 days, not 6 months</p>
-            <div class="deadline-badge">⚠️ DEADLINE: November 10, 2025 - All new DoD contracts require CMMC</div>
-        </header>
-        
-        <div class="urgent-box">
-            <strong>Defense Contractors:</strong> The November 10, 2025 CMMC deadline is 42 days away. 
-            Traditional assessments take 6+ months and cost $100K+. AuditKit Pro gets you CMMC Level 2 compliant 
-            in 30 days for $297/month.
+            <p class="subtitle">CMMC Level 2 Compliance in 30 Days, Not 6 Months</p>
+            
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">110</div>
+                    <div class="hero-stat-label">CMMC Level 2 Practices</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">30 Days</div>
+                    <div class="hero-stat-label">To Compliance-Ready</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">$297/mo</div>
+                    <div class="hero-stat-label">vs $100K+ Traditional</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">C3PAO Ready</div>
+                    <div class="hero-stat-label">Self-Assessment + Validation</div>
+                </div>
+            </div>
+
+            <div>
+                <a href="https://buy.stripe.com/trial-link" class="btn btn-primary">Start Free Trial</a>
+                <a href="#comparison" class="btn btn-secondary">See Cost Breakdown</a>
+            </div>
         </div>
-        
-        <div class="terminal">
-            <span class="prompt">$</span> auditkit-pro scan -framework cmmc-level2 -provider aws<br>
-            <span class="comment"># Scanning for all 110 CMMC Level 2 practices...</span><br><br>
-            <span class="critical">✗ CRITICAL: CUI access controls missing</span><br>
-            <span class="framework-ref">  → CMMC: AC.L2-3.1.3 | NIST: 3.1.3 | Evidence: IAM policy screenshots required</span><br>
-            <span class="output">  Console: https://console.aws.amazon.com/iam/home#/policies</span><br>
-            <span class="output">  Fix: aws iam create-policy --policy-name CUI-Access-Control --policy-document file://cui-policy.json</span><br><br>
-            <span class="critical">✗ CRITICAL: Audit log retention insufficient</span><br>
-            <span class="framework-ref">  → CMMC: AU.L2-3.3.1 | NIST: 3.3.1 | Evidence: CloudTrail retention settings</span><br>
-            <span class="output">  Console: https://console.aws.amazon.com/cloudtrail/home#/trails</span><br>
-            <span class="output">  Screenshot: Event history → Management events → Data events retention = 3 years</span><br><br>
-            <span class="prompt">$</span> auditkit-pro evidence -output cmmc-evidence-tracker.html<br>
-            <span class="output">📋 CMMC Level 2 Evidence Tracker Generated</span><br>
-            <span class="output">✅ 47/110 practices documented | ⏳ 63 requiring screenshots | 🎯 Ready for C3PAO assessment</span>
+    </header>
+
+    <section>
+        <div class="container">
+            <div class="deadline-warning">
+                <h3>November 10, 2025 Reality</h3>
+                <p style="font-size: 1.1em; margin-bottom: 15px;">
+                    After this date, ALL new DoD contracts require CMMC compliance. Existing contracts may be terminated for non-compliance.
+                </p>
+                <p style="font-size: 1.1em;">
+                    <strong>Don't risk your defense contracting business.</strong>
+                </p>
+            </div>
+
+            <h2>What You Get with Pro</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Complete CMMC Level 2</h3>
+                    <p>All 110 practices for CUI (Controlled Unclassified Information) handling, not just the 17 Level 1 basics.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Automated Evidence Collection</h3>
+                    <p>Step-by-step screenshot guides for every practice with exact AWS/Azure console URLs.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Audit-Ready Reports</h3>
+                    <p>Professional PDF and HTML reports formatted for C3PAO assessors with all required evidence.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Multi-Cloud Support</h3>
+                    <p>Scan AWS, Azure, and M365 environments with unified CMMC Level 2 reporting.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Priority Support</h3>
+                    <p>Direct email support with responses within 4 business hours.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Unlimited Re-Scans</h3>
+                    <p>Verify fixes immediately and track compliance progress over time. No scan limits.</p>
+                </div>
+            </div>
         </div>
-        
-        <div class="section">
-            <h2>The CMMC Reality Check</h2>
-            <p>
-                <strong>Traditional CMMC Assessment:</strong> 6-12 months, $100K-$300K, requires C3PAO, massive documentation burden.
+    </section>
+
+    <section id="comparison" class="cost-comparison">
+        <div class="container">
+            <h2>Cost Comparison</h2>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card traditional">
+                    <h3>Traditional CMMC Assessment</h3>
+                    <div class="price">$150,000+</div>
+                    <ul>
+                        <li>6+ months timeline</li>
+                        <li>Consultant fees: $50K-100K</li>
+                        <li>C3PAO assessment: $50K-75K</li>
+                        <li>Multiple site visits required</li>
+                        <li>Extensive documentation overhead</li>
+                        <li>Manual evidence collection</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card auditkit">
+                    <h3>AuditKit Pro (12 months)</h3>
+                    <div class="price">$3,564</div>
+                    <ul>
+                        <li>30 days to assessment-ready</li>
+                        <li>$297/month subscription</li>
+                        <li>Self-assessment with validation</li>
+                        <li>Automated gap identification</li>
+                        <li>Evidence collection guides</li>
+                        <li>Unlimited re-scans</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 1.3em; margin-top: 40px; color: #28a745; font-weight: 600;">
+                Your Savings: $146,436 and 5 months
             </p>
-            <p>
-                <strong>AuditKit Pro:</strong> 30 days to compliance-ready, $297/month, self-assessment with C3PAO validation, 
-                automated evidence collection.
-            </p>
         </div>
-        
-        <div class="savings-box">
-            <strong>Cost Comparison:</strong><br>
-            Traditional CMMC Assessment: $150,000 + 6 months<br>
-            AuditKit Pro (12 months): $3,564 + 30 days<br>
-            <strong>Your savings: $146,436 and 5 months</strong>
-        </div>
-        
-        <div class="section">
-            <h2>What You Get With AuditKit Pro</h2>
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <th>AuditKit Pro</th>
-                        <th>Traditional Assessment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>CMMC Level 2 Coverage</td>
-                        <td>✅ All 110 practices</td>
-                        <td>✅ All 110 practices</td>
-                    </tr>
-                    <tr>
-                        <td>Automated Scanning</td>
-                        <td>✅ AWS + Azure</td>
-                        <td>❌ Manual only</td>
-                    </tr>
-                    <tr>
-                        <td>Evidence Collection</td>
-                        <td>✅ Automated screenshots</td>
-                        <td>❌ Manual documentation</td>
-                    </tr>
-                    <tr>
-                        <td>Continuous Monitoring</td>
-                        <td>✅ Daily scans</td>
-                        <td>❌ Annual only</td>
-                    </tr>
-                    <tr>
-                        <td>Time to Compliance</td>
-                        <td>✅ 30 days</td>
-                        <td>❌ 6+ months</td>
-                    </tr>
-                    <tr>
-                        <td>Total Cost (1st year)</td>
-                        <td>✅ $3,564</td>
-                        <td>❌ $150,000+</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="feature-box">
-            <strong>CMMC Level 2 Specific Features:</strong>
-            <ul>
-                <li>Complete CUI (Controlled Unclassified Information) handling assessment</li>
-                <li>All 110 NIST SP 800-171 derived practices</li>
-                <li>Automated POAM (Plan of Action & Milestones) generation</li>
-                <li>SSP (System Security Plan) templates with your actual configurations</li>
-                <li>C3PAO-ready evidence packages</li>
-                <li>Continuous compliance monitoring (not just point-in-time)</li>
-            </ul>
-        </div>
-        
-        <div class="section">
-            <h2>Why Defense Contractors Choose AuditKit Pro</h2>
-            <ul>
-                <li><strong>Deadline pressure:</strong> November 10, 2025 is non-negotiable</li>
-                <li><strong>Cost control:</strong> $297/month vs $100K+ traditional assessments</li>
-                <li><strong>Speed:</strong> 30 days to compliance-ready vs 6+ months</li>
-                <li><strong>Control:</strong> Self-assessment with validation vs full dependency</li>
-                <li><strong>Continuous:</strong> Daily monitoring vs annual check-ups</li>
-                <li><strong>Evidence automation:</strong> Screenshots and documentation generated automatically</li>
-            </ul>
-        </div>
-        
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number">110</div>
-                <div class="stat-label">CMMC Level 2 Practices</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">30</div>
-                <div class="stat-label">Days to Compliant</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">$297</div>
-                <div class="stat-label">Monthly Cost</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">42</div>
-                <div class="stat-label">Days Until Deadline</div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>How It Works</h2>
+            
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="code-block"><span style="color: #608b4e;"># Install AuditKit Pro</span>
+go install github.com/guardian-nexus/auditkit-pro/scanner/cmd/auditkit-pro@latest
+
+<span style="color: #608b4e;"># Run complete CMMC Level 2 scan</span>
+auditkit-pro scan -framework cmmc-level2 -provider aws
+
+<span style="color: #4ec9b0;"># Scanning for all 110 CMMC Level 2 practices...</span>
+<span style="color: #4ec9b0;"># ✓ AC.L2-3.1.5: Prevent non-privileged users from executing privileged functions</span>
+<span style="color: #4ec9b0;"># ✓ AC.L2-3.1.6: Limit unsuccessful logon attempts</span>
+<span style="color: #f48771;"># X AT.L2-3.2.3: Monitor personnel security training compliance - MANUAL</span>
+
+<span style="color: #608b4e;"># Generate C3PAO-ready report</span>
+auditkit-pro scan -framework cmmc-level2 -format pdf -output cmmc-l2-assessment.pdf
+
+<span style="color: #608b4e;"># Track remediation progress</span>
+auditkit-pro progress</div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #fff3cd; border-left: 4px solid #ff9800; border-radius: 4px;">
+                    <p style="font-size: 1.1em; margin-bottom: 15px;">
+                        <strong>Important:</strong> AuditKit Pro automates the self-assessment and evidence collection process. 
+                    </p>
+                    <p style="font-size: 1.1em;">
+                        You still need a C3PAO for official CMMC certification, but AuditKit Pro gets you ready for that assessment by identifying and fixing gaps beforehand, dramatically reducing assessment time and cost.
+                    </p>
+                </div>
             </div>
         </div>
-        
-        <div class="section">
-            <h2>What's Included</h2>
-            <ul>
-                <li>AuditKit Pro binary (Linux, Windows, macOS)</li>
-                <li>Complete CMMC Level 2 scanning for AWS and Azure</li>
-                <li>Automated evidence collection and screenshot generation</li>
-                <li>C3PAO-ready compliance reports and documentation</li>
-                <li>SSP templates populated with your actual configurations</li>
-                <li>POAM generation for identified gaps</li>
-                <li>Priority email support for implementation questions</li>
-                <li>Monthly compliance monitoring and trending</li>
-            </ul>
-        </div>
-        
-        <div class="urgent-box">
-            <strong>November 10, 2025 Reality:</strong> After this date, ALL new DoD contracts require CMMC compliance. 
-            Existing contracts may be terminated for non-compliance. Don't risk your defense contracting business.
-        </div>
-        
-<div style="text-align: center; margin: 40px 0;">
-    <a href="https://buy.stripe.com/28E14m5MS5xM0mj4r7gnK01" class="button button-large">
-      Start 14-Day Free Trial
-      <br><span style="font-size: 14px; opacity: 0.9;">Then $297/month • Cancel anytime</span>
-    </a>
-    <p style="margin-top: 15px; color: #666; font-size: 14px;">
-        ✓ No credit card charged for 14 days<br>
-        ✓ Cancel anytime before trial ends<br>
-        ✓ 33 days until November 10 deadline
-    </p>
-</div>
-        
-        <div class="section">
+    </section>
+
+    <section class="faq">
+        <div class="container">
             <h2>Frequently Asked Questions</h2>
             
-            <h3>Do I still need a C3PAO?</h3>
-            <p>Yes, for official CMMC certification you need a C3PAO assessment. AuditKit Pro gets you ready for that assessment by identifying and fixing gaps beforehand, dramatically reducing assessment time and cost.</p>
+            <div class="faq-item">
+                <h3>Do I still need a C3PAO assessment?</h3>
+                <p>Yes, for official CMMC certification you need a C3PAO assessment. AuditKit Pro gets you ready for that assessment by identifying and fixing gaps beforehand, dramatically reducing assessment time and cost.</p>
+            </div>
             
-            <h3>Does this work with Azure Government?</h3>
-            <p>Yes, AuditKit Pro supports both commercial AWS/Azure and government cloud environments.</p>
+            <div class="faq-item">
+                <h3>Does this work with government cloud?</h3>
+                <p>Yes, AuditKit Pro supports both commercial AWS/Azure and government cloud environments (AWS GovCloud, Azure Government).</p>
+            </div>
             
-            <h3>What if I find issues after the deadline?</h3>
-            <p>AuditKit Pro allows unlimited re-scanning, so you can verify fixes immediately and track compliance progress over time. Run assessments weekly, monthly, or before your C3PAO review.</p>
+            <div class="faq-item">
+                <h3>What's the difference between Level 1 and Level 2?</h3>
+                <p>CMMC Level 1 (17 practices) protects Federal Contract Information (FCI). Level 2 (110 practices) protects Controlled Unclassified Information (CUI). If you handle CUI, you need Level 2.</p>
+            </div>
             
-            <h3>Can I cancel anytime?</h3>
-            <p>Yes, monthly subscription with no long-term commitment. Most customers achieve compliance within 30-60 days.</p>
-	    
-            <h3>Do I need a credit card for the free trial?</h3>
-	    <p>Yes, we require a payment method to prevent abuse, but you won't be charged for 14 days. Cancel anytime before the trial ends and you pay nothing.</p>
+            <div class="faq-item">
+                <h3>Can I re-scan after fixing issues?</h3>
+                <p>Yes, AuditKit Pro allows unlimited re-scanning, so you can verify fixes immediately and track compliance progress over time.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What happens after November 10, 2025?</h3>
+                <p>All new DoD contracts will require CMMC compliance. Existing contracts may be terminated or not renewed if you're not compliant. Don't wait.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is there a trial period?</h3>
+                <p>Yes, we offer a 14-day free trial. No credit card required to start.</p>
+            </div>
+        </div>
+    </section>
 
-	    <h3>What happens after the 14-day trial?</h3>
-	     <p>Your card will be automatically charged $297 at the end of 14 days. If you cancel before then, you pay nothing. No hidden fees, no surprises.</p>        
-        </div>
-        
-        <div class="savings-box">
-            <strong>Bottom Line:</strong> You can spend $150,000 and 6 months with traditional assessors, 
-            or spend $297/month and 30 days with AuditKit Pro. The choice is yours, but the deadline isn't.
-        </div>
-        
-	<div style="text-align: center; margin: 40px 0;">
-	    <a href="https://buy.stripe.com/28E14m5MS5xM0mj4r7gnK01" class="button button-large">
-	      Start 14-Day Free Trial - No Credit Card
-	      <br><span style="font-size: 14px; opacity: 0.9;">Then $297/month • Cancel anytime</span>
-	    </a>
-	</div>
-        
-        <footer>
-            <p>
-                Built by engineers who understand defense contracting compliance requirements.<br>
-                Questions? Email <a href="mailto:hello@auditkit.io">hello@auditkit.io</a> or see our <a href="/">open source version</a>.<br><br>
-                
-                Guardian Nexus LLC<br>
-                <em>We understand the urgency. We're here to help you meet the deadline.</em>
+    <section style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+        <div class="container" style="text-align: center;">
+            <h2 style="color: white; font-size: 2.5em; margin-bottom: 20px;">32 Days Until CMMC Deadline</h2>
+            <p style="font-size: 1.3em; margin-bottom: 40px;">
+                You can spend $150,000 and 6 months with traditional assessors, or spend $297/month and 30 days with AuditKit Pro.
+            </p>
+            <a href="https://buy.stripe.com/trial-link" class="btn btn-primary" style="font-size: 1.3em; padding: 20px 50px;">
+                Start Free Trial - No Credit Card Required
+            </a>
+            <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.9;">
+                14-day free trial • Cancel anytime • Priority support included
             </p>
         </div>
-    </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="font-size: 1.2em; margin-bottom: 20px;">
+                <strong>Built by defense contractors, for defense contractors.</strong>
+            </p>
+            <p style="margin-bottom: 30px;">
+                <a href="https://github.com/guardian-nexus/auditkit">Free Version (Level 1)</a> · 
+                <a href="mailto:pro@auditkit.io">Contact Sales</a> · 
+                <a href="https://auditkit.io">Back to Home</a>
+            </p>
+        </div>
+    </footer>
 </body>
 </html>

@@ -1,330 +1,383 @@
-<!-- Path: /home/dijital/Documents/auditkit/docs/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AuditKit - Multi-Framework Cloud Compliance Scanner</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditKit - Multi-Cloud Compliance Scanner</title>
     <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
-    
-    <meta property="og:title" content="AuditKit - Multi-Framework Compliance Scanner">
-    <meta property="og:description" content="SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001. One scan, all frameworks. Stop guessing what auditors want.">
-    <meta property="og:url" content="https://auditkit.io">
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        body { 
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: #fafafa;
+            background: #fff;
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
         
-        /* Header */
         header {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 30px 0;
-            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
         }
         
-        h1 {
-            font-size: 28px;
-            font-weight: normal;
-            margin-bottom: 10px;
+        header h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
         
-        .tagline {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 15px;
+        header .subtitle {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            opacity: 0.95;
         }
         
-        /* Framework badges */
-        .frameworks {
+        .badges {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            justify-content: center;
             flex-wrap: wrap;
-            margin-top: 15px;
+            margin-bottom: 30px;
         }
         
-        .framework-badge {
-            padding: 4px 10px;
-            border-radius: 3px;
-            font-size: 12px;
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+        
+        .badge.success {
+            background: rgba(46, 213, 115, 0.3);
+        }
+        
+        .badge.warning {
+            background: rgba(255, 234, 167, 0.3);
+        }
+        
+        .badge.pro {
+            background: rgba(255, 107, 107, 0.3);
             font-weight: 600;
         }
         
-        .ready {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .cmmc-alert {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 600;
         }
         
-        .pro {
-            background: #e7f3ff;
-            color: #004085;
-            border: 1px solid #b8daff;
+        .cmmc-alert a {
+            color: white;
+            text-decoration: underline;
         }
         
-        .beta {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         
-        .coming {
-            background: #e2e3e5;
-            color: #383d41;
-            border: 1px solid #d6d8db;
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
         }
         
-        /* Terminal Box */
-        .terminal {
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-pro {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        section {
+            padding: 60px 20px;
+        }
+        
+        section h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        .demo-output {
             background: #1e1e1e;
             color: #d4d4d4;
-            padding: 20px;
-            border-radius: 4px;
-            margin: 30px 0;
+            padding: 30px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
+            font-size: 0.95em;
             overflow-x: auto;
-            font-size: 14px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            line-height: 2;
         }
         
-        .terminal .prompt {
-            color: #6a9955;
+        .demo-output .prompt {
+            color: #4ec9b0;
         }
         
-        .terminal .output {
-            color: #ce9178;
-            margin-left: 20px;
-        }
-        
-        .terminal .critical {
-            color: #f48771;
-        }
-        
-        .terminal .comment {
+        .demo-output .comment {
             color: #608b4e;
         }
         
-        .terminal .framework-ref {
+        .demo-output .critical {
+            color: #f48771;
+        }
+        
+        .demo-output .arrow {
+            color: #569cd6;
+        }
+        
+        .demo-output .framework {
             color: #9cdcfe;
-            font-size: 12px;
         }
         
-        /* Info Box */
-        .info-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-left: 4px solid #0066cc;
-            padding: 20px;
-            margin: 30px 0;
+        .demo-output .url {
+            color: #569cd6;
         }
         
-        .warning-box {
-            background: #fffbf0;
-            border: 1px solid #f0ad4e;
-            border-left: 4px solid #f0ad4e;
-            padding: 20px;
-            margin: 30px 0;
+        .demo-output .label {
+            color: #ce9178;
         }
         
-        .cmmc-box {
-            background: #fff5f5;
-            border: 1px solid #dc3545;
-            border-left: 4px solid #dc3545;
-            padding: 20px;
-            margin: 30px 0;
+        .demo-output .command {
+            color: #dcdcaa;
         }
         
-        /* NEW: Pro CTA Box */
-        .pro-cta-box {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
+        .demo-output .success {
+            color: #4ec9b0;
+        }
+        
+        .problem-solution {
+            background: #f8f9fa;
+            padding: 60px 20px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: white;
             padding: 30px;
             border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .framework-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        .framework-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .framework-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .framework-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .framework-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
             margin: 40px 0;
             text-align: center;
         }
         
-        .pro-cta-box h2 {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-        
-        .pro-cta-box p {
-            margin-bottom: 20px;
-            font-size: 16px;
-            opacity: 0.95;
-        }
-        
-        .pro-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        
-        .pro-feature {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .pro-feature strong {
-            color: #fff;
-        }
-        
-        /* Main Content */
-        .section {
-            margin: 40px 0;
-        }
-        
-        h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        p {
-            margin-bottom: 15px;
-            line-height: 1.7;
-        }
-        
-        ul {
-            margin-left: 30px;
-            margin-bottom: 20px;
-        }
-        
-        li {
-            margin-bottom: 8px;
-        }
-        
-        /* Comparison table */
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-        
-        .comparison-table th {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        .comparison-table td {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-        }
-        
-        .comparison-table tr:nth-child(even) {
-            background: #fff;
-        }
-        
-        /* Code Block */
-        code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 14px;
-        }
-        
-        /* Buttons */
-        .buttons {
-            display: flex;
-            gap: 15px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-        
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #0066cc;
-            color: white;
-            text-decoration: none;
-            border-radius: 3px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        
-        .button:hover {
-            background: #0052a3;
-        }
-        
-        .button-secondary {
-            background: #fff;
-            color: #0066cc;
-            border: 1px solid #0066cc;
-        }
-        
-        .button-secondary:hover {
-            background: #f0f8ff;
-        }
-        
-        .button-pro {
-            background: #dc3545;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            padding: 16px 32px;
-        }
-        
-        .button-pro:hover {
-            background: #c82333;
-        }
-        
-        /* Stats Table */
-        .stats {
-            display: flex;
-            gap: 40px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-        
         .stat {
-            flex: 1;
-            min-width: 150px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .stat-number {
-            font-size: 24px;
-            font-weight: 600;
-            color: #0066cc;
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
         }
         
         .stat-label {
+            font-size: 1.1em;
             color: #666;
-            font-size: 14px;
         }
         
-        /* Footer */
+        .features-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+        
+        .features-list li {
+            padding: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #50fa7b;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .installation {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .installation h2 {
+            color: white;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            line-height: 2;
+        }
+        
+        .privacy-notice {
+            background: #fffbea;
+            border-left: 4px solid #f1c40f;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .reality-check {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .reality-check strong {
+            color: #e65100;
+        }
+        
+        .who-should-use {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .who-should-use {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .should-use {
+            background: #d4edda;
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .should-not-use {
+            background: #f8d7da;
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
         footer {
-            margin-top: 80px;
-            padding-top: 30px;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
-            font-size: 14px;
+            background: #2c3e50;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
         }
         
         footer a {
-            color: #0066cc;
+            color: #667eea;
             text-decoration: none;
         }
         
@@ -332,277 +385,429 @@
             text-decoration: underline;
         }
         
-        /* Mobile */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-            
-            .button {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .comparison-table {
-                font-size: 12px;
-            }
-            
-            .comparison-table th,
-            .comparison-table td {
-                padding: 6px;
-            }
-            
-            .pro-features {
-                grid-template-columns: 1fr;
-            }
+        .m365-coverage {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 30px 0;
+        }
+        
+        .m365-coverage h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .domain-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .domain-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #50fa7b;
+        }
+        
+        .domain-item strong {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .domain-item span {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
-    <script defer data-domain="auditkit.io" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <div class="cmmc-alert">
+        CMMC DEADLINE: November 10, 2025 - All new DoD contracts require CMMC compliance. 
+        <a href="#cmmc-pro">CMMC Level 2 Pro available</a> - 110 practices, 30 days to compliant, $297/month
+    </div>
+
+    <header>
+        <div class="container">
             <h1>AuditKit</h1>
-            <p class="tagline">Multi-framework compliance scanner that shows exactly what auditors need</p>
-            <div class="frameworks">
-                <span class="framework-badge ready">✓ SOC2 Ready</span>
-                <span class="framework-badge ready">✓ PCI-DSS Ready</span>
-                <span class="framework-badge ready">✓ CMMC Level 1</span>
-                <span class="framework-badge pro">PRO CMMC Level 2</span>
-                <span class="framework-badge beta">⚡ HIPAA Beta</span>
-                <span class="framework-badge coming">🚧 ISO 27001</span>
-                <span class="framework-badge coming">🚧 GCP</span>
+            <p class="subtitle">Multi-framework compliance scanner that shows exactly what auditors need</p>
+            
+            <div class="badges">
+                <span class="badge success">SOC2 Complete</span>
+                <span class="badge success">PCI-DSS Ready</span>
+                <span class="badge success">CMMC Level 1</span>
+                <span class="badge pro">PRO CMMC Level 2</span>
+                <span class="badge warning">M365 Complete</span>
+                <span class="badge">HIPAA Beta</span>
             </div>
-        </header>
-        
-        <!-- NEW: Pro CTA Section -->
-        <div class="pro-cta-box">
-            <h2>🚨 CMMC Level 2 Pro - Defense Contractors</h2>
-            <p><strong>Deadline: November 10, 2025</strong> - All new DoD contracts require CMMC compliance</p>
-            <div class="pro-features">
-                <div class="pro-feature">
-                    <strong>110 CMMC Level 2 Practices</strong><br>
-                    Complete CUI handling assessment
-                </div>
-                <div class="pro-feature">
-                    <strong>30 Days to Compliant</strong><br>
-                    vs 6+ months traditional assessment
-                </div>
-                <div class="pro-feature">
-                    <strong>$297/month</strong><br>
-                    vs $100K+ consultant fees
-                </div>
-                <div class="pro-feature">
-                    <strong>C3PAO Ready</strong><br>
-                    Automated evidence collection
-                </div>
-            </div>
-            <div style="margin-top: 25px;">
-		<a href="https://buy.stripe.com/28E14m5MS5xM0mj4r7gnK01" class="button-pro">
-		  Start 14-Day Free Trial - CMMC Level 2 Pro →
-		</a>
+
+            <div class="cta-buttons">
+                <a href="https://github.com/guardian-nexus/auditkit" class="btn btn-primary">View on GitHub</a>
+                <a href="https://github.com/guardian-nexus/auditkit/releases" class="btn btn-secondary">Download v0.6.3</a>
+                <a href="https://auditkit.io/pro/" class="btn btn-pro">CMMC Level 2 Pro</a>
             </div>
         </div>
-        
-        <div class="cmmc-box">
-            <strong>CMMC DEADLINE ALERT:</strong> November 10, 2025 - All new DoD contracts require CMMC compliance. 
-		CMMC Level 2 (110 practices for CUI handling) available with Pro: 
-		<strong><a href="https://buy.stripe.com/28E14m5MS5xM0mj4r7gnK01" style="color: #dc3545;">Start Free Trial</a></strong>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2>One Scan, All Frameworks</h2>
+            
+            <div class="demo-output"><span class="prompt">$</span> auditkit scan -framework all
+<span class="comment"># Scanning AWS account 123456789...</span>
+
+<span class="critical">X CRITICAL: Root account missing MFA</span>
+<span class="arrow">→</span> <span class="framework">SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span>
+  <span class="label">Console URL:</span> <span class="url">https://console.aws.amazon.com/iam/home#/security_credentials</span>
+  <span class="label">Screenshot:</span> Navigate to Security credentials → MFA → Screenshot "Assigned MFA device"
+  <span class="label">Fix:</span> <span class="command">aws iam enable-mfa-device --user-name root --serial-number arn:aws:iam::123456789:mfa/root</span>
+
+<span class="critical">X CRITICAL: S3 bucket 'customer-data' public</span>
+<span class="arrow">→</span> <span class="framework">SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span>
+  <span class="label">Console URL:</span> <span class="url">https://s3.console.aws.amazon.com/s3/buckets/customer-data</span>
+  <span class="label">Screenshot:</span> Permissions tab → Block public access → All 4 settings "On"
+  <span class="label">Fix:</span> <span class="command">aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration
+"BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span>
+
+<span class="prompt">$</span> auditkit evidence -output evidence-tracker.html
+<span class="success">Evidence tracker generated with 23 screenshot requirements</span>
+📋 5 collected | ⏳ 18 remaining | 🎯 SOC2_CC6.6_MFA_Evidence.png needed</div>
+
+            <div class="privacy-notice">
+                <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data leaves your infrastructure. No telemetry, no phone-home, no BS. Check the source code.
+            </div>
         </div>
-        
-        <div class="terminal">
-            <span class="prompt">$</span> auditkit scan -framework all<br>
-            <span class="comment"># Scanning AWS account 123456789...</span><br><br>
-            <span class="critical">✗ CRITICAL: Root account missing MFA</span><br>
-            <span class="framework-ref">  → SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span><br>
-            <span class="output">  Console URL: https://console.aws.amazon.com/iam/home#/security_credentials</span><br>
-            <span class="output">  Screenshot: Navigate to Security credentials → MFA → Screenshot "Assigned MFA device"</span><br>
-            <span class="output">  Fix: aws iam enable-mfa-device --user-name root --serial-number arn:aws:iam::123456789:mfa/root</span><br><br>
-            <span class="critical">✗ CRITICAL: S3 bucket 'customer-data' public</span><br>
-            <span class="framework-ref">  → SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span><br>
-            <span class="output">  Console URL: https://s3.console.aws.amazon.com/s3/buckets/customer-data</span><br>
-            <span class="output">  Screenshot: Permissions tab → Block public access → All 4 settings "On"</span><br>
-            <span class="output">  Fix: aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span><br><br>
-            <span class="prompt">$</span> auditkit evidence -output evidence-tracker.html<br>
-            <span class="output">Evidence tracker generated with 23 screenshot requirements</span><br>
-            <span class="output">📋 5 collected | ⏳ 18 remaining | 🎯 SOC2_CC6.6_MFA_Evidence.png needed</span>
-        </div>
-        
-        <div class="section">
+    </section>
+
+    <section class="problem-solution">
+        <div class="container">
             <h2>The Problem</h2>
-            <p>
+            <p style="text-align: center; font-size: 1.2em; margin-bottom: 40px;">
                 Every compliance framework checks the same things with different names. You run separate tools for each one. 
                 Your auditor wants screenshots proving you fixed everything. But which screens? What format? What labels?
             </p>
-            <p>
-                DoD contractors face CMMC Level 2 requirements by November 10, 2025. Consulting firms charge $50K+ for what 
-                you could assess yourself—if you knew what auditors actually wanted to see.
+
+            <div class="framework-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>What They Check</th>
+                            <th>SOC2</th>
+                            <th>PCI-DSS</th>
+                            <th>CMMC Level 1</th>
+                            <th>HIPAA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MFA enabled?</strong></td>
+                            <td>CC6.6</td>
+                            <td>Req 8.3</td>
+                            <td>IA.L1-3.5.2</td>
+                            <td>§164.312(a)(2)(i)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Encryption at rest?</strong></td>
+                            <td>CC6.3</td>
+                            <td>Req 3.4</td>
+                            <td>SC.L1-3.13.16</td>
+                            <td>§164.312(a)(2)(iv)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audit logging?</strong></td>
+                            <td>CC7.1</td>
+                            <td>Req 10.1</td>
+                            <td>SI.L1-3.14.6</td>
+                            <td>§164.312(b)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Access controls?</strong></td>
+                            <td>CC6.1</td>
+                            <td>Req 7.1</td>
+                            <td>AC.L1-3.1.1</td>
+                            <td>§164.312(a)(1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="text-align: center; font-size: 1.1em; margin-top: 30px;">
+                <strong>AuditKit runs once, maps findings to all frameworks.</strong> No more juggling different scanners.
             </p>
+
+            <div class="reality-check">
+                <strong>Reality Check:</strong> AuditKit won't pass your audit for you. SOC2 needs a CPA. PCI needs a QSA. CMMC needs a C3PAO. 
+                But it will save you ~200 hours at $300/hour by showing exactly what evidence to collect.
+            </div>
         </div>
-        
-        <div class="section">
-            <h2>One Scan, All Frameworks</h2>
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>What They Check</th>
-                        <th>SOC2</th>
-                        <th>PCI-DSS</th>
-                        <th>CMMC Level 1</th>
-                        <th>HIPAA</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>MFA enabled?</td>
-                        <td>CC6.6</td>
-                        <td>Req 8.3</td>
-                        <td>IA.L1-3.5.2</td>
-                        <td>§164.312(a)(2)(i)</td>
-                    </tr>
-                    <tr>
-                        <td>Encryption at rest?</td>
-                        <td>CC6.3</td>
-                        <td>Req 3.4</td>
-                        <td>SC.L1-3.13.16</td>
-                        <td>§164.312(a)(2)(iv)</td>
-                    </tr>
-                    <tr>
-                        <td>Audit logging?</td>
-                        <td>CC7.1</td>
-                        <td>Req 10.1</td>
-                        <td>SI.L1-3.14.6</td>
-                        <td>§164.312(b)</td>
-                    </tr>
-                    <tr>
-                        <td>Access controls?</td>
-                        <td>CC6.1</td>
-                        <td>Req 7.1</td>
-                        <td>AC.L1-3.1.1</td>
-                        <td>§164.312(a)(1)</td>
-                    </tr>
-                </tbody>
-            </table>
-            <p>AuditKit runs once, maps findings to all frameworks. No more juggling different scanners.</p>
-        </div>
-        
-        <div class="warning-box">
-            <strong>Reality Check:</strong> AuditKit won't pass your audit for you. SOC2 needs a CPA. PCI needs a QSA. CMMC needs a C3PAO.
-            But it will save you ~200 hours at $300/hour by showing exactly what evidence to collect.
-        </div>
-        
-        <div class="section">
+    </section>
+
+    <section>
+        <div class="container">
             <h2>What AuditKit Actually Does</h2>
-            <ul>
-                <li>Scans for controls that matter across SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001</li>
-                <li>Maps each finding to relevant framework requirements</li>
-                <li>Shows EXACTLY which console screens to screenshot</li>
-                <li>Generates framework-specific evidence checklists</li>
-                <li>Tracks what you've collected vs. what's missing</li>
-                <li>Outputs reports formatted for each framework's auditors</li>
-                <li><strong>CMMC Level 1:</strong> Complete 17-practice assessment for DoD contractors</li>
-                <li><strong>CMMC Level 2:</strong> 110 practices for CUI handling (Pro version)</li>
-            </ul>
-        </div>
-        
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-number">127</div>
-                <div class="stat-label">CMMC Controls</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">64</div>
-                <div class="stat-label">SOC2 Controls</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Frameworks</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">$0</div>
-                <div class="stat-label">Level 1 Cost</div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>Installation</h2>
-            <div class="terminal">
-                <span class="prompt">#</span> Quick install (Go required)<br>
-                go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest<br><br>
-                <span class="prompt">#</span> Or build from source<br>
-                git clone https://github.com/guardian-nexus/auditkit.git<br>
-                cd auditkit/scanner && go build ./cmd/auditkit<br><br>
-                <span class="prompt">#</span> Run CMMC Level 1 assessment<br>
-                ./auditkit scan -framework cmmc -format pdf -output cmmc-evidence.pdf<br><br>
-                <span class="prompt">#</span> Multi-framework scan<br>
-                ./auditkit scan -framework all -format pdf -output compliance-report.pdf
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data leaves your infrastructure. 
-            No telemetry from the tool, no phone-home, no BS. Check the source code.
-        </div>
-        
-        <div class="section">
-            <h2>Who Should Use This</h2>
-            <ul>
-                <li><strong>Defense contractors</strong> facing CMMC Level 1/2 requirements by Nov 10, 2025</li>
-                <li>Startups facing multiple compliance requirements</li>
-                <li>Teams juggling SOC2 + PCI + HIPAA + CMMC simultaneously</li>
-                <li>Companies quoted $50K+ per framework for prep</li>
-                <li>Engineers who prefer fixing things themselves</li>
-                <li>Anyone tired of running 5 different scanners</li>
-            </ul>
             
-            <h2 style="margin-top: 30px;">Who Should NOT Use This</h2>
-            <ul>
-                <li>If you need someone to do compliance for you</li>
-                <li>If you want a magic "pass audit" button</li>
-                <li>If you need vendor certifications</li>
-                <li>If you require hand-holding</li>
-            </ul>
-        </div>
-        
-        <div class="buttons">
-            <a href="https://github.com/guardian-nexus/auditkit" class="button">View on GitHub</a>
-            <a href="https://github.com/guardian-nexus/auditkit/releases" class="button button-secondary">Download Binary</a>
-            <a href="/pro" class="button-pro">CMMC Level 2 Pro</a>
-            <a href="https://auditkit.substack.com" class="button button-secondary">Get Updates</a>
-        </div>
-        
-        <div class="section">
-            <h2>Current Status</h2>
-            <p>
-                <strong>v0.6.0</strong> - Complete SOC2 (64 controls), PCI-DSS production ready, CMMC Level 1 (17 practices), AWS + Azure providers complete.
-            </p>
-            <p>
-                <strong>CMMC Level 2 Pro</strong> - 110 practices for CUI handling, enterprise features, priority support. <a href="/pro">Learn more →</a>
-            </p>
-            <p>
-                <strong>Coming in v0.7.0</strong> - GCP provider, ISO 27001 complete, container scanning, advanced evidence automation.
-            </p>
-        </div>
-        
-        <footer>
-            <p>
-                Built by engineers who went through compliance hell and lived to tell the tale.<br>
-                Apache 2.0 License. Fork it, improve it, sell it—we don't care.<br><br>
+            <div class="grid">
+                <div class="card">
+                    <h3>Multi-Cloud Coverage</h3>
+                    <p>Scans AWS, Azure, and M365 (all 7 domains) with unified reporting across all three environments.</p>
+                </div>
                 
+                <div class="card">
+                    <h3>Framework Mapping</h3>
+                    <p>Maps each finding to SOC2, PCI-DSS, CMMC, HIPAA, and ISO 27001 requirements automatically.</p>
+                </div>
+                
+                <div class="card">
+                    <h3>Evidence Guides</h3>
+                    <p>Shows EXACTLY which console screens to screenshot with step-by-step instructions auditors accept.</p>
+                </div>
+                
+                <div class="card">
+                    <h3>Professional Reports</h3>
+                    <p>Generates PDF and interactive HTML reports with evidence checklists and remediation commands.</p>
+                </div>
+                
+                <div class="card">
+                    <h3>Progress Tracking</h3>
+                    <p>Tracks what evidence you've collected vs. what's missing across all frameworks.</p>
+                </div>
+                
+                <div class="card">
+                    <h3>CMMC Ready</h3>
+                    <p>Complete Level 1 (17 practices) assessment for DoD contractors. Level 2 (110 practices) in Pro.</p>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">127</div>
+                    <div class="stat-label">CMMC Controls</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">64</div>
+                    <div class="stat-label">SOC2 Controls</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Frameworks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">$0</div>
+                    <div class="stat-label">Level 1 Cost</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="background: #f8f9fa;">
+        <div class="container">
+            <h2>Complete M365 Security Coverage</h2>
+            <p style="text-align: center; font-size: 1.1em; margin-bottom: 30px;">
+                Thanks to community contributions, AuditKit now covers all 7 major M365 domains with compliance mappings.
+            </p>
+
+            <div class="m365-coverage">
+                <h3>Supported M365 Domains</h3>
+                <div class="domain-list">
+                    <div class="domain-item">
+                        <strong>Entra ID (AAD)</strong>
+                        <span>29 rules - MFA, Conditional Access, Identity Protection</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>Exchange Online</strong>
+                        <span>Email security, DLP, anti-phishing policies</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>SharePoint</strong>
+                        <span>Document security, sharing policies, DLP</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>Teams</strong>
+                        <span>Chat security, meeting policies, external access</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>Power Platform</strong>
+                        <span>DLP policies, connector governance, environments</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>Power BI</strong>
+                        <span>Tenant settings, sharing policies, data security</span>
+                    </div>
+                    <div class="domain-item">
+                        <strong>Defender</strong>
+                        <span>Safe Links, Safe Attachments, threat protection</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block"><span style="color: #608b4e;"># Run CISA ScubaGear for M365 assessment</span>
+Invoke-SCuBA -ProductNames aad,exo,defender,sharepoint,teams,powerbi,powerplatform -OutPath ./ScubaResults
+
+<span style="color: #608b4e;"># Import into AuditKit with framework mappings</span>
+auditkit integrate -source scubagear -file ScubaResults.json -format pdf -output m365-compliance.pdf
+
+<span style="color: #608b4e;"># Combine with AWS/Azure for unified reporting</span>
+auditkit scan -provider aws -framework soc2 -output aws-report.pdf
+auditkit scan -provider azure -framework soc2 -output azure-report.pdf
+auditkit integrate -source scubagear -file ScubaResults.json -output m365-report.pdf</div>
+        </div>
+    </section>
+
+    <section class="installation">
+        <div class="container">
+            <h2>Installation</h2>
+            
+            <div class="code-block"><span style="color: #608b4e;"># Quick install (Go required)</span>
+go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
+
+<span style="color: #608b4e;"># Or build from source</span>
+git clone https://github.com/guardian-nexus/auditkit.git
+cd auditkit/scanner && go build ./cmd/auditkit
+
+<span style="color: #608b4e;"># Run CMMC Level 1 assessment</span>
+./auditkit scan -framework cmmc -format pdf -output cmmc-evidence.pdf
+
+<span style="color: #608b4e;"># Multi-framework scan</span>
+./auditkit scan -framework all -format pdf -output compliance-report.pdf
+
+<span style="color: #608b4e;"># Azure SOC2 scan</span>
+az login
+export AZURE_SUBSCRIPTION_ID="your-subscription-id"
+./auditkit scan -provider azure -framework soc2
+
+<span style="color: #608b4e;"># Generate interactive HTML report</span>
+./auditkit scan -framework soc2 -format html -output report.html</div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>Who Should Use This</h2>
+            
+            <div class="who-should-use">
+                <div class="should-use">
+                    <h3 style="color: #28a745; margin-bottom: 20px;">Perfect For</h3>
+                    <ul class="features-list">
+                        <li>Defense contractors facing CMMC Level 1/2 by Nov 10, 2025</li>
+                        <li>Startups facing multiple compliance requirements</li>
+                        <li>Teams juggling SOC2 + PCI + HIPAA + CMMC simultaneously</li>
+                        <li>Companies quoted $50K+ per framework for prep</li>
+                        <li>Engineers who prefer fixing things themselves</li>
+                        <li>Anyone tired of running 5 different scanners</li>
+                    </ul>
+                </div>
+                
+                <div class="should-not-use">
+                    <h3 style="color: #dc3545; margin-bottom: 20px;">NOT For You If</h3>
+                    <ul style="list-style: none;">
+                        <li style="padding: 15px 0;">You need someone to do compliance for you</li>
+                        <li style="padding: 15px 0;">You want a magic "pass audit" button</li>
+                        <li style="padding: 15px 0;">You need vendor certifications</li>
+                        <li style="padding: 15px 0;">You require hand-holding</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cmmc-pro" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div class="container">
+            <h2 style="color: white;">CMMC Level 2 Pro - Defense Contractors</h2>
+            <p style="text-align: center; font-size: 1.2em; margin-bottom: 40px;">
+                Deadline: November 10, 2025 - All new DoD contracts require CMMC compliance
+            </p>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">110</div>
+                    <div class="stat-label">CMMC Level 2 Practices</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">30</div>
+                    <div class="stat-label">Days to Compliant</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">$297</div>
+                    <div class="stat-label">Per Month</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" style="font-size: 2em;">vs $100K+</div>
+                    <div class="stat-label">Traditional Assessment</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://auditkit.io/pro/" class="btn btn-primary">Learn More - CMMC Level 2 Pro</a>
+            </div>
+        </div>
+    </section>
+
+    <section style="background: #f8f9fa;">
+        <div class="container">
+            <h2>Current Status - v0.6.3</h2>
+            
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <h3 style="color: #28a745;">Production Ready</h3>
+                <ul class="features-list">
+                    <li><strong>SOC2</strong> - Complete (64 controls), AWS + Azure + M365</li>
+                    <li><strong>PCI-DSS v4.0</strong> - Complete (30+ technical controls), production ready</li>
+                    <li><strong>CMMC Level 1</strong> - Complete (17 practices), AWS + Azure</li>
+                    <li><strong>M365 Coverage</strong> - All 7 domains via ScubaGear integration</li>
+                    <li><strong>Professional Reports</strong> - Enhanced PDF and interactive HTML</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin-top: 30px;">What's New in v0.6.3</h3>
+                <ul class="features-list">
+                    <li>Enhanced PDF reports with improved cover page and score visualization</li>
+                    <li>Interactive HTML reports with tabs and clickable Console URLs</li>
+                    <li>Complete M365 coverage - All 7 domains (Entra ID, Exchange, SharePoint, Teams, Power Platform, Power BI, Defender)</li>
+                    <li>Fixed Unicode rendering issues in reports</li>
+                    <li>Better spacing and formatting throughout</li>
+                    <li>Footer now appears on every PDF page</li>
+                </ul>
+
+                <h3 style="color: #f1c40f; margin-top: 30px;">Pro Features</h3>
+                <ul class="features-list">
+                    <li><strong>CMMC Level 2</strong> - 110 practices for CUI handling</li>
+                    <li>Priority support</li>
+                </ul>
+
+                <h3 style="color: #95a5a6; margin-top: 30px;">Coming Soon (v0.7.0)</h3>
+                <ul class="features-list">
+                    <li>GCP provider support</li>
+                    <li>Complete ISO 27001 implementation</li>
+                    <li>Kubernetes compliance scanning</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="font-size: 1.2em; margin-bottom: 20px;">
+                <strong>Built by engineers who went through compliance hell and lived to tell the tale.</strong>
+            </p>
+            <p style="margin-bottom: 20px;">
+                Apache 2.0 License. Fork it, improve it, sell it—we don't care.
+            </p>
+            <p style="margin-bottom: 30px;">
                 <a href="https://github.com/guardian-nexus/auditkit">GitHub</a> · 
                 <a href="https://github.com/guardian-nexus/auditkit/issues">Report Bug</a> · 
                 <a href="https://github.com/guardian-nexus/auditkit/discussions">Discussions</a> · 
-                <a href="mailto:hello@auditkit.io">Email</a> ·
-                <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a>
+                <a href="mailto:support@auditkit.io">Email</a> · 
+                <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a> · 
+                <a href="https://auditkit.substack.com">Newsletter</a>
             </p>
-            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+            <p style="font-size: 0.9em; color: #95a5a6;">
                 We use privacy-friendly analytics (Plausible). No cookies, no tracking, just page views.
             </p>
-        </footer>
-    </div>
+            <p style="margin-top: 30px; font-size: 0.9em; color: #95a5a6;">
+                Huge thanks to our community contributors for M365 domain mappings that make AuditKit the first truly unified multi-cloud compliance tool!
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
