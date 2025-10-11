@@ -1,5 +1,38 @@
 # Changelog
 
+All notable changes to AuditKit will be documented in this file.
+
+## [v0.6.4] - 2025-10-10
+
+### Enhanced Compliance Reporting
+
+**Report Improvements:**
+- Added comprehensive compliance disclaimers to PDF and HTML reports
+- Enhanced clarity on automated vs manual control requirements
+- Improved CMMC Level 1 reporting with FCI-specific guidance
+- Fixed HTML percentage display formatting in score circles
+- Added framework-specific assessor requirements (C3PAO, QSA, etc.)
+
+**Technical Updates:**
+- Updated Azure scanner parameter ordering for CMMC Level 1 checks
+- Improved report structure to distinguish automated checks from manual documentation
+- Enhanced evidence collection guidance in all report formats
+
+**User Experience:**
+- Reports now clearly show:
+  - Automated technical checks (infrastructure/configurations)
+  - Manual documentation requirements (policies/procedures)
+  - Formal assessment requirements by qualified auditors
+- Better guidance on what constitutes full compliance vs automated check scores
+
+### Why This Matters
+
+High automated check scores do not equal full compliance. This update helps users:
+- Understand the scope of automated scanning
+- Identify manual documentation gaps
+- Prepare properly for formal assessments
+- Avoid misinterpreting technical scores as compliance certifications
+
 ## [v0.6.3] - 2025-10-09
 
 ### Fixed

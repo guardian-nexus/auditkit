@@ -137,6 +137,23 @@ func (s *AWSScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResu
 	
 	if verbose {
 		fmt.Println("Running CMMC Level 1 (17 practices) - Open Source")
+		fmt.Println("")
+		fmt.Println("⚠️  IMPORTANT DISCLAIMER:")
+		fmt.Println("═══════════════════════════════════════════════════════════")
+		fmt.Println("This scanner tests technical controls that can be automated.")
+		fmt.Println("")
+		fmt.Println("CMMC Level 1 requires 17 practices. Many controls require")
+		fmt.Println("organizational documentation and policies that cannot be")
+		fmt.Println("verified through automated scanning.")
+		fmt.Println("")
+		fmt.Println("A high automated check score does NOT mean you are CMMC")
+		fmt.Println("compliant. This is a technical assessment tool, not a")
+		fmt.Println("compliance certification.")
+		fmt.Println("")
+		fmt.Println("You still need to document policies, training, incident")
+		fmt.Println("response procedures, and other organizational controls.")
+		fmt.Println("═══════════════════════════════════════════════════════════")
+		fmt.Println("")
 	}
 	
 	// ONLY Level 1 (17 practices)
@@ -157,15 +174,15 @@ func (s *AWSScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResu
 	}
 	
 	if verbose {
-		fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
+		fmt.Printf("\nCMMC Level 1 scan complete: %d controls tested\n", len(results))
 		fmt.Println("")
-		fmt.Println("UPGRADE TO CMMC LEVEL 2:")
-		fmt.Println("  110 additional practices for CUI handling")
-		fmt.Println("  Required for DoD contractors processing CUI")
-		fmt.Println("  Complete evidence collection guides")
-		fmt.Println("  November 10, 2025 deadline compliance")
+		fmt.Println("🔓 UNLOCK CMMC LEVEL 2:")
+		fmt.Println("  • 110 additional Level 2 practices for CUI")
+		fmt.Println("  • Required for DoD contractors handling CUI")
+		fmt.Println("  • Complete evidence collection guides")
+		fmt.Println("  • November 10, 2025 deadline compliance")
 		fmt.Println("")
-		fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
+		fmt.Println("Visit https://auditkit.io/pro for full CMMC Level 2")
 	}
 	
 	return results

@@ -1,3 +1,4 @@
+// Path: /home/dijital/Documents/auditkit-all/auditkit-pro/scanner/cmd/auditkit/main.go
 package main
 
 import (
@@ -20,7 +21,7 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
 )
 
-const CurrentVersion = "v0.6.2" // ScubaGear integration + telemetry removed
+const CurrentVersion = "v0.6.4" // ScubaGear integration + telemetry removed
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`
@@ -74,6 +75,7 @@ func main() {
 		format    = flag.String("format", "text", "Output format (text, json, html, pdf)")
 		output    = flag.String("output", "", "Output file (default: stdout)")
 		verbose   = flag.Bool("verbose", false, "Verbose output")
+		full      = flag.Bool("full", false, "Show all controls in text output (default: truncated for readability)")
 		services  = flag.String("services", "all", "Comma-separated services to scan")
 		source    = flag.String("source", "", "Integration source: scubagear, prowler")
 		file      = flag.String("file", "", "Integration file to parse")
@@ -89,7 +91,7 @@ func main() {
 
 	switch command {
 	case "scan":
-		runScan(*provider, *profile, *framework, *format, *output, *verbose, *services)
+		runScan(*provider, *profile, *framework, *format, *output, *verbose, *full, *services)
 	case "integrate":
 		runIntegration(*source, *file, *format, *output, *verbose)
 	case "report":
@@ -137,12 +139,12 @@ Options:
   -source string     Integration source: scubagear, prowler
   -file string       File to parse for integration
   -verbose          Verbose output
+  -full             Show all controls in text output (default: truncated)
 
 Frameworks:
   soc2    SOC2 Type II Common Criteria (full coverage)
   pci     PCI-DSS v4.0 (full coverage)
-  cmmc    CMMC Level 1 (17 practices) - OPEN SOURCE
-          Level 2 (110 practices) - UPGRADE TO PRO
+  cmmc    CMMC Level 1 (17 practices) & Level 2 (110 practices)
   hipaa   HIPAA Security Rule (experimental)
   all     Run all available frameworks
 
@@ -153,11 +155,6 @@ Integration Examples:
   # Generate unified PDF with M365 findings
   auditkit integrate -source scubagear -file ScubaResults.json -format pdf
 
-CMMC Level 2 Upgrade:
-  Unlock 110 additional CMMC Level 2 practices required for DoD contracts
-  Visit: https://auditkit.io/pro
-  Email: sales@auditkit.io
-
 Examples:
   # AWS SOC2 scan
   auditkit scan -provider aws -framework soc2
@@ -167,6 +164,9 @@ Examples:
 
   # Generate PDF report
   auditkit scan -format pdf -output report.pdf
+  
+  # Show all controls (not truncated)
+  auditkit scan -provider aws -framework cmmc --full
 
 For more information: https://github.com/guardian-nexus/auditkit`)
 }
@@ -416,7 +416,7 @@ func printIntegrationSummary(result ComplianceResult) {
 	fmt.Printf("\n")
 }
 
-func runScan(provider, profile, framework, format, output string, verbose bool, services string) {
+func runScan(provider, profile, framework, format, output string, verbose bool, full bool, services string) {
 	// Validate framework
 	validFrameworks := map[string]bool{
 		"soc2":  true,
@@ -446,21 +446,52 @@ func runScan(provider, profile, framework, format, output string, verbose bool, 
 	// Save progress for tracking
 	saveProgress(result.AccountID, result.Score, result.Controls, framework)
 
+	// FIXED SUMMARY - Count automated vs manual
+	automatedChecks := result.PassedControls + result.FailedControls
+	manualChecks := 0
+	for _, control := range result.Controls {
+		if control.Status == "INFO" {
+			manualChecks++
+		}
+	}
+
 	if result.Score >= 90 {
-		fmt.Printf("\nCONGRATULATIONS! %.1f%% %s compliance!\n", result.Score, strings.ToUpper(framework))
+		fmt.Printf("\nCONGRATULATIONS! %.1f%% of automated checks passed!\n", result.Score)
+		
+		if manualChecks > 0 {
+			fmt.Printf("\n⚠️  NOTE: %d additional manual controls require documentation.\n", manualChecks)
+			fmt.Printf("   Use 'auditkit evidence' to generate collection checklist.\n")
+		}
+		
 		fmt.Println("\nShare your success:")
-		fmt.Printf("  Post on X: https://x.com/intent/tweet?text=Just%%20hit%%20%.0f%%%%20%s%%20compliance%%20using%%20AuditKit!%%20Free%%20tool:%%20github.com/guardian-nexus/auditkit\n", 
-			result.Score, strings.ToUpper(framework))
+		fmt.Printf("  Post on X: https://x.com/intent/tweet?text=Just%%20hit%%20%.0f%%%%20automated%%20checks%%20using%%20AuditKit!%%20Free%%20tool:%%20github.com/guardian-nexus/auditkit\n", 
+			result.Score)
 		fmt.Println("  Star us: https://github.com/guardian-nexus/auditkit")
 	} else if result.Score >= 70 {
-		fmt.Printf("\nGetting there! %.1f%% %s compliance.\n", result.Score, strings.ToUpper(framework))
+		fmt.Printf("\nGetting there! %.1f%% of automated checks passed.\n", result.Score)
+		
+		if manualChecks > 0 {
+			fmt.Printf("\n⚠️  NOTE: %d additional manual controls require documentation.\n", manualChecks)
+			fmt.Printf("   Use 'auditkit evidence' to generate collection checklist.\n")
+		}
+		
 		fmt.Println("Run 'auditkit compare' to see your progress over time.")
+	} else {
+		fmt.Printf("\nAutomated Check Score: %.1f%% (%d/%d passed)\n", 
+			result.Score, result.PassedControls, automatedChecks)
+		
+		if manualChecks > 0 {
+			fmt.Printf("\n⚠️  IMPORTANT: Only %d of %d total controls are automated.\n", 
+				automatedChecks, automatedChecks+manualChecks)
+			fmt.Printf("   %d controls require manual documentation and evidence.\n", manualChecks)
+			fmt.Printf("   Use 'auditkit evidence' to track what you need to collect.\n")
+		}
 	}
 
 	switch format {
 	case "text":
 		if output == "" {
-			printTextSummary(result)
+			printTextSummary(result, full)
 		} else {
 			outputTextToFile(result, output)
 		}
@@ -670,20 +701,21 @@ func performScan(provider, profile, framework string, verbose bool, services str
 		controls = append(controls, control)
 		
 		if control.Status == "PASS" {
-			passed++
-		} else {
-			failed++
-			if control.Severity == "CRITICAL" {
-				critical++
-			} else if control.Severity == "HIGH" {
-				high++
-			}
+		    passed++
+		} else if control.Status == "FAIL" {
+		    failed++
+		    if control.Severity == "CRITICAL" {
+		        critical++
+		    } else if control.Severity == "HIGH" {
+		        high++
+		    }
 		}
 	}
 	
 	score := 0.0
-	if len(controls) > 0 {
-		score = float64(passed) / float64(len(controls)) * 100
+	automatedChecks := passed + failed
+	if automatedChecks > 0 {
+	    score = float64(passed) / float64(automatedChecks) * 100
 	}
 	
 	return ComplianceResult{
@@ -699,9 +731,6 @@ func performScan(provider, profile, framework string, verbose bool, services str
 		Recommendations: generatePrioritizedRecommendations(controls, critical, high, framework),
 	}
 }
-
-// Helper functions continue below (saveProgress, showProgress, compareScan, etc.)
-// These remain the same as your original main.go, just ensuring no telemetry calls
 
 func saveProgress(accountID string, score float64, controls []ControlResult, framework string) error {
 	homeDir, _ := os.UserHomeDir()
@@ -1024,7 +1053,7 @@ func getPriorityAndImpact(controlID, severity, status, framework string) (string
 	}
 }
 
-func printTextSummary(result ComplianceResult) {
+func printTextSummary(result ComplianceResult, full bool) {
 	fmt.Printf("\n")
 	frameworkLabel := "Multi-Framework"
 	if result.Framework != "" && result.Framework != "all" {
@@ -1071,12 +1100,21 @@ func printTextSummary(result ComplianceResult) {
 	if result.FailedControls > 0 {
 		// CRITICAL failures with full details
 		hasCritical := false
+		criticalShown := 0
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && strings.Contains(control.Priority, "CRITICAL") {
 				if !hasCritical {
 					fmt.Printf("\033[31mCRITICAL - Fix These NOW:\033[0m\n")
 					fmt.Printf("================================\n")
 					hasCritical = true
+				}
+				
+				if !full && criticalShown >= 10 {
+					remaining := criticalCount - 10
+					if remaining > 0 {
+						fmt.Printf("  ... and %d more critical issues (use --full to see all)\n\n", remaining)
+					}
+					break
 				}
 				
 				fmt.Printf("\n\033[31m[FAIL]\033[0m %s - %s\n", control.ID, control.Name)
@@ -1094,17 +1132,27 @@ func printTextSummary(result ComplianceResult) {
 					fmt.Printf("  Console: %s\n", control.ConsoleURL)
 				}
 				fmt.Printf("\n")
+				criticalShown++
 			}
 		}
 		
 		// HIGH priority failures with full details
 		hasHigh := false
+		highShown := 0
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && strings.Contains(control.Priority, "HIGH") {
 				if !hasHigh {
 					fmt.Printf("\033[33mHIGH Priority Issues:\033[0m\n")
 					fmt.Printf("========================\n")
 					hasHigh = true
+				}
+				
+				if !full && highShown >= 10 {
+					remaining := highCount - highShown
+					if remaining > 0 {
+						fmt.Printf("  ... and %d more high priority issues (use --full to see all)\n\n", remaining)
+					}
+					break
 				}
 				
 				fmt.Printf("\n\033[33m[FAIL]\033[0m %s - %s\n", control.ID, control.Name)
@@ -1122,11 +1170,20 @@ func printTextSummary(result ComplianceResult) {
 					fmt.Printf("  Console: %s\n", control.ConsoleURL)
 				}
 				fmt.Printf("\n")
+				highShown++
 			}
 		}
 		
 		// Other failures (condensed)
 		hasOther := false
+		otherShown := 0
+		otherCount := 0
+		for _, control := range result.Controls {
+			if control.Status == "FAIL" && !strings.Contains(control.Priority, "CRITICAL") && !strings.Contains(control.Priority, "HIGH") {
+				otherCount++
+			}
+		}
+		
 		for _, control := range result.Controls {
 			if control.Status == "FAIL" && !strings.Contains(control.Priority, "CRITICAL") && !strings.Contains(control.Priority, "HIGH") {
 				if !hasOther {
@@ -1134,17 +1191,35 @@ func printTextSummary(result ComplianceResult) {
 					fmt.Printf("================\n")
 					hasOther = true
 				}
+				
+				if !full && otherShown >= 10 {
+					remaining := otherCount - 10
+					if remaining > 0 {
+						fmt.Printf("  ... and %d more issues (use --full to see all)\n\n", remaining)
+					}
+					break
+				}
+				
 				fmt.Printf("[FAIL] %s - %s\n", control.ID, control.Name)
 				fmt.Printf("  Issue: %s\n", control.Evidence)
 				if control.Remediation != "" {
 					fmt.Printf("  Fix: %s\n", control.Remediation)
 				}
 				fmt.Printf("\n")
+				otherShown++
 			}
 		}
 		
 		// INFO status (guidance only)
 		hasInfo := false
+		infoShown := 0
+		infoCount := 0
+		for _, control := range result.Controls {
+			if control.Status == "INFO" {
+				infoCount++
+			}
+		}
+		
 		for _, control := range result.Controls {
 			if control.Status == "INFO" {
 				if !hasInfo {
@@ -1152,12 +1227,22 @@ func printTextSummary(result ComplianceResult) {
 					fmt.Printf("=================================\n")
 					hasInfo = true
 				}
+				
+				if !full && infoShown >= 20 {
+					remaining := infoCount - 20
+					if remaining > 0 {
+						fmt.Printf("  ... and %d more manual controls (use --full to see all)\n\n", remaining)
+					}
+					break
+				}
+				
 				fmt.Printf("[INFO] %s - %s\n", control.ID, control.Name)
 				fmt.Printf("  Guidance: %s\n", control.Evidence)
 				if control.ScreenshotGuide != "" {
 					fmt.Printf("  Evidence: %s\n", control.ScreenshotGuide)
 				}
 				fmt.Printf("\n")
+				infoShown++
 			}
 		}
 	}
@@ -1170,10 +1255,10 @@ func printTextSummary(result ComplianceResult) {
 		if control.Status == "PASS" {
 			fmt.Printf("  - %s - %s\n", control.ID, control.Name)
 			passCount++
-			if passCount >= 10 {
-				remaining := result.PassedControls - 10
+			if !full && passCount >= 15 {
+				remaining := result.PassedControls - 15
 				if remaining > 0 {
-					fmt.Printf("  ... and %d more passing controls\n", remaining)
+					fmt.Printf("  ... and %d more passing controls (use --full to see all)\n", remaining)
 				}
 				break
 			}
@@ -1193,6 +1278,10 @@ func printTextSummary(result ComplianceResult) {
 	}
 	
 	fmt.Printf("\n")
+	if !full && result.TotalControls > 50 {
+		fmt.Printf("💡 Tip: Use --full flag to see all %d controls without truncation\n", result.TotalControls)
+		fmt.Printf("   auditkit scan -provider %s -framework %s --full\n\n", result.Provider, strings.ToLower(result.Framework))
+	}
 	fmt.Printf("For detailed %s report with full evidence checklist:\n", frameworkLabel)
 	fmt.Printf("   auditkit scan -provider %s -framework %s -format pdf -output report.pdf\n", result.Provider, strings.ToLower(result.Framework))
 	fmt.Printf("\nTo track evidence collection progress:\n")
@@ -1458,7 +1547,6 @@ func outputJSON(result ComplianceResult, output string) {
 }
 
 func outputHTML(result ComplianceResult, output string) {
-	// Convert to report.ComplianceResult format
 	htmlResult := report.ComplianceResult{
 		Timestamp:       result.Timestamp,
 		Provider:        result.Provider,
@@ -1467,7 +1555,7 @@ func outputHTML(result ComplianceResult, output string) {
 		TotalControls:   result.TotalControls,
 		PassedControls:  result.PassedControls,
 		FailedControls:  result.FailedControls,
-		Controls:        convertControlsForPDF(result.Controls), // Same conversion works for HTML
+		Controls:        convertControlsForPDF(result.Controls),
 		Recommendations: result.Recommendations,
 		Framework:       result.Framework,
 	}

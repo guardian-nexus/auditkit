@@ -16,6 +16,9 @@ import (
     "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
     "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization"
     
+    // Microsoft Graph SDK for Azure AD checks
+    msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
+    
     "github.com/guardian-nexus/auditkit/scanner/pkg/azure/checks"
 )
 
@@ -35,6 +38,9 @@ type AzureScanner struct {
     sqlClient           *armsql.DatabasesClient
     roleClient          *armauthorization.RoleAssignmentsClient
     roleDefClient       *armauthorization.RoleDefinitionsClient
+    
+    // Microsoft Graph client for Azure AD operations
+    graphClient         *msgraphsdk.GraphServiceClient
 }
 
 // ScanResult matches AWS structure for consistency
@@ -60,15 +66,10 @@ func NewScanner(profile string) (*AzureScanner, error) {
     
     tenantID := os.Getenv("AZURE_TENANT_ID")
     if tenantID == "" {
-        // Try to get from profile or use default
         tenantID = "common"
     }
     
-    // Use DefaultAzureCredential which tries multiple auth methods:
-    // 1. Environment variables (AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID)
-    // 2. Managed Identity
-    // 3. Azure CLI
-    // 4. Interactive browser
+    // Use DefaultAzureCredential which tries multiple auth methods
     cred, err := azidentity.NewDefaultAzureCredential(nil)
     if err != nil {
         return nil, fmt.Errorf("failed to get Azure credentials: %v", err)
@@ -143,10 +144,16 @@ func (s *AzureScanner) initializeClients() error {
         return fmt.Errorf("failed to create role definitions client: %v", err)
     }
     
+    // Microsoft Graph client for Azure AD operations
+    s.graphClient, err = msgraphsdk.NewGraphServiceClientWithCredentials(s.credential, []string{"https://graph.microsoft.com/.default"})
+    if err != nil {
+        return fmt.Errorf("failed to create Graph client: %v", err)
+    }
+    
     return nil
 }
 
-// GetAccountID returns the subscription ID for Azure (equivalent to AWS account ID)
+// GetAccountID returns the subscription ID for Azure
 func (s *AzureScanner) GetAccountID(ctx context.Context) string {
     return s.subscriptionID
 }
@@ -209,7 +216,6 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
         results = append(results, s.runPCIChecks(ctx, verbose)...)
         results = append(results, s.runCMMCChecks(ctx, verbose)...)
     default:
-        // Default to SOC2
         results = append(results, s.runSOC2Checks(ctx, verbose)...)
     }
     
@@ -220,15 +226,40 @@ func (s *AzureScanner) ScanServices(ctx context.Context, services []string, verb
     return results, nil
 }
 
-// runCMMCChecks executes CMMC Level 1 checks for Azure
+// runCMMCChecks executes CMMC Level 1 checks for Azure with real API calls
 func (s *AzureScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanResult {
     var results []ScanResult
     
     if verbose {
-        fmt.Println("Running CMMC Level 1 (17 practices) for Azure")
+        fmt.Println("Running CMMC Level 1 (17 practices) for Azure with automated checks")
+        fmt.Println("")
+        fmt.Println("⚠️  IMPORTANT DISCLAIMER:")
+        fmt.Println("═══════════════════════════════════════════════════════════")
+        fmt.Println("This scanner tests technical controls that can be automated.")
+        fmt.Println("")
+        fmt.Println("CMMC Level 1 requires 17 practices. Many controls require")
+        fmt.Println("organizational documentation and policies that cannot be")
+        fmt.Println("verified through automated scanning.")
+        fmt.Println("")
+        fmt.Println("A high automated check score does NOT mean you are CMMC")
+        fmt.Println("compliant. This is a technical assessment tool, not a")
+        fmt.Println("compliance certification.")
+        fmt.Println("")
+        fmt.Println("You still need to document policies, training, incident")
+        fmt.Println("response procedures, and other organizational controls.")
+        fmt.Println("═══════════════════════════════════════════════════════════")
+        fmt.Println("")
     }
     
-    level1 := checks.NewAzureCMMCLevel1Checks()
+    // Pass all necessary clients to CMMC checker including subscription ID
+	level1 := checks.NewAzureCMMCLevel1Checks(
+	    s.roleClient,        // 1st param
+	    s.storageClient,     // 2nd param
+	    s.networkClient,     // 3rd param
+	    s.graphClient,       // 4th param
+	    s.subscriptionID,    // 5th param
+	)
+    
     checkResults, err := level1.Run(ctx)
     if err != nil && verbose {
         fmt.Printf("Warning in Azure CMMC Level 1: %v\n", err)
@@ -249,15 +280,15 @@ func (s *AzureScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanRe
     }
     
     if verbose {
-        fmt.Printf("CMMC Level 1 complete: %d controls\n", len(results))
+        fmt.Printf("\nCMMC Level 1 complete: %d controls tested\n", len(results))
         fmt.Println("")
-        fmt.Println("UPGRADE TO CMMC LEVEL 2:")
-        fmt.Println("  110 additional practices for CUI handling")
-        fmt.Println("  Required for DoD contractors processing CUI")
-        fmt.Println("  Complete evidence collection guides")
-        fmt.Println("  November 10, 2025 deadline compliance")
+        fmt.Println("🔓 UNLOCK CMMC LEVEL 2:")
+        fmt.Println("  • 110 additional Level 2 practices for CUI")
+        fmt.Println("  • Required for DoD contractors handling CUI")
+        fmt.Println("  • Complete evidence collection guides")
+        fmt.Println("  • November 10, 2025 deadline compliance")
         fmt.Println("")
-        fmt.Println("Visit auditkit.io/pro or contact info@auditkit.io")
+        fmt.Println("Visit https://auditkit.io/pro for full CMMC Level 2")
     }
     
     return results
@@ -267,7 +298,6 @@ func (s *AzureScanner) runCMMCChecks(ctx context.Context, verbose bool) []ScanRe
 func (s *AzureScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanResult {
     var results []ScanResult
     
-    // Initialize Azure SOC2 checks
     azureChecks := []checks.Check{
         checks.NewAzureCC1Checks(s.roleClient, s.roleDefClient),
         checks.NewAzureCC2Checks(),
@@ -289,7 +319,7 @@ func (s *AzureScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanRe
     
     for _, check := range azureChecks {
         if verbose {
-            fmt.Printf("   Running %s checks...\n", check.Name())
+            fmt.Printf("   Running %s...\n", check.Name())
         }
         
         checkResults, err := check.Run(ctx)
@@ -297,7 +327,6 @@ func (s *AzureScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanRe
             fmt.Printf("     Warning in %s: %v\n", check.Name(), err)
         }
         
-        // Convert CheckResult to ScanResult
         for _, cr := range checkResults {
             results = append(results, ScanResult{
                 Control:           cr.Control,
@@ -320,7 +349,6 @@ func (s *AzureScanner) runSOC2Checks(ctx context.Context, verbose bool) []ScanRe
 func (s *AzureScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanResult {
     var results []ScanResult
     
-    // PCI-DSS specific checks for Azure
     pciChecks := checks.NewAzurePCIChecks(
         s.storageClient,
         s.networkClient,
@@ -330,7 +358,7 @@ func (s *AzureScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanRes
     )
     
     if verbose {
-        fmt.Printf("   Running Azure PCI-DSS v4.0 requirement checks...\n")
+        fmt.Printf("   Running Azure PCI-DSS v4.0 requirements...\n")
     }
     
     checkResults, err := pciChecks.Run(ctx)
@@ -338,7 +366,6 @@ func (s *AzureScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanRes
         fmt.Printf("      Warning in PCI-DSS checks: %v\n", err)
     }
     
-    // Convert CheckResult to ScanResult
     for _, cr := range checkResults {
         results = append(results, ScanResult{
             Control:           cr.Control,
@@ -353,7 +380,6 @@ func (s *AzureScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanRes
         })
     }
     
-    // Also run basic checks with PCI mappings
     basicChecks := []checks.Check{
         checks.NewStorageChecks(s.storageClient),
         checks.NewAADChecks(s.roleClient, s.roleDefClient),
@@ -363,7 +389,6 @@ func (s *AzureScanner) runPCIChecks(ctx context.Context, verbose bool) []ScanRes
     for _, check := range basicChecks {
         checkResults, _ := check.Run(ctx)
         for _, cr := range checkResults {
-            // Only include if it has PCI mapping
             if cr.Frameworks != nil && cr.Frameworks["PCI-DSS"] != "" {
                 results = append(results, ScanResult{
                     Control:           cr.Control,
@@ -399,7 +424,7 @@ func (s *AzureScanner) runBasicChecks(ctx context.Context, services []string, ve
     
     for _, check := range basicChecks {
         if verbose {
-            fmt.Printf("   Running %s checks...\n", check.Name())
+            fmt.Printf("   Running %s...\n", check.Name())
         }
         
         checkResults, err := check.Run(ctx)

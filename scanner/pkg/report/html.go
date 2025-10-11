@@ -5,8 +5,77 @@ import (
 	"strings"
 )
 
-// GenerateHTML creates a complete HTML compliance report
 func GenerateHTML(result ComplianceResult) string {
+	// Count automated vs manual checks
+	automated := 0
+	manual := 0
+	passed := 0
+	failed := 0
+	
+	for _, control := range result.Controls {
+		if control.Status == "INFO" {
+			manual++
+		} else {
+			automated++
+			if control.Status == "PASS" {
+				passed++
+			} else if control.Status == "FAIL" {
+				failed++
+			}
+		}
+	}
+	
+	automatedScore := 0.0
+	if automated > 0 {
+		automatedScore = float64(passed) / float64(automated) * 100
+	}
+	
+	// Generate the disclaimer banner HTML
+	disclaimerHTML := fmt.Sprintf(`
+        <div class="disclaimer-banner">
+            <h3>⚠️ Important: Automated Technical Checks Only</h3>
+            <p>This report shows <strong>%d automated technical checks</strong> out of <strong>%d total controls</strong>. 
+               The %.1f%% score represents automated infrastructure checks only.</p>
+            
+            <div class="disclaimer-grid">
+                <div class="disclaimer-box automated">
+                    <h4>✓ Automated Checks (%d controls)</h4>
+                    <ul>
+                        <li>Infrastructure configurations</li>
+                        <li>Access control policies</li>
+                        <li>Encryption settings</li>
+                        <li>Network security rules</li>
+                        <li>Logging and monitoring</li>
+                    </ul>
+                </div>
+                
+                <div class="disclaimer-box manual">
+                    <h4>✗ Manual Documentation Required (%d controls)</h4>
+                    <ul>
+                        <li>Organizational policies</li>
+                        <li>Training records</li>
+                        <li>Incident response plans</li>
+                        <li>Third-party assessments</li>
+                        <li>Business processes</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p style="margin-top: 20px;"><strong>Full compliance requires:</strong></p>
+            <ul>
+                <li>Documentation of all %d manual controls</li>
+                <li>Evidence collection with screenshots and artifacts</li>
+                <li>Organizational policies and procedures implementation</li>
+                <li>%s</li>
+            </ul>
+            
+            <p style="margin-top: 15px; font-weight: 600; color: #721c24;">
+                ⚠️ THIS TOOL DOES NOT PROVIDE CERTIFICATION. 
+                Formal assessment by qualified auditor is required.
+            </p>
+        </div>
+    `, automated, automated+manual, automatedScore, automated, manual, manual, getAssessorType(result.Framework))
+
 	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +102,6 @@ func GenerateHTML(result ComplianceResult) string {
             padding: 20px;
         }
         
-        /* Header */
         .header {
             background: linear-gradient(135deg, #0366d6 0%%, #0256c7 100%%);
             color: white;
@@ -54,7 +122,6 @@ func GenerateHTML(result ComplianceResult) string {
             font-size: 1.1em;
         }
         
-        /* Score Card */
         .score-card {
             background: white;
             padding: 40px;
@@ -122,7 +189,80 @@ func GenerateHTML(result ComplianceResult) string {
             letter-spacing: 0.5px;
         }
         
-        /* Summary */
+        .disclaimer-banner {
+            background: linear-gradient(135deg, #fff3cd 0%%, #ffe69c 100%%);
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .disclaimer-banner h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .disclaimer-banner p {
+            color: #533f03;
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+        
+        .disclaimer-banner ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        
+        .disclaimer-banner li {
+            color: #533f03;
+            margin: 8px 0;
+        }
+        
+        .disclaimer-banner strong {
+            color: #000;
+        }
+        
+        .disclaimer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .disclaimer-box {
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid;
+        }
+        
+        .disclaimer-box.automated {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .disclaimer-box.manual {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .disclaimer-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .disclaimer-box.automated h4 {
+            color: #155724;
+        }
+        
+        .disclaimer-box.manual h4 {
+            color: #721c24;
+        }
+        
         .summary {
             background: white;
             padding: 30px;
@@ -143,7 +283,6 @@ func GenerateHTML(result ComplianceResult) string {
             line-height: 1.8;
         }
         
-        /* Priority Actions */
         .priority-actions {
             background: white;
             padding: 30px;
@@ -180,7 +319,6 @@ func GenerateHTML(result ComplianceResult) string {
             border-color: #0366d6;
         }
         
-        /* Controls Section */
         .controls-section {
             background: white;
             padding: 30px;
@@ -230,7 +368,6 @@ func GenerateHTML(result ComplianceResult) string {
             display: block;
         }
         
-        /* Control Cards */
         .control-card {
             background: #f6f8fa;
             padding: 20px;
@@ -252,6 +389,11 @@ func GenerateHTML(result ComplianceResult) string {
         .control-card.pass {
             border-color: #28a745;
             background: #f0fdf4;
+        }
+        
+        .control-card.info {
+            border-color: #0366d6;
+            background: #f0f9ff;
         }
         
         .control-header {
@@ -282,6 +424,11 @@ func GenerateHTML(result ComplianceResult) string {
         
         .badge-pass {
             background: #28a745;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #0366d6;
             color: white;
         }
         
@@ -354,7 +501,6 @@ func GenerateHTML(result ComplianceResult) string {
             background: #0256c7;
         }
         
-        /* Footer */
         .footer {
             text-align: center;
             padding: 30px;
@@ -375,7 +521,6 @@ func GenerateHTML(result ComplianceResult) string {
             text-decoration: underline;
         }
         
-        /* Print Styles */
         @media print {
             body {
                 background: white;
@@ -391,18 +536,16 @@ func GenerateHTML(result ComplianceResult) string {
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>%s</h1>
             <div class="subtitle">Generated %s | Account: %s</div>
         </div>
         
-        <!-- Score Card -->
         <div class="score-card">
             <div class="score-circle %s">
-                %.0f%%%%
+                %.0f%%
             </div>
-            <h2>Compliance Score</h2>
+            <h2>Automated Check Score</h2>
             <div class="stats">
                 <div class="stat-box">
                     <div class="number">%d</div>
@@ -419,7 +562,8 @@ func GenerateHTML(result ComplianceResult) string {
             </div>
         </div>
         
-        <!-- Executive Summary -->
+        %s
+        
         <div class="summary">
             <h2>Executive Summary</h2>
             <p>%s</p>
@@ -427,12 +571,12 @@ func GenerateHTML(result ComplianceResult) string {
         
         %s
         
-        <!-- Controls -->
         <div class="controls-section">
             <h2>Control Details</h2>
             <div class="section-tabs">
                 <button class="tab active" onclick="showTab('failed')">Failed Controls (%d)</button>
                 <button class="tab" onclick="showTab('passed')">Passed Controls (%d)</button>
+                <button class="tab" onclick="showTab('info')">Manual Documentation (%d)</button>
             </div>
             
             <div id="failed" class="tab-content active">
@@ -442,9 +586,12 @@ func GenerateHTML(result ComplianceResult) string {
             <div id="passed" class="tab-content">
                 %s
             </div>
+            
+            <div id="info" class="tab-content">
+                %s
+            </div>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
             <p>Generated by <strong>AuditKit</strong> - Multi-Cloud Compliance Scanner</p>
             <p><a href="https://github.com/guardian-nexus/auditkit" target="_blank">Learn More</a></p>
@@ -453,25 +600,21 @@ func GenerateHTML(result ComplianceResult) string {
     
     <script>
         function showTab(tabName) {
-            // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
             
-            // Remove active class from all tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
             
-            // Mark clicked tab as active
             event.target.classList.add('active');
         }
     </script>
 </body>
-	</html>`,
+</html>`,
 		getFrameworkLabel(result.Framework),
 		getFrameworkLabel(result.Framework),
 		result.Timestamp.Format("January 2, 2006 at 3:04 PM"),
@@ -481,12 +624,15 @@ func GenerateHTML(result ComplianceResult) string {
 		result.TotalControls,
 		result.PassedControls,
 		result.FailedControls,
+		disclaimerHTML,
 		generateSummaryText(result),
 		generatePriorityActions(result),
-		result.FailedControls,
-		result.PassedControls,
+		countByStatus(result.Controls, "FAIL"),
+		countByStatus(result.Controls, "PASS"),
+		countByStatus(result.Controls, "INFO"),
 		generateFailedControlsHTML(result),
 		generatePassedControlsHTML(result),
+		generateInfoControlsHTML(result),
 	)
 }
 
@@ -506,6 +652,19 @@ func getScoreClass(score float64) string {
 	return "score-poor"
 }
 
+func getAssessorType(framework string) string {
+	switch strings.ToLower(framework) {
+	case "cmmc":
+		return "Formal assessment by C3PAO (Certified Third Party Assessor)"
+	case "pci", "pci-dss":
+		return "Formal assessment by QSA (Qualified Security Assessor)"
+	case "hipaa":
+		return "HIPAA Security Risk Assessment by qualified auditor"
+	default:
+		return "Third-party assessment by qualified auditor"
+	}
+}
+
 func generateSummaryText(result ComplianceResult) string {
 	status := "requires immediate attention"
 	if result.Score >= 80 {
@@ -523,7 +682,7 @@ func generateSummaryText(result ComplianceResult) string {
 	
 	return fmt.Sprintf(
 		"Your %s environment %s with a compliance score of %.1f%%. Out of %d controls evaluated, %d passed and %d failed. "+
-		"Immediate action is required on %d critical issues to achieve compliance.",
+			"Immediate action is required on %d critical issues to achieve compliance.",
 		strings.ToUpper(result.Provider),
 		status,
 		result.Score,
@@ -595,7 +754,6 @@ func generateFailedControlsHTML(result ComplianceResult) string {
 				control.Evidence,
 			)
 			
-			// Add remediation if exists
 			if control.Remediation != "" {
 				html += fmt.Sprintf(`
                     <div class="control-fix">$ %s</div>`,
@@ -603,7 +761,6 @@ func generateFailedControlsHTML(result ComplianceResult) string {
 				)
 			}
 			
-			// Add evidence guide if exists
 			if control.ScreenshotGuide != "" || control.ConsoleURL != "" {
 				html += `<div class="control-evidence">
                         <div class="evidence-title">
@@ -624,7 +781,7 @@ func generateFailedControlsHTML(result ComplianceResult) string {
 				
 				if control.ConsoleURL != "" {
 					html += fmt.Sprintf(`
-                        <a href="%s" target="_blank" class="console-link">Open AWS Console →</a>`,
+                        <a href="%s" target="_blank" class="console-link">Open Console →</a>`,
 						control.ConsoleURL,
 					)
 				}
@@ -676,4 +833,78 @@ func generatePassedControlsHTML(result ComplianceResult) string {
 	}
 	
 	return html
+}
+
+func generateInfoControlsHTML(result ComplianceResult) string {
+	html := ""
+	
+	infoCount := 0
+	for _, control := range result.Controls {
+		if control.Status == "INFO" {
+			infoCount++
+			
+			html += fmt.Sprintf(`
+                <div class="control-card info">
+                    <div class="control-header">
+                        <div class="control-title">%d. [%s] %s</div>
+                        <span class="control-badge badge-info">MANUAL</span>
+                    </div>
+                    <div class="control-issue">
+                        <strong>Documentation Required:</strong> %s
+                    </div>`,
+				infoCount,
+				control.ID,
+				control.Name,
+				control.Evidence,
+			)
+			
+			if control.ScreenshotGuide != "" || control.ConsoleURL != "" {
+				html += `<div class="control-evidence">
+                        <div class="evidence-title">
+                            <span>Evidence Collection Guide</span>
+                        </div>`
+				
+				if control.ScreenshotGuide != "" {
+					html += `<ul class="evidence-steps">`
+					steps := strings.Split(control.ScreenshotGuide, "\n")
+					for _, step := range steps {
+						step = strings.TrimSpace(step)
+						if len(step) > 0 {
+							html += fmt.Sprintf(`<li>%s</li>`, step)
+						}
+					}
+					html += `</ul>`
+				}
+				
+				if control.ConsoleURL != "" {
+					html += fmt.Sprintf(`
+                        <a href="%s" target="_blank" class="console-link">View in Console →</a>`,
+						control.ConsoleURL,
+					)
+				}
+				
+				html += `</div>`
+			}
+			
+			html += `</div>`
+		}
+	}
+	
+	if infoCount == 0 {
+		html = `<div class="control-card info">
+                    <div class="control-title">No manual documentation controls for this framework.</div>
+                </div>`
+	}
+	
+	return html
+}
+
+func countByStatus(controls []ControlResult, status string) int {
+	count := 0
+	for _, control := range controls {
+		if control.Status == status {
+			count++
+		}
+	}
+	return count
 }
