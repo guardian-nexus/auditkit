@@ -1,4 +1,3 @@
-// /home/dijital/Documents/auditkit/scanner/pkg/aws/checks/systems.go
 package checks
 
 import (

@@ -2,6 +2,13 @@
 
 All notable changes to AuditKit will be documented in this file.
 
+## [v0.6.5] - 2025-10-11
+
+### Fixed
+- **CRITICAL:** Fixed PCI-DSS scanner crash when AWS credentials lack EC2:DescribeSecurityGroups permission
+- Improved error handling in network segmentation checks (Req 1.2.1, 2.2.2)
+- Removed hardcoded development paths from source files
+
 ## [v0.6.4] - 2025-10-10
 
 ### Enhanced Compliance Reporting

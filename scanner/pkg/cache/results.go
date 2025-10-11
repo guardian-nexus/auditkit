@@ -1,4 +1,3 @@
-// /home/dijital/Documents/auditkit/scanner/pkg/cache/results.go
 package cache
 
 import (

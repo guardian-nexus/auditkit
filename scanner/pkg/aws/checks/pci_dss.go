@@ -130,7 +130,12 @@ func (c *PCIDSSChecks) CheckReq1_NetworkSegmentation(ctx context.Context) []Chec
 	}
 	
 	// Check for 0.0.0.0/0 security group rules (PCI HATES these)
-	sgs, _ := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{})
+	// FIXED: Properly handle error instead of ignoring with _
+	sgs, err := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{})
+	if err != nil {
+		return results // Return what we have so far instead of crashing
+	}
+	
 	openToWorld := []string{}
 	
 	for _, sg := range sgs.SecurityGroups {
@@ -186,7 +191,23 @@ func (c *PCIDSSChecks) CheckReq2_DefaultPasswords(ctx context.Context) []CheckRe
 	results := []CheckResult{}
 	
 	// Check for default security group (often has permissive rules)
-	sgs, _ := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{})
+	// FIXED: Properly handle error instead of ignoring with _
+	sgs, err := c.ec2Client.DescribeSecurityGroups(ctx, &ec2.DescribeSecurityGroupsInput{})
+	if err != nil {
+		return append(results, CheckResult{
+			Control:   "PCI-2.2.2",
+			Name:      "[PCI-DSS] Disable Default Configurations",
+			Status:    "ERROR",
+			Severity:  "HIGH",
+			Evidence:  fmt.Sprintf("Unable to check security groups: %v", err),
+			Remediation: "Ensure AWS credentials have ec2:DescribeSecurityGroups permission",
+			Priority:  PriorityHigh,
+			Timestamp: time.Now(),
+			Frameworks: map[string]string{
+				"PCI-DSS": "Req 2.2.2",
+			},
+		})
+	}
 	
 	defaultGroupsWithRules := 0
 	for _, sg := range sgs.SecurityGroups {

@@ -1,4 +1,3 @@
-// /home/dijital/Documents/auditkit/scanner/pkg/updater/updater.go
 package updater
 
 import (

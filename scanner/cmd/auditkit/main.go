@@ -1,4 +1,3 @@
-// Path: /home/dijital/Documents/auditkit-all/auditkit-pro/scanner/cmd/auditkit/main.go
 package main
 
 import (
@@ -21,7 +20,7 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
 )
 
-const CurrentVersion = "v0.6.4" // ScubaGear integration + telemetry removed
+const CurrentVersion = "v0.6.5" // ScubaGear integration + telemetry removed
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`

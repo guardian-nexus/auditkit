@@ -1,0 +1,275 @@
+  Running SOC2 CC1 Checks ...
+  Running SOC2 CC2 Checks ...
+  Running SOC2 CC3 Checks ...
+  Running SOC2 CC4 Checks ...
+  Running SOC2 CC5 Checks ...
+  Running SOC2 CC6 Checks ...
+  Running SOC2 CC7 Checks ...
+  Running SOC2 CC8 Checks ...
+  Running SOC2 CC9 Checks ...
+  Running S3 Bucket Security ...
+  Running IAM Security Configuration ...
+  Running EC2 Security Configuration ...
+  Running CloudTrail Logging ...
+  Running AWS Config Compliance ...
+  Running GuardDuty Threat Detection ...
+  Running RDS Database Security ...
+  Running VPC Network Security ...
+
+AuditKit SOC2 Compliance Scan Results
+=====================================
+AWS Account: 405894844061
+Framework: SOC2
+Scan Time: 2025-10-09 00:46:58
+
+Compliance Score: [31m26.5%[0m
+Controls Passed: 13/49
+[31mCritical Issues: 5 (FIX IMMEDIATELY)[0m
+[33mHigh Priority: 14[0m
+
+[31mCRITICAL - Fix These NOW:[0m
+================================
+
+[31m[FAIL][0m CC3.2 - Risk Identification
+  Issue: GuardDuty not enabled - no automated threat detection
+  Fix: Enable GuardDuty for continuous threat monitoring
+  Evidence: 1. Go to GuardDuty
+2. Enable for all regions
+3. Configure threat intel feeds
+  Console: https://console.aws.amazon.com/guardduty/
+
+
+[31m[FAIL][0m CC6.1 - Logical and Physical Access Controls
+  Issue: CRITICAL: 1 security groups with admin ports open to internet
+  Fix: Restrict SSH/RDP/database ports to specific IPs only
+  Evidence: 1. Go to EC2 → Security Groups
+2. Review inbound rules
+3. Remove 0.0.0.0/0 from ports 22, 3389, 3306
+  Console: https://console.aws.amazon.com/ec2/v2/home#SecurityGroups
+
+
+[31m[FAIL][0m CC7.1 - Security Monitoring and Logging
+  Issue: No CloudTrail configured
+  Fix: Enable CloudTrail for comprehensive logging
+
+
+[31m[FAIL][0m CC6.1 - Logical and Physical Access Controls
+  Issue:  1 security groups have critical ports open to 0.0.0.0/0: sg-0ab56571076bcff37 (port 22/SSH open to world!) | Violates PCI DSS 1.2.1 (firewall config)
+  Fix: Close open ports on SG: sg-0ab56571076bcff37
+Run: aws ec2 revoke-security-group-ingress
+  Evidence: 1. Go to EC2 → Security Groups
+2. Click on the flagged security group
+3. Go to 'Inbound rules' tab
+4. Screenshot showing NO rules with Source '0.0.0.0/0' for ports 22, 3389, or databases
+5. Critical: SSH/RDP must never be open to internet
+6. For PCI DSS: Document business justification for any public access
+  Console: https://console.aws.amazon.com/ec2/v2/home#SecurityGroups
+
+
+[31m[FAIL][0m CC7.1 - Security Monitoring and Logging
+  Issue: CRITICAL: NO CloudTrail configured! Zero audit logging | Violates PCI DSS 10.1 (implement audit trails) & HIPAA 164.312(b)
+  Fix: aws cloudtrail create-trail --name audit-trail --s3-bucket-name YOUR_BUCKET && aws cloudtrail start-logging --name audit-trail
+  Evidence: 1. Go to CloudTrail Console
+2. Click 'Create trail'
+3. Enable for all regions
+4. Screenshot showing trail is 'Logging' status
+5. This is MANDATORY for SOC2, PCI, and HIPAA!
+  Console: https://console.aws.amazon.com/cloudtrail/home
+
+[33mHIGH Priority Issues:[0m
+========================
+
+[33m[FAIL][0m CC1.1 - Organizational Governance
+  Issue: AWS Organizations not enabled - no centralized governance
+  Fix: Enable AWS Organizations and implement Service Control Policies
+  Evidence: 1. Go to AWS Organizations
+2. Screenshot the organization structure
+3. Document SCPs in place
+  Console: https://console.aws.amazon.com/organizations/
+
+
+[33m[FAIL][0m CC1.4 - Commitment to Competence
+  Issue: Only 0% of users have MFA enabled
+  Fix: Enforce MFA for all IAM users
+
+
+[33m[FAIL][0m CC2.2 - Internal Communication
+  Issue: No SNS topics configured - no security alerting mechanism
+  Fix: Create SNS topics for security alerts and operational notifications
+  Evidence: 1. Go to SNS Console
+2. Create topics for SecurityAlerts, OperationalAlerts
+3. Configure subscriptions
+  Console: https://console.aws.amazon.com/sns/
+
+
+[33m[FAIL][0m CC3.1 - Risk Assessment Process
+  Issue: AWS Security Hub not enabled - no centralized security objectives
+  Fix: Enable Security Hub to centralize security standards and objectives
+  Evidence: 1. Go to Security Hub
+2. Enable with security standards
+3. Document compliance scores
+  Console: https://console.aws.amazon.com/securityhub/
+
+
+[33m[FAIL][0m CC3.3 - Risk Analysis
+  Issue: No automated fraud detection mechanisms in place
+  Fix: Enable GuardDuty with IAM finding types
+
+
+[33m[FAIL][0m CC4.1 - Monitoring Activities
+  Issue: AWS Config not enabled - no continuous compliance monitoring
+  Fix: Enable AWS Config to track configuration changes
+  Evidence: 1. Go to AWS Config
+2. Set up configuration recorder
+3. Enable compliance rules
+  Console: https://console.aws.amazon.com/config/
+
+
+[33m[FAIL][0m CC5.1 - Control Activities
+  Issue: No AWS Backup plans configured - data at risk
+  Fix: Create backup plans for critical resources
+  Evidence: 1. Go to AWS Backup
+2. Create backup plan
+3. Assign resources
+  Console: https://console.aws.amazon.com/backup/
+
+
+[33m[FAIL][0m CC5.2 - Technology Controls
+  Issue: No KMS keys configured - using default encryption only
+  Fix: Create customer-managed KMS keys for sensitive data
+
+
+[33m[FAIL][0m CC6.6 - Authentication Controls
+  Issue: No CloudTrail configured - cannot detect unauthorized access
+  Fix: Enable CloudTrail for all regions
+
+
+[33m[FAIL][0m CC6.7 - Password Policy
+  Issue: No password policy configured
+  Fix: Configure strong IAM password policy
+
+
+[33m[FAIL][0m CC6.7 - Password Policy
+  Issue: No password policy configured | Violates PCI DSS 8.2.3-8.2.5 (password requirements)
+  Fix: Run: aws iam update-account-password-policy
+See PDF for required parameters
+  Evidence: 1. Go to IAM → Account settings
+2. Screenshot 'Password policy' section
+3. Must show all requirements enabled
+4. PCI DSS requires minimum 7 chars, we recommend 14+
+  Console: https://console.aws.amazon.com/iam/home#/account_settings
+
+
+[33m[FAIL][0m CC7.1 - Security Monitoring and Logging
+  Issue:  AWS Config NOT enabled! Cannot track configuration changes!
+  Fix: Enable AWS Config to record all resource configurations
+  Evidence: 1. Go to AWS Config Console
+2. Click 'Get started'
+3. Enable recording for all resources
+4. Screenshot showing 'Recorder is ON'
+  Console: https://console.aws.amazon.com/config/
+
+
+[33m[FAIL][0m CC7.2 - Incident Detection and Response
+  Issue: GuardDuty NOT enabled - missing threat detection!
+  Fix: Enable GuardDuty for automated threat detection
+  Evidence: 1. Go to GuardDuty Console
+2. Click 'Get Started'
+3. Enable GuardDuty
+4. Screenshot showing 'GuardDuty is ENABLED'
+  Console: https://console.aws.amazon.com/guardduty/
+
+
+[33m[FAIL][0m CC7.1 - Security Monitoring and Logging
+  Issue: CRITICAL: No VPC Flow Logs enabled - can't track network traffic!
+  Fix: Enable VPC Flow Logs immediately
+  Evidence: 1. Go to VPC Console
+2. Select your VPC
+3. Go to 'Flow logs' tab
+4. Screenshot showing flow logs enabled
+  Console: https://console.aws.amazon.com/vpc/
+
+Other Issues:
+================
+[FAIL] CC1.2 - Board Oversight
+  Issue: Insufficient role segregation for proper oversight
+  Fix: Create separate admin, operator, and audit roles
+
+[FAIL] CC4.1 - Monitoring Activities
+  Issue: No CloudWatch alarms configured
+  Fix: Set up CloudWatch alarms for critical metrics
+
+[FAIL] CC4.2 - Evaluation of Deficiencies
+  Issue: No Config Rules configured for compliance checking
+  Fix: Deploy Config Rules for compliance requirements
+
+[FAIL] CC6.3 - Encryption at Rest
+  Issue: 1 VPCs but no VPC endpoints - traffic goes over public internet
+  Fix: Create VPC endpoints for AWS services (S3, DynamoDB, etc.)
+
+[FAIL] CC6.8 - Access Key Rotation
+  Issue: Only 0% of S3 buckets have versioning enabled
+  Fix: Enable versioning on all S3 buckets
+
+[FAIL] CC7.3 - Security Event Analysis
+  Issue: No patch groups configured in Systems Manager
+  Fix: Configure SSM Patch Manager for automated security patching
+
+[FAIL] A1.2 - Backup and Recovery
+  Issue: 1 buckets lack versioning (needed for data recovery) | Required for PCI DSS 10.5.5 (secure audit trails)
+  Fix: Enable versioning on: auditkit-test-public-1759976302
+
+Manual Documentation Required:
+=================================
+[INFO] CC1.5 - Accountability
+  Guidance: No explicit deny policies found
+
+[INFO] CC3.2 - Risk Identification
+  Guidance: Inspector v2 status checked - manual review required
+
+[INFO] CC3.4 - Risk Management
+  Guidance: Manual review required: Verify change management process includes risk assessment
+
+[INFO] CC5.3 - Policy Implementation
+  Guidance: Manual review required: Verify security policies are documented and enforced
+
+[INFO] CC6.2 - Network Security
+  Guidance: 2 users created in last 30 days - verify approval process
+
+[INFO] CC7.2 - Incident Detection and Response
+  Guidance: No automated anomaly detection functions found
+
+[INFO] CC7.4 - Performance Monitoring
+  Guidance: Manual review required: Verify incident response procedures are documented
+
+[INFO] CC8.1 - Change Management Process
+  Guidance: No custom AMIs found - consider creating golden images
+
+[32mPassed Controls:[0m
+===================
+  - CC2.3 - External Communication
+  - CC6.4 - Security Control
+  - CC6.5 - Security Control
+  - CC9.2 - Vendor Management
+  - CC6.2 - Network Security
+  - CC6.3 - Encryption at Rest
+  - CC7.1 - Security Monitoring and Logging
+  - CC6.6 - Authentication Controls
+  - CC6.8 - Access Key Rotation
+  - CC6.7 - Password Policy
+  ... and 3 more passing controls
+
+Priority Action Items:
+=========================
+  1. URGENT: Fix 5 CRITICAL issues immediately - these WILL fail your audit
+  2. CRITICAL: Enable MFA for root/admin accounts TODAY - auditors check this first
+  3. MEDIUM: Enable encryption on all storage - best practice
+  4. HIGH: Close management ports from internet - major security finding
+  5. HIGH: Rotate access keys/credentials older than 90 days - compliance requirement
+
+For detailed SOC2 report with full evidence checklist:
+   auditkit scan -provider aws -framework soc2 -format pdf -output report.pdf
+
+To track evidence collection progress:
+   auditkit evidence -provider aws
+

@@ -1,0 +1,99 @@
+Running CMMC Level 1 (17 practices) - Open Source
+CMMC Level 1 complete: 17 controls
+
+UPGRADE TO CMMC LEVEL 2:
+  110 additional practices for CUI handling
+  Required for DoD contractors processing CUI
+  Complete evidence collection guides
+  November 10, 2025 deadline compliance
+
+Visit auditkit.io/pro or contact info@auditkit.io
+
+AuditKit CMMC Compliance Scan Results
+=====================================
+AWS Account: 405894844061
+Framework: CMMC
+Scan Time: 2025-10-09 00:47:03
+
+Compliance Score: [31m17.6%[0m
+Controls Passed: 3/17
+
+Other Issues:
+================
+[FAIL] AC.L1-3.1.2 - Security Control
+  Issue: No custom IAM policies found - relying only on AWS managed policies
+  Fix: Create custom IAM policies that restrict specific actions for CUI protection
+
+[FAIL] IA.L1-3.5.2 - Security Control
+  Issue: 2 users without MFA enabled: auditkit-test, test-user-no-mfa
+  Fix: Enable MFA for all IAM users accessing CUI systems
+
+[FAIL] SC.L1-3.13.1 - Security Control
+  Issue: 1 security groups allow unrestricted internet access (0.0.0.0/0)
+  Fix: Restrict Security Group rules to specific IP ranges, not 0.0.0.0/0
+
+Manual Documentation Required:
+=================================
+[INFO] MP.L1-3.8.3 - Security Control
+  Guidance: MANUAL PROCESS: Verify secure deletion procedures for EBS volumes and S3 objects containing CUI
+  Evidence: Document secure deletion procedures | EC2 → Volumes → Screenshot encrypted volumes | S3 → Lifecycle policies
+
+[INFO] MP.L1-3.8.2 - Security Control
+  Guidance: Found 1 S3 buckets - manual review of bucket policies required
+  Evidence: AWS Console → S3 → Each bucket → Permissions → Screenshot bucket policies and access controls
+
+[INFO] PS.L1-3.9.1 - Security Control
+  Guidance: MANUAL PROCESS: Personnel screening procedures must be documented and implemented
+  Evidence: HR Documentation → Screenshot personnel screening policy | Access approval records → Screenshot showing completed screenings
+
+[INFO] SC.L1-3.13.5 - Security Control
+  Guidance: MANUAL CHECK: Verify KMS encryption is configured for all CUI data
+  Evidence: AWS Console → KMS → Keys → Screenshot showing customer-managed keys | S3/EBS/RDS → Screenshot showing encryption enabled
+
+[INFO] SC.L1-3.13.11 - Security Control
+  Guidance: AWS KMS uses FIPS 140-2 validated cryptographic modules - verify usage
+  Evidence: AWS Console → KMS → Screenshot showing FIPS-validated key usage | Documentation → Screenshot FIPS compliance
+
+[INFO] SC.L1-3.13.17 - Security Control
+  Guidance: MANUAL CHECK: Verify IAM session timeout policies are configured
+  Evidence: AWS Console → IAM → Account settings → Screenshot session duration limits
+
+[INFO] SI.L1-3.14.1 - Security Control
+  Guidance: MANUAL CHECK: Verify Systems Manager Patch Manager is configured
+  Evidence: AWS Console → Systems Manager → Patch Manager → Screenshot patch compliance
+
+[INFO] SI.L1-3.14.2 - Security Control
+  Guidance: MANUAL CHECK: Verify GuardDuty is enabled and endpoint protection is deployed
+  Evidence: AWS Console → GuardDuty → Screenshot enabled status | EC2 → Screenshot endpoint protection
+
+[INFO] SI.L1-3.14.4 - Security Control
+  Guidance: GuardDuty automatically updates - verify endpoint protection has auto-updates enabled
+  Evidence: AWS Console → GuardDuty → Settings | EC2 → Screenshot endpoint auto-update config
+
+[INFO] SI.L1-3.14.6 - Security Control
+  Guidance: MANUAL CHECK: Verify Security Hub is enabled and alerting is configured
+  Evidence: AWS Console → Security Hub → Screenshot alerts dashboard | CloudWatch → Screenshot alarms
+
+[INFO] SI.L1-3.14.7 - Security Control
+  Guidance: AWS security services auto-update - verify endpoint agents have update mechanisms
+  Evidence: AWS Console → Security services → Screenshot version status
+
+[32mPassed Controls:[0m
+===================
+  - AC.L1-3.1.1 - Security Control
+  - IA.L1-3.5.1 - Security Control
+  - SC.L1-3.13.16 - Security Control
+
+Priority Action Items:
+=========================
+  1. Enable continuous compliance monitoring
+  2. Document your security policies and procedures
+  3. Set up automated alerting for security events
+  4. Schedule quarterly access reviews
+
+For detailed CMMC report with full evidence checklist:
+   auditkit scan -provider aws -framework cmmc -format pdf -output report.pdf
+
+To track evidence collection progress:
+   auditkit evidence -provider aws
+

@@ -1,0 +1,6 @@
+Generating remediation script...
+Scanning AWS Account 405894844061 to identify fixes...
+Fix script generated: auditkit-aws-fixes.sh
+REVIEW CAREFULLY before running!
+   chmod +x auditkit-aws-fixes.sh
+   ./auditkit-aws-fixes.sh

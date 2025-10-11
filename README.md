@@ -4,7 +4,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/version-v0.6.4-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
+[![Version](https://img.shields.io/badge/version-v0.6.5-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
@@ -83,7 +83,7 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 ```
 
 ## Recent Updates
-
+**v0.6.5 (Oct 2025)** - Hotfix to address PCI-DSS Scanner crash. See CHANGELOG.
 **v0.6.4 (Oct 2025)** - Enhanced output control with `--full` flag  
 **v0.6.3 (Oct 2025)** - Enhanced reports + Complete M365 coverage  
 **v0.6.2 (Oct 2025)** - Framework scanning improvements & Hotfix  

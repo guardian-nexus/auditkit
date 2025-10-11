@@ -1,5 +1,3 @@
-// Path: /home/dijital/Documents/auditkit/scanner/pkg/integrations/types.go
-
 package integrations
 
 import (

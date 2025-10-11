@@ -1,5 +1,3 @@
-// Path: /home/dijital/Documents/auditkit/scanner/pkg/azure/checks/network.go
-
 package checks
 
 import (
