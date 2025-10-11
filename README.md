@@ -83,7 +83,7 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 ```
 
 ## Recent Updates
-**v0.6.5 (Oct 2025)** - Hotfix to address PCI-DSS Scanner crash. See CHANGELOG.
+**v0.6.5 (Oct 2025)** - Hotfix to address PCI-DSS Scanner crash. See CHANGELOG  
 **v0.6.4 (Oct 2025)** - Enhanced output control with `--full` flag  
 **v0.6.3 (Oct 2025)** - Enhanced reports + Complete M365 coverage  
 **v0.6.2 (Oct 2025)** - Framework scanning improvements & Hotfix  
