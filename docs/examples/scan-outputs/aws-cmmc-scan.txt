@@ -1,0 +1,120 @@
+Running CMMC Level 1 (17 practices) - Open Source
+
+⚠️  IMPORTANT DISCLAIMER:
+═══════════════════════════════════════════════════════════
+This scanner tests technical controls that can be automated.
+
+CMMC Level 1 requires 17 practices. Many controls require
+organizational documentation and policies that cannot be
+verified through automated scanning.
+
+A high automated check score does NOT mean you are CMMC
+compliant. This is a technical assessment tool, not a
+compliance certification.
+
+You still need to document policies, training, incident
+response procedures, and other organizational controls.
+═══════════════════════════════════════════════════════════
+
+
+CMMC Level 1 scan complete: 17 controls tested
+
+🔓 UNLOCK CMMC LEVEL 2:
+  • 110 additional Level 2 practices for CUI
+  • Required for DoD contractors handling CUI
+  • Complete evidence collection guides
+  • November 10, 2025 deadline compliance
+
+Visit https://auditkit.io/pro for full CMMC Level 2
+
+Automated Check Score: 57.1% (4/7 passed)
+
+⚠️  IMPORTANT: Only 7 of 17 total controls are automated.
+   10 controls require manual documentation and evidence.
+   Use 'auditkit evidence' to track what you need to collect.
+
+AuditKit CMMC Compliance Scan Results
+=====================================
+AWS Account: 1234567890
+Framework: CMMC
+Scan Time: 2025-10-11 18:52:15
+
+Compliance Score: [31m57.1%[0m
+Controls Passed: 4/17
+
+Other Issues:
+================
+[FAIL] AC.L1-3.1.2 - Security Control
+  Issue: No custom IAM policies - relying on AWS managed policies only
+  Fix: Create custom IAM policies to restrict access appropriately
+
+[FAIL] IA.L1-3.5.2 - Security Control
+  Issue: Only 0/2 users have MFA enabled
+  Fix: Enable MFA for all IAM users
+
+[FAIL] SC.L1-3.13.1 - Security Control
+  Issue: 1 security groups allow unrestricted access: sg-0ab56571076bcff37
+  Fix: Restrict security group rules to specific IP ranges
+
+Manual Documentation Required:
+=================================
+[INFO] MP.L1-3.8.3 - Security Control
+  Guidance: MANUAL: Document media sanitization procedures for EBS volumes and S3 objects
+  Evidence: Documentation → Screenshot showing media sanitization procedures | AWS Console → S3 → Lifecycle rules
+
+[INFO] PE.L1-3.10.1 - Security Control
+  Guidance: MANUAL: AWS data centers have physical controls (inherited control)
+  Evidence: AWS Artifact → Screenshot SOC 2 report showing physical controls
+
+[INFO] PE.L1-3.10.3 - Security Control
+  Guidance: MANUAL: AWS data centers escort visitors (inherited control)
+  Evidence: AWS Artifact → Screenshot showing visitor management procedures
+
+[INFO] PE.L1-3.10.4 - Security Control
+  Guidance: MANUAL: AWS maintains physical access logs (inherited control)
+  Evidence: AWS Artifact → Screenshot showing physical access logging
+
+[INFO] PE.L1-3.10.5 - Security Control
+  Guidance: MANUAL: AWS controls physical access devices (inherited control)
+  Evidence: AWS Artifact → Screenshot showing physical access device management
+
+[INFO] PS.L1-3.9.1 - Security Control
+  Guidance: MANUAL: Document personnel screening procedures for CUI access
+  Evidence: HR Documentation → Screenshot showing personnel screening procedures and background check records
+
+[INFO] PS.L1-3.9.2 - Security Control
+  Guidance: MANUAL: Document authorization process for CUI access
+  Evidence: Documentation → Screenshot showing CUI access authorization procedures and approval records
+
+[INFO] SI.L1-3.14.1 - Security Control
+  Guidance: MANUAL: Document flaw identification and remediation processes
+  Evidence: AWS Console → Systems Manager → Patch Manager → Screenshot compliance dashboard
+
+[INFO] SI.L1-3.14.2 - Security Control
+  Guidance: MANUAL: Document malicious code protection mechanisms
+  Evidence: AWS Console → GuardDuty → Screenshot showing malware detection enabled
+
+[INFO] SI.L1-3.14.4 - Security Control
+  Guidance: MANUAL: Document malicious code protection update procedures
+  Evidence: AWS Console → GuardDuty → Settings → Screenshot showing automatic updates enabled
+
+[32mPassed Controls:[0m
+===================
+  - AC.L1-3.1.1 - Security Control
+  - IA.L1-3.5.1 - Security Control
+  - SC.L1-3.13.16 - Security Control
+  - SC.L1-3.13.11 - Security Control
+
+Priority Action Items:
+=========================
+  1. Enable continuous compliance monitoring
+  2. Document your security policies and procedures
+  3. Set up automated alerting for security events
+  4. Schedule quarterly access reviews
+
+For detailed CMMC report with full evidence checklist:
+   auditkit scan -provider aws -framework cmmc -format pdf -output report.pdf
+
+To track evidence collection progress:
+   auditkit evidence -provider aws
+

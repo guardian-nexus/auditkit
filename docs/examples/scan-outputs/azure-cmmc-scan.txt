@@ -1,0 +1,125 @@
+Checking Azure connectivity...
+Running CMMC Level 1 compliance scan for Azure...
+For Level 2 upgrade to Pro
+Running CMMC Level 1 (17 practices) for Azure with automated checks
+
+⚠️  IMPORTANT DISCLAIMER:
+═══════════════════════════════════════════════════════════
+This scanner tests technical controls that can be automated.
+
+CMMC Level 1 requires 17 practices. Many controls require
+organizational documentation and policies that cannot be
+verified through automated scanning.
+
+A high automated check score does NOT mean you are CMMC
+compliant. This is a technical assessment tool, not a
+compliance certification.
+
+You still need to document policies, training, incident
+response procedures, and other organizational controls.
+═══════════════════════════════════════════════════════════
+
+
+CMMC Level 1 complete: 17 controls tested
+
+🔓 UNLOCK CMMC LEVEL 2:
+  • 110 additional Level 2 practices for CUI
+  • Required for DoD contractors handling CUI
+  • Complete evidence collection guides
+  • November 10, 2025 deadline compliance
+
+Visit https://auditkit.io/pro for full CMMC Level 2
+Azure CMMC Level 1 scan complete
+Azure scan complete - 17 total checks performed
+
+Getting there! 80.0% of automated checks passed.
+
+⚠️  NOTE: 12 additional manual controls require documentation.
+   Use 'auditkit evidence' to generate collection checklist.
+Run 'auditkit compare' to see your progress over time.
+
+AuditKit CMMC Compliance Scan Results
+=====================================
+AZURE Account: 1234567-1234-12345-1234-1234567890
+Framework: CMMC
+Scan Time: 2025-10-11 21:49:22
+
+Compliance Score: [32m80.0%[0m
+Controls Passed: 4/17
+
+Other Issues:
+================
+[FAIL] IA.L1-3.5.1 - Security Control
+  Issue: Unable to verify Azure AD users: Insufficient privileges to complete the operation.
+  Fix: Ensure Azure AD is configured with unique user identities
+
+Manual Documentation Required:
+=================================
+[INFO] IA.L1-3.5.2 - Security Control
+  Guidance: MANUAL: Verify Azure AD MFA is enabled for all users via Conditional Access
+  Evidence: Azure Portal → Azure AD → Security → MFA → Screenshot MFA status | Conditional Access → Screenshot MFA policies
+
+[INFO] MP.L1-3.8.3 - Security Control
+  Guidance: MANUAL: Document media sanitization procedures for Azure Storage and compute resources
+  Evidence: Documentation → Screenshot sanitization procedures | Azure Storage → Lifecycle → Screenshot
+
+[INFO] PE.L1-3.10.1 - Security Control
+  Guidance: Azure inherited: Microsoft data centers limit physical access (documented in SOC 2)
+  Evidence: Azure Trust Center → Compliance → Screenshot physical security documentation
+
+[INFO] PE.L1-3.10.2 - Security Control
+  Guidance: Azure inherited: Microsoft data centers have physical protection
+  Evidence: Azure Trust Center → Screenshot physical protection controls
+
+[INFO] PE.L1-3.10.3 - Security Control
+  Guidance: Azure inherited: Microsoft data centers escort all visitors
+  Evidence: Azure Trust Center → Screenshot visitor procedures
+
+[INFO] PE.L1-3.10.4 - Security Control
+  Guidance: Azure inherited: Microsoft maintains physical access logs
+  Evidence: Azure Trust Center → Screenshot access logging
+
+[INFO] PE.L1-3.10.5 - Security Control
+  Guidance: Azure inherited: Microsoft controls physical access devices
+  Evidence: Azure Trust Center → Screenshot device controls
+
+[INFO] PE.L1-3.10.6 - Security Control
+  Guidance: Azure inherited: Microsoft enforces physical safeguards
+  Evidence: Azure Trust Center → Screenshot safeguarding controls
+
+[INFO] SC.L1-3.13.5 - Security Control
+  Guidance: MANUAL: Verify Azure VNet subnets separate public and private systems
+  Evidence: Azure Portal → Virtual networks → Subnets → Screenshot subnet separation
+
+[INFO] SI.L1-3.14.1 - Security Control
+  Guidance: MANUAL: Verify Azure Update Management identifies system flaws
+  Evidence: Azure Portal → Update Management → Screenshot compliance | Defender → Screenshot vulnerabilities
+
+[INFO] SI.L1-3.14.2 - Security Control
+  Guidance: MANUAL: Verify malicious code protection via Defender for Cloud
+  Evidence: Azure Portal → Defender for Cloud → Screenshot malware protection
+
+[INFO] SI.L1-3.14.4 - Security Control
+  Guidance: MANUAL: Verify automatic updates for malicious code protection
+  Evidence: Azure Portal → Defender → Settings → Screenshot automatic updates
+
+[32mPassed Controls:[0m
+===================
+  - AC.L1-3.1.1 - Security Control
+  - AC.L1-3.1.2 - Security Control
+  - SC.L1-3.13.1 - Security Control
+  - SC.L1-3.13.16 - Security Control
+
+Priority Action Items:
+=========================
+  1. Enable continuous compliance monitoring
+  2. Document your security policies and procedures
+  3. Set up automated alerting for security events
+  4. Schedule quarterly access reviews
+
+For detailed CMMC report with full evidence checklist:
+   auditkit scan -provider azure -framework cmmc -format pdf -output report.pdf
+
+To track evidence collection progress:
+   auditkit evidence -provider azure
+

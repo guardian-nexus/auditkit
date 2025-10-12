@@ -16,13 +16,19 @@
   Running RDS Database Security ...
   Running VPC Network Security ...
 
+Automated Check Score: 33.3% (13/39 passed)
+
+⚠️  IMPORTANT: Only 39 of 47 total controls are automated.
+   8 controls require manual documentation and evidence.
+   Use 'auditkit evidence' to track what you need to collect.
+
 AuditKit SOC2 Compliance Scan Results
 =====================================
-AWS Account: 405894844061
+AWS Account: 1234567890
 Framework: SOC2
-Scan Time: 2025-10-09 00:46:58
+Scan Time: 2025-10-11 18:52:07
 
-Compliance Score: [31m26.5%[0m
+Compliance Score: [31m33.3%[0m
 Controls Passed: 13/49
 [31mCritical Issues: 5 (FIX IMMEDIATELY)[0m
 [33mHigh Priority: 14[0m
@@ -148,46 +154,7 @@ Run: aws ec2 revoke-security-group-ingress
   Issue: No password policy configured
   Fix: Configure strong IAM password policy
 
-
-[33m[FAIL][0m CC6.7 - Password Policy
-  Issue: No password policy configured | Violates PCI DSS 8.2.3-8.2.5 (password requirements)
-  Fix: Run: aws iam update-account-password-policy
-See PDF for required parameters
-  Evidence: 1. Go to IAM → Account settings
-2. Screenshot 'Password policy' section
-3. Must show all requirements enabled
-4. PCI DSS requires minimum 7 chars, we recommend 14+
-  Console: https://console.aws.amazon.com/iam/home#/account_settings
-
-
-[33m[FAIL][0m CC7.1 - Security Monitoring and Logging
-  Issue:  AWS Config NOT enabled! Cannot track configuration changes!
-  Fix: Enable AWS Config to record all resource configurations
-  Evidence: 1. Go to AWS Config Console
-2. Click 'Get started'
-3. Enable recording for all resources
-4. Screenshot showing 'Recorder is ON'
-  Console: https://console.aws.amazon.com/config/
-
-
-[33m[FAIL][0m CC7.2 - Incident Detection and Response
-  Issue: GuardDuty NOT enabled - missing threat detection!
-  Fix: Enable GuardDuty for automated threat detection
-  Evidence: 1. Go to GuardDuty Console
-2. Click 'Get Started'
-3. Enable GuardDuty
-4. Screenshot showing 'GuardDuty is ENABLED'
-  Console: https://console.aws.amazon.com/guardduty/
-
-
-[33m[FAIL][0m CC7.1 - Security Monitoring and Logging
-  Issue: CRITICAL: No VPC Flow Logs enabled - can't track network traffic!
-  Fix: Enable VPC Flow Logs immediately
-  Evidence: 1. Go to VPC Console
-2. Select your VPC
-3. Go to 'Flow logs' tab
-4. Screenshot showing flow logs enabled
-  Console: https://console.aws.amazon.com/vpc/
+  ... and 4 more high priority issues (use --full to see all)
 
 Other Issues:
 ================
@@ -257,7 +224,9 @@ Manual Documentation Required:
   - CC6.6 - Authentication Controls
   - CC6.8 - Access Key Rotation
   - CC6.7 - Password Policy
-  ... and 3 more passing controls
+  - CC6.3 - Encryption at Rest
+  - CC6.1 - Logical and Physical Access Controls
+  - CC7.2 - Incident Detection and Response
 
 Priority Action Items:
 =========================

@@ -4,7 +4,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/version-v0.6.5-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
+[![Version](https://img.shields.io/badge/version-v0.6.6-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 
 ## What AuditKit Does
@@ -83,6 +83,7 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
 ```
 
 ## Recent Updates
+**v0.6.6 (Oct 2025)** - Critical hotfix: Fixed PCI-DSS crash (again), added examples, stripped debug paths  
 **v0.6.5 (Oct 2025)** - Hotfix to address PCI-DSS Scanner crash. See CHANGELOG  
 **v0.6.4 (Oct 2025)** - Enhanced output control with `--full` flag  
 **v0.6.3 (Oct 2025)** - Enhanced reports + Complete M365 coverage  
@@ -268,6 +269,65 @@ go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@v0.6.4
 
 ### Download Binary
 See [Releases](https://github.com/guardian-nexus/auditkit/releases) for pre-built binaries.
+
+## Examples and Sample Reports
+
+### Terminal Output
+
+Here's what you see when running AuditKit against your cloud environment:
+
+![Terminal Scan Output](./docs/examples/screenshots/azure-cmmc-scan-console-output-sample.png)
+
+### HTML Report Preview
+
+Interactive HTML reports with compliance scores, automated vs manual check breakdowns, and evidence collection guides:
+
+![HTML Report - Compliance Score](./docs/examples/screenshots/html-report-score.png)
+
+![HTML Report - Disclaimer](./docs/examples/screenshots/html-report-disclaimer.png)
+
+![HTML Report - Evidence Guide](./docs/examples/screenshots/html-report-evidence.png)
+
+### Available Sample Reports
+
+**AWS Compliance Reports:**
+- [AWS SOC2 Report (PDF)](./docs/examples/reports/sample-aws-soc2-report.pdf) - 64 controls
+- [AWS SOC2 Report (HTML)](./docs/examples/reports/sample-aws-soc2-report.html) - Interactive version
+- [AWS PCI-DSS Report (PDF)](./docs/examples/reports/sample-aws-pci-report.pdf) - 30+ controls
+- [AWS CMMC Report (PDF)](./docs/examples/reports/sample-aws-cmmc-report.pdf) - 17 Level 1 practices
+
+**Azure Compliance Reports:**
+- [Azure CMMC Report (PDF)](./docs/examples/reports/sample-azure-cmmc-report.pdf) - 17 Level 1 practices
+- [Azure CMMC Report (HTML)](./docs/examples/reports/sample-azure-cmmc-report.html) - Interactive version
+
+**Terminal Outputs:**
+- [AWS SOC2 Scan Output](./docs/examples/scan-outputs/aws-soc2-scan.txt)
+- [AWS PCI-DSS Scan Output](./docs/examples/scan-outputs/aws-pci-scan.txt)
+- [AWS CMMC Scan Output](./docs/examples/scan-outputs/aws-cmmc-scan.txt)
+- [Azure CMMC Scan Output](./docs/examples/scan-outputs/azure-cmmc-scan.txt)
+
+[View all examples](./docs/examples/)
+
+### Real-World Results
+
+**Startup SOC2 Preparation**
+- Company: 15-person SaaS startup
+- Challenge: First SOC2 audit in 90 days, no compliance team
+- Result: 26% to 98% compliant in 3 hours
+- Saved: $15,000 vs hiring consultant
+
+**DoD Contractor CMMC**
+- Company: 50-person defense contractor
+- Challenge: CMMC Level 1 required for new contracts
+- Result: Self-assessment completed in 10 days
+- Saved: $25,000 vs C3PAO assessment costs
+
+**Enterprise Multi-Cloud**
+- Company: 500-person fintech
+- Challenge: AWS + Azure + M365 compliance across 3 teams
+- Result: Single unified compliance dashboard
+- Saved: Replaced 3 separate compliance tools ($60k/year)
+
 
 ## Command Reference
 

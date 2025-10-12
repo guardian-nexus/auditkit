@@ -2,6 +2,21 @@
 
 All notable changes to AuditKit will be documented in this file.
 
+## [v0.6.6] - 2025-10-12
+
+### Fixed
+- PCI-DSS nil pointer crash when AWS API calls fail
+- Duplicate `min` function compilation error
+- Stripped debug paths from release binaries
+
+### Added
+- Sample reports and examples in `docs/examples/`
+- Real-world use case documentation
+
+### Changed
+- Binary size reduced ~30% via debug symbol stripping
+- Enhanced build process with path leak detection
+
 ## [v0.6.5] - 2025-10-11
 
 ### Fixed
