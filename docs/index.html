@@ -446,7 +446,7 @@
 
             <div class="cta-buttons">
                 <a href="https://github.com/guardian-nexus/auditkit" class="btn btn-primary">View on GitHub</a>
-                <a href="https://github.com/guardian-nexus/auditkit/releases" class="btn btn-secondary">Download v0.6.3</a>
+                <a href="https://github.com/guardian-nexus/auditkit/releases" class="btn btn-secondary">Download v0.6.6</a>
                 <a href="https://auditkit.io/pro/" class="btn btn-pro">CMMC Level 2 Pro</a>
             </div>
         </div>
@@ -747,7 +747,7 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
     <section style="background: #f8f9fa;">
         <div class="container">
-            <h2>Current Status - v0.6.3</h2>
+            <h2>Current Status - v0.6.6</h2>
             
             <div class="card" style="max-width: 800px; margin: 0 auto;">
                 <h3 style="color: #28a745;">Production Ready</h3>
@@ -757,17 +757,21 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
                     <li><strong>CMMC Level 1</strong> - Complete (17 practices), AWS + Azure</li>
                     <li><strong>M365 Coverage</strong> - All 7 domains via ScubaGear integration</li>
                     <li><strong>Professional Reports</strong> - Enhanced PDF and interactive HTML</li>
+		    <li><strong>Examples</strong> - Real-world sample reports and screenshots</li>
                 </ul>
 
-                <h3 style="color: #667eea; margin-top: 30px;">What's New in v0.6.3</h3>
+                <h3 style="color: #667eea; margin-top: 30px;">What's New in v0.6.6</h3>
                 <ul class="features-list">
-                    <li>Enhanced PDF reports with improved cover page and score visualization</li>
-                    <li>Interactive HTML reports with tabs and clickable Console URLs</li>
-                    <li>Complete M365 coverage - All 7 domains (Entra ID, Exchange, SharePoint, Teams, Power Platform, Power BI, Defender)</li>
-                    <li>Fixed Unicode rendering issues in reports</li>
-                    <li>Better spacing and formatting throughout</li>
-                    <li>Footer now appears on every PDF page</li>
-                </ul>
+		        <li>Fixed critical PCI-DSS scanner crash bug</li>
+		        <li>Removed debug paths from release binaries (30% smaller)</li>
+		        <li>Added comprehensive examples directory with sample reports</li>
+		        <li>Real-world use cases documented (startup, DoD contractor, enterprise)</li>
+		        <li>Enhanced build process with path leak detection</li>
+		    </ul>
+
+		 <p style="margin-top: 20px; text-align: center;">
+		        <a href="https://github.com/guardian-nexus/auditkit/tree/main/docs/examples" style="color: #667eea; font-weight: 600;">View Sample Reports and Examples →</a>
+		    </p>
 
                 <h3 style="color: #f1c40f; margin-top: 30px;">Pro Features</h3>
                 <ul class="features-list">
