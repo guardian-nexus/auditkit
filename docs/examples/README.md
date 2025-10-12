@@ -13,13 +13,13 @@ Real-world scan outputs, reports, and screenshots demonstrating AuditKit's capab
 
 ### AWS Compliance
 - [AWS SOC2 Report (PDF)](./reports/sample-aws-soc2-report.pdf) - 64 controls
-- [AWS SOC2 Report (HTML)](./reports/sample-aws-soc2-report.html) - Interactive version
+- [AWS SOC2 Report (HTML)](https://guardian-nexus.github.io/auditkit/examples/reports/sample-aws-soc2-report.html) - Interactive version
 - [AWS PCI-DSS Report (PDF)](./reports/sample-aws-pci-report.pdf) - 30+ controls  
 - [AWS CMMC Report (PDF)](./reports/sample-aws-cmmc-report.pdf) - 17 Level 1 practices
 
 ### Azure Compliance
 - [Azure CMMC Report (PDF)](./reports/sample-azure-cmmc-report.pdf) - 17 Level 1 practices
-- [Azure CMMC Report (HTML)](./reports/sample-azure-cmmc-report.html) - Interactive version
+- [Azure CMMC Report (HTML)](https://guardian-nexus.github.io/auditkit/examples/reports/sample-azure-cmmc-report.html) - Interactive version
 
 ## Terminal Outputs
 

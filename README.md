@@ -292,13 +292,13 @@ Interactive HTML reports with compliance scores, automated vs manual check break
 
 **AWS Compliance Reports:**
 - [AWS SOC2 Report (PDF)](./docs/examples/reports/sample-aws-soc2-report.pdf) - 64 controls
-- [AWS SOC2 Report (HTML)](./docs/examples/reports/sample-aws-soc2-report.html) - Interactive version
+- [AWS SOC2 Report (HTML)](https://guardian-nexus.github.io/auditkit/examples/reports/sample-aws-soc2-report.html) - Interactive version
 - [AWS PCI-DSS Report (PDF)](./docs/examples/reports/sample-aws-pci-report.pdf) - 30+ controls
 - [AWS CMMC Report (PDF)](./docs/examples/reports/sample-aws-cmmc-report.pdf) - 17 Level 1 practices
 
 **Azure Compliance Reports:**
 - [Azure CMMC Report (PDF)](./docs/examples/reports/sample-azure-cmmc-report.pdf) - 17 Level 1 practices
-- [Azure CMMC Report (HTML)](./docs/examples/reports/sample-azure-cmmc-report.html) - Interactive version
+- [Azure CMMC Report (HTML)](https://guardian-nexus.github.io/auditkit/examples/reports/sample-azure-cmmc-report.html) - Interactive version
 
 **Terminal Outputs:**
 - [AWS SOC2 Scan Output](./docs/examples/scan-outputs/aws-soc2-scan.txt)
