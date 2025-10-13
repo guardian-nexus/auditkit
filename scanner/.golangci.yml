@@ -1,0 +1,57 @@
+# Path: .golangci.yml
+# golangci-lint configuration
+
+run:
+  timeout: 5m
+  tests: false
+
+linters:
+  enable:
+    - errcheck      # Check for unchecked errors
+    - staticcheck   # Advanced static analysis
+    - govet         # Go vet issues
+    - gosimple      # Simplify code suggestions
+    - ineffassign   # Detect ineffectual assignments
+    - unused        # Check for unused code
+  disable:
+    - typecheck     # Can be flaky with build tags
+
+linters-settings:
+  errcheck:
+    # Ignore these specific error checks (common patterns that are okay)
+    exclude-functions:
+      - 'fmt.Fprintf'
+      - 'fmt.Fprintln'
+      - '(*database/sql.Rows).Close'
+      - '(*os.File).Close'  # defer file.Close() is fine
+    # Check type assertions and type switches
+    check-type-assertions: false
+    check-blank: false
+
+  staticcheck:
+    # Don't complain about these specific checks
+    checks: 
+      - "all"
+      - "-ST1005"  # Allow capitalized error strings (common in our codebase)
+      - "-QF1003"  # Allow if/else chains instead of switch (more readable sometimes)
+      - "-S1039"   # Allow fmt.Sprintf for consistency
+
+issues:
+  # Maximum issues count per one linter
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
+  # Exclude some linters from running on specific paths
+  exclude-rules:
+    # Ignore long lines in test files
+    - path: _test\.go
+      linters:
+        - lll
+    
+    # Allow unchecked errors in defer statements (common Go pattern)
+    - source: "defer.*\\.Close\\(\\)"
+      linters:
+        - errcheck
+  
+  # Show all issues
+  exclude-use-default: false
