@@ -379,6 +379,8 @@
             background: white;
             border-radius: 4px;
             border: 1px solid #e1e4e8;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
         
         .evidence-title {
@@ -398,6 +400,9 @@
         .evidence-steps li {
             padding: 6px 0;
             color: #586069;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
         }
         
         .evidence-steps li:before {
@@ -417,6 +422,10 @@
             font-size: 0.9em;
             margin-top: 10px;
             transition: background 0.3s;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .console-link:hover {
@@ -460,7 +469,7 @@
     <div class="container">
         <div class="header">
             <h1>SOC2 Compliance Report</h1>
-            <div class="subtitle">Generated October 11, 2025 at 6:52 PM | Account: 1234567890123</div>
+            <div class="subtitle">Generated October 13, 2025 at 4:49 PM | Account: 1234567890</div>
         </div>
         
         <div class="score-card">
@@ -486,13 +495,13 @@
         
         
         <div class="disclaimer-banner">
-            <h3>⚠️ Important: Automated Technical Checks Only</h3>
+            <h3>Important: Automated Technical Checks Only</h3>
             <p>This report shows <strong>41 automated technical checks</strong> out of <strong>49 total controls</strong>. 
                The 31.7% score represents automated infrastructure checks only.</p>
             
             <div class="disclaimer-grid">
                 <div class="disclaimer-box automated">
-                    <h4>✓ Automated Checks (41 controls)</h4>
+                    <h4>Automated Checks (41 controls)</h4>
                     <ul>
                         <li>Infrastructure configurations</li>
                         <li>Access control policies</li>
@@ -503,7 +512,7 @@
                 </div>
                 
                 <div class="disclaimer-box manual">
-                    <h4>✗ Manual Documentation Required (8 controls)</h4>
+                    <h4>Manual Documentation Required (8 controls)</h4>
                     <ul>
                         <li>Organizational policies</li>
                         <li>Training records</li>
@@ -523,7 +532,7 @@
             </ul>
             
             <p style="margin-top: 15px; font-weight: 600; color: #721c24;">
-                ⚠️ THIS TOOL DOES NOT PROVIDE CERTIFICATION. 
+                THIS TOOL DOES NOT PROVIDE CERTIFICATION. 
                 Formal assessment by qualified auditor is required.
             </p>
         </div>
