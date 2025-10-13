@@ -33,26 +33,6 @@ Raw scan outputs with colors and formatting:
 
 - [Azure CMMC Console Output](./screenshots/azure-cmmc-scan-console-output-sample.png)
 
-## Real-World Results
-
-### Startup SOC2 Prep
-**Company:** 15-person SaaS startup  
-**Challenge:** First SOC2 audit in 90 days, no compliance team  
-**Result:** 26% to 98% compliant in 3 hours  
-**Saved:** $15,000 vs hiring consultant  
-
-### DoD Contractor CMMC
-**Company:** 50-person defense contractor  
-**Challenge:** CMMC Level 1 required for new contracts  
-**Result:** Self-assessment completed in 10 days  
-**Saved:** $25,000 vs C3PAO costs  
-
-### Enterprise Multi-Cloud
-**Company:** 500-person fintech  
-**Challenge:** AWS + Azure + M365 compliance across 3 teams  
-**Result:** Single compliance dashboard  
-**Saved:** Replaced 3 separate compliance tools ($60k/year)  
-
 ## Try It Yourself
 
 ```bash
