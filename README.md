@@ -1,10 +1,10 @@
 # AuditKit - Open-Source Compliance Scanner
 
-**Scan AWS, Azure, and M365 for SOC2, PCI-DSS, HIPAA, and CMMC compliance. Get audit-ready reports in minutes.**
+**Scan AWS, Azure, and M365 for SOC2, PCI-DSS, HIPAA, CMMC, and NIST 800-53 compliance. Get audit-ready reports in minutes.**
 
 [![GitHub stars](https://img.shields.io/github/stars/guardian-nexus/auditkit)](https://github.com/guardian-nexus/auditkit/stargazers)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/version-v0.6.6-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
+[![Version](https://img.shields.io/badge/version-v0.6.8-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
 ---
 
@@ -83,8 +83,33 @@ Interactive HTML reports with compliance scores, automated vs manual check break
 | **SOC2** | 64 controls | 64 controls | 100+ rules | Production |
 | **PCI-DSS v4.0** | 30 controls | 30 controls | Mapped | Production |
 | **CMMC Level 1** | 17 practices | 17 practices | Mapped | Production |
+| **NIST 800-53 Rev 5** | ~150 controls | ~150 controls | Mapped | **NEW** |
 | **HIPAA** | ~10 controls | ~10 controls | Basic | Experimental |
 | **CMMC Level 2** | 110 practices | 110 practices | Mapped | [Pro Only](https://auditkit.io/pro) |
+
+---
+
+## What's New in v0.6.8
+
+### NIST 800-53 Rev 5 Support
+
+AuditKit now maps your SOC2, PCI-DSS, and CMMC controls to NIST 800-53 control families. This gives you ~150 automated 800-53 checks without writing new code.
+
+```bash
+# Scan with 800-53 mapping
+./auditkit scan -provider aws -framework 800-53
+
+# Output shows NIST control IDs
+[FAIL] IA-2, IA-2(1), IA-5 - Authentication Controls (via CC6.6)
+[FAIL] AC-2, AC-3, AC-17 - Access Controls (via CC6.1)
+[FAIL] AU-2, AU-3, AU-12 - Audit Logging (via CC7.1)
+```
+
+**How it works:** A framework crosswalk maps your existing controls (like SOC2 CC6.6 for MFA) to equivalent NIST 800-53 controls (IA-2, IA-5). The output shows both the NIST ID and the source control.
+
+**What's included:** ~150 technical controls across 19 control families (AC, AU, IA, SC, SI, etc.)
+
+**What's not included:** Organizational controls like policies, procedures, and training (~850 controls that require manual documentation)
 
 ---
 
@@ -99,6 +124,11 @@ Interactive HTML reports with compliance scores, automated vs manual check break
 - CMMC Level 1 assessment (17 practices)
 - November 10, 2025 deadline compliance
 - Self-assessment before C3PAO review
+
+### For Federal Contractors
+- NIST 800-53 technical control assessment
+- See which controls pass/fail before formal audit
+- Maps to your existing SOC2/PCI compliance work
 
 ### For Enterprises
 - Single tool for AWS, Azure, and M365
@@ -139,6 +169,9 @@ go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
 ```bash
 # SOC2 scan
 auditkit scan -provider aws -framework soc2
+
+# NIST 800-53 scan
+auditkit scan -provider aws -framework 800-53
 
 # PCI-DSS scan
 auditkit scan -provider azure -framework pci
@@ -247,6 +280,12 @@ For detailed report with full evidence checklist:
 - Based on NIST SP 800-171 Rev 2
 - Level 2 (110 practices for CUI) available in Pro version
 
+### NIST 800-53 Rev 5
+- **~150 automated technical controls** via framework crosswalk
+- Maps SOC2, PCI-DSS, and CMMC controls to 800-53 families
+- Covers 19 control families: AC, AU, CA, CM, IA, IR, MA, MP, PE, PL, PM, PS, RA, SA, SC, SI, SR
+- Does not include ~850 organizational controls (policies, procedures, training)
+
 ### HIPAA Security Rule
 - **Experimental** - Basic technical safeguards only
 - Does not cover administrative or physical safeguards
@@ -281,6 +320,7 @@ AuditKit integrates with [CISA ScubaGear](https://github.com/cisagov/ScubaGear) 
 # Scanning
 auditkit scan                          # Default: AWS SOC2
 auditkit scan -provider azure          # Azure SOC2
+auditkit scan -framework 800-53        # NIST 800-53
 auditkit scan -framework pci           # PCI-DSS
 auditkit scan -framework cmmc          # CMMC Level 1
 auditkit scan -framework all           # All frameworks
@@ -356,15 +396,16 @@ export AZURE_SUBSCRIPTION_ID="..."
 ## Roadmap
 
 **Completed:**
+- [x] v0.6.8 - NIST 800-53 Rev 5 support (Oct 2025)
 - [x] v0.6.6 - Enhanced output control (Oct 2025)
 - [x] v0.6.4 - Added --full flag (Oct 2025)
 - [x] v0.5.0 - Azure support (Sept 2025)
 - [x] v0.4.0 - Multi-framework support (Sept 2025)
 
 **Planned:**
-- [ ] v0.7.0 - NIST 800-53 support (Q4 2025)
+- [ ] v0.7.0 - Prowler integration for complete 800-53 coverage (Q4 2025)
 - [ ] v0.7.1 - GCP support (Q4 2025)
-- [ ] v0.8.0 - Prowler integration (Q1 2026)
+- [ ] v0.8.0 - FedRAMP baseline analysis (Q1 2026)
 - [ ] v0.9.0 - Kubernetes compliance (Q1 2026)
 - [ ] v1.0.0 - Automated evidence collection (Q2 2026)
 
@@ -380,6 +421,9 @@ A: No. It checks compliance controls, not vulnerabilities. Use Prowler/Scout Sui
 
 **Q: What's the difference between CMMC Level 1 and Level 2?**  
 A: Level 1 (17 practices) protects Federal Contract Information (FCI). Level 2 (110 practices) protects Controlled Unclassified Information (CUI) and is required for most DoD contracts.
+
+**Q: What does the NIST 800-53 support include?**  
+A: ~150 automated technical controls mapped from your existing SOC2/PCI/CMMC checks. It does NOT include the ~850 organizational controls (policies, procedures, training) that require manual documentation.
 
 **Q: Why is my compliance score low?**  
 A: Enable security services first:
@@ -401,7 +445,7 @@ A: Check out [AuditKit Pro](https://auditkit.io/pro) for 110 practices covering 
 ## Contributing
 
 We need help with:
-- Additional framework mappings (NIST 800-53, FedRAMP, GDPR)
+- Additional framework mappings (FedRAMP, GDPR)
 - GCP provider implementation
 - Prowler integration
 - Automated evidence collection
@@ -422,7 +466,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 1. **Technical controls only** - Does not cover organizational policies or documentation
 2. **Not a substitute for auditors** - CPA firms still required for certification
 3. **Framework maturity:**
-   - Production ready: SOC2, PCI-DSS, CMMC Level 1
+   - Production ready: SOC2, PCI-DSS, CMMC Level 1, NIST 800-53 (technical controls)
    - Experimental: HIPAA, ISO 27001
 4. **Manual verification required** - Some controls need human review (e.g., physical security)
 5. **CMMC Level 2** - Contact us for 110-practice CUI requirements

@@ -2,6 +2,42 @@
 
 All notable changes to AuditKit will be documented in this file.
 
+## [v0.6.8] - 2025-10-13
+
+### Added
+- **NIST 800-53 Rev 5 support** via framework crosswalk
+  - Maps SOC2, PCI-DSS, and CMMC controls to NIST 800-53 control families
+  - ~150 automated checks across 19 control families
+  - Works with both AWS and Azure providers
+  - Shows source control in output (e.g., "via CC6.6")
+- New `pkg/mappings/crosswalk.go` - Framework crosswalk engine
+- New `pkg/mappings/framework-crosswalk.yaml` - SOC2/PCI/CMMC to 800-53 mappings
+- 800-53 specific PDF report sections (checklist, evidence guide)
+- 800-53 framework validation in main.go
+
+### Changed
+- Control filtering logic now supports crosswalk-based framework mapping
+- PDF generator updated to handle 800-53 control IDs
+- Long control IDs (>60 chars) now truncated to prevent page overflow
+- Unicode characters in control names cleaned for PDF compatibility
+
+### Technical
+- Added `Get800_53ByControlID()` - Direct control ID lookup
+- Added `Get800_53StringByControlID()` - Fallback for controls without framework maps
+- Updated `ControlHas800_53()` - Tries framework map first, then control ID
+- Enhanced `cleanString()` function for better unicode handling
+
+### Documentation
+- Updated README with NIST 800-53 section
+- Added 800-53 examples and usage patterns
+
+## [v0.6.7] - 2025-10-12
+
+### Fixed
+- PDF generation errors with special characters
+- Control ID display in evidence collection guides
+- Framework label detection for CMMC levels
+
 ## [v0.6.6] - 2025-10-12
 
 ### Fixed

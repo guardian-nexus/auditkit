@@ -18,9 +18,10 @@ import (
 	"github.com/guardian-nexus/auditkit/scanner/pkg/report"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/tracker"
 	"github.com/guardian-nexus/auditkit/scanner/pkg/updater"
+	"github.com/guardian-nexus/auditkit/scanner/pkg/mappings"
 )
 
-const CurrentVersion = "v0.6.7"
+const CurrentVersion = "v0.6.8"
 
 type ComplianceResult struct {
 	Timestamp       time.Time       `json:"timestamp"`
@@ -131,7 +132,7 @@ Usage:
 Options:
   -provider string   Cloud provider: aws, azure (default "aws")
   -profile string    AWS profile or Azure subscription (default "default")
-  -framework string  Compliance framework: soc2, pci, cmmc, hipaa, all (default "all")
+  -framework string  Compliance framework: soc2, pci, cmmc, hipaa, 800-53, all (default "all")
   -format string     Output format (text, json, html, pdf) (default "text")
   -output string     Output file (default: stdout)
   -services string   Services to scan (default "all")
@@ -145,6 +146,7 @@ Frameworks:
   pci     PCI-DSS v4.0 (full coverage)
   cmmc    CMMC Level 1 (17 practices) & Level 2 (110 practices)
   hipaa   HIPAA Security Rule (experimental)
+  800-53  NIST 800-53 Rev 5 (via framework crosswalk)
   all     Run all available frameworks
 
 Integration Examples:
@@ -160,6 +162,9 @@ Examples:
 
   # Azure PCI-DSS scan
   auditkit scan -provider azure -framework pci
+
+  # NIST 800-53 scan
+  auditkit scan -provider aws -framework 800-53
 
   # Generate PDF report
   auditkit scan -format pdf -output report.pdf
@@ -185,10 +190,8 @@ func runIntegration(source, file, format, output string, verbose bool) {
 			fmt.Fprintf(os.Stderr, "Loading ScubaGear integration...\n")
 		}
 
-		// Get mappings directory
 		mappingsDir := filepath.Join("mappings", "scubagear")
 		
-		// Check if mappings exist
 		if _, err := os.Stat(mappingsDir); os.IsNotExist(err) {
 			fmt.Fprintf(os.Stderr, "Error: ScubaGear mappings not found at %s\n", mappingsDir)
 			fmt.Fprintf(os.Stderr, "Make sure entra.json exists in mappings/scubagear/\n")
@@ -220,10 +223,8 @@ func runIntegration(source, file, format, output string, verbose bool) {
 			fmt.Fprintf(os.Stderr, "Found %d M365 findings\n", len(results))
 		}
 
-		// Convert to ComplianceResult format
 		integrationResult := convertIntegrationResults(results, "M365")
 
-		// Output results
 		switch format {
 		case "text":
 			printIntegrationSummary(integrationResult)
@@ -311,7 +312,7 @@ func convertIntegrationResults(results []integrations.IntegrationResult, provide
 	return ComplianceResult{
 		Timestamp:       time.Now(),
 		Provider:        provider,
-		Framework:       "soc2", // ScubaGear results map to multiple frameworks
+		Framework:       "soc2",
 		AccountID:       "M365-tenant",
 		Score:           score,
 		TotalControls:   len(controls),
@@ -363,18 +364,17 @@ func printIntegrationSummary(result ComplianceResult) {
 	fmt.Printf("Scan Time: %s\n", result.Timestamp.Format("2006-01-02 15:04:05"))
 	fmt.Printf("\n")
 	
-	scoreColor := "\033[32m" // green
+	scoreColor := "\033[32m"
 	if result.Score < 80 {
-		scoreColor = "\033[33m" // yellow
+		scoreColor = "\033[33m"
 	}
 	if result.Score < 60 {
-		scoreColor = "\033[31m" // red
+		scoreColor = "\033[31m"
 	}
 	fmt.Printf("Compliance Score: %s%.1f%%\033[0m\n", scoreColor, result.Score)
 	fmt.Printf("Controls Passed: %d/%d\n", result.PassedControls, result.TotalControls)
 	fmt.Printf("\n")
 
-	// Show failed controls
 	if result.FailedControls > 0 {
 		fmt.Printf("\033[31mFailed M365 Controls:\033[0m\n")
 		fmt.Printf("------------------------\n")
@@ -393,7 +393,6 @@ func printIntegrationSummary(result ComplianceResult) {
 		}
 	}
 
-	// Show passed controls
 	fmt.Printf("\n\033[32mPassed Controls:\033[0m\n")
 	fmt.Printf("-------------------\n")
 	for _, control := range result.Controls {
@@ -416,18 +415,19 @@ func printIntegrationSummary(result ComplianceResult) {
 }
 
 func runScan(provider, profile, framework, format, output string, verbose bool, full bool, services string) {
-	// Validate framework
 	validFrameworks := map[string]bool{
-		"soc2":  true,
-		"pci":   true,
-		"hipaa": true,
-		"cmmc":  true,
-		"all":   true,
+		"soc2":       true,
+		"pci":        true,
+		"hipaa":      true,
+		"cmmc":       true,
+		"800-53":     true,
+		"nist800-53": true,
+		"all":        true,
 	}
 
 	if !validFrameworks[strings.ToLower(framework)] {
 		fmt.Fprintf(os.Stderr, "Error: Invalid framework: %s\n", framework)
-		fmt.Fprintf(os.Stderr, "Valid options: soc2, pci, cmmc (Level 1 only), hipaa, all\n")
+		fmt.Fprintf(os.Stderr, "Valid options: soc2, pci, cmmc (Level 1 only), hipaa, 800-53, all\n")
 		fmt.Fprintf(os.Stderr, "\n")
 		fmt.Fprintf(os.Stderr, "CMMC Level 2 requires upgrade to Pro:\n")
 		fmt.Fprintf(os.Stderr, "  Visit: https://auditkit.io/pro\n")
@@ -442,10 +442,8 @@ func runScan(provider, profile, framework, format, output string, verbose bool, 
 
 	result := performScan(provider, profile, framework, verbose, services)
 
-	// Save progress for tracking
 	saveProgress(result.AccountID, result.Score, result.Controls, framework)
 
-	// FIXED SUMMARY - Count automated vs manual
 	automatedChecks := result.PassedControls + result.FailedControls
 	manualChecks := 0
 	for _, control := range result.Controls {
@@ -627,6 +625,17 @@ func performScan(provider, profile, framework string, verbose bool, services str
 	critical := 0
 	high := 0
 	
+	// Load crosswalk once if needed for 800-53
+	var crosswalk *mappings.Crosswalk
+	var crosswalkErr error
+	requestedUpper := strings.ToUpper(framework)
+	if requestedUpper == "800-53" || requestedUpper == "NIST800-53" {
+		crosswalk, crosswalkErr = mappings.GetCrosswalk()
+		if crosswalkErr != nil && verbose {
+			fmt.Fprintf(os.Stderr, "Warning: Could not load 800-53 crosswalk: %v\n", crosswalkErr)
+		}
+	}
+	
 	for _, result := range scanResults {
 		var control ControlResult
 		
@@ -673,48 +682,74 @@ func performScan(provider, profile, framework string, verbose bool, services str
 		}
 		
 		// Filter by framework if not "all"
-		if framework != "all" && control.Frameworks != nil && len(control.Frameworks) > 0 {
-		    // Check if control has the requested framework
-		    hasRequestedFramework := false
-		    requestedUpper := strings.ToUpper(framework)
-		    
-		    for fw := range control.Frameworks {
-		        fwUpper := strings.ToUpper(fw)
-		        // Handle framework name variations
-		        if fwUpper == requestedUpper || 
-		           (requestedUpper == "PCI" && fwUpper == "PCI-DSS") ||
-		           (requestedUpper == "PCI-DSS" && fwUpper == "PCI") ||
-		           (requestedUpper == "SOC2" && (fwUpper == "SOC2" || fwUpper == "SOC 2")) ||
-		           (requestedUpper == "CMMC" && fwUpper == "CMMC") {
-		            hasRequestedFramework = true
-		            break
-		        }
-		    }
-		    
-		    // Only skip if control has framework mappings but NOT this framework
-		    if !hasRequestedFramework {
-		        continue
-		    }
+		if framework != "all" {
+			hasRequestedFramework := false
+
+			// Special handling for 800-53 using crosswalk
+			if (requestedUpper == "800-53" || requestedUpper == "NIST800-53") && crosswalk != nil {
+				// Try to derive 800-53 IDs (works with OR without Frameworks map)
+				nist80053IDs := crosswalk.Get800_53String(control.Frameworks, control.ID)
+				
+				if nist80053IDs != "" {
+					hasRequestedFramework = true
+					originalID := control.ID
+					
+					// Replace control ID with 800-53 IDs
+					control.ID = nist80053IDs
+					
+					// Update control name to show source
+					control.Name = fmt.Sprintf("%s (via %s)", control.Name, originalID)
+					
+					// Add to frameworks map
+					if control.Frameworks == nil {
+						control.Frameworks = make(map[string]string)
+					}
+					control.Frameworks["NIST800-53"] = nist80053IDs
+					control.Frameworks["Source"] = originalID
+					
+					if verbose {
+						fmt.Fprintf(os.Stderr, "✓ Mapped %s → %s\n", originalID, nist80053IDs)
+					}
+				}
+			} else if control.Frameworks != nil && len(control.Frameworks) > 0 {
+				// Standard framework matching for other frameworks (only if Frameworks exists)
+				for fw := range control.Frameworks {
+					fwUpper := strings.ToUpper(fw)
+					if fwUpper == requestedUpper ||
+						(requestedUpper == "PCI" && fwUpper == "PCI-DSS") ||
+						(requestedUpper == "PCI-DSS" && fwUpper == "PCI") ||
+						(requestedUpper == "SOC2" && fwUpper == "SOC2") ||
+						(requestedUpper == "CMMC" && fwUpper == "CMMC") ||
+						(requestedUpper == "HIPAA" && fwUpper == "HIPAA") {
+						hasRequestedFramework = true
+						break
+					}
+				}
+			}
+
+			if !hasRequestedFramework {
+				continue
+			}
 		}
-		
+
 		controls = append(controls, control)
 		
 		if control.Status == "PASS" {
-		    passed++
+			passed++
 		} else if control.Status == "FAIL" {
-		    failed++
-		    if control.Severity == "CRITICAL" {
-		        critical++
-		    } else if control.Severity == "HIGH" {
-		        high++
-		    }
+			failed++
+			if control.Severity == "CRITICAL" {
+				critical++
+			} else if control.Severity == "HIGH" {
+				high++
+			}
 		}
 	}
 	
 	score := 0.0
 	automatedChecks := passed + failed
 	if automatedChecks > 0 {
-	    score = float64(passed) / float64(automatedChecks) * 100
+		score = float64(passed) / float64(automatedChecks) * 100
 	}
 	
 	return ComplianceResult{
@@ -836,7 +871,7 @@ func showProgress(provider, profile string) {
 		}
 	}
 	
-	fmt.Println("\nTip: Run 'auditkit scan -framework pci' to check PCI-DSS compliance")
+	fmt.Println("\nTip: Run 'auditkit scan -framework 800-53' to check NIST 800-53 compliance")
 }
 
 func compareScan(provider, profile string) {
@@ -1097,7 +1132,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 	fmt.Printf("\n")
 	
 	if result.FailedControls > 0 {
-		// CRITICAL failures with full details
 		hasCritical := false
 		criticalShown := 0
 		for _, control := range result.Controls {
@@ -1135,7 +1169,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 			}
 		}
 		
-		// HIGH priority failures with full details
 		hasHigh := false
 		highShown := 0
 		for _, control := range result.Controls {
@@ -1173,7 +1206,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 			}
 		}
 		
-		// Other failures (condensed)
 		hasOther := false
 		otherShown := 0
 		otherCount := 0
@@ -1209,7 +1241,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 			}
 		}
 		
-		// INFO status (guidance only)
 		hasInfo := false
 		infoShown := 0
 		infoCount := 0
@@ -1246,7 +1277,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 		}
 	}
 	
-	// Passed controls (condensed)
 	fmt.Printf("\033[32mPassed Controls:\033[0m\n")
 	fmt.Printf("===================\n")
 	passCount := 0
@@ -1264,7 +1294,6 @@ func printTextSummary(result ComplianceResult, full bool) {
 		}
 	}
 	
-	// Recommendations
 	if len(result.Recommendations) > 0 {
 		fmt.Printf("\nPriority Action Items:\n")
 		fmt.Printf("=========================\n")

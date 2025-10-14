@@ -85,14 +85,22 @@ func generateCoverPage(pdf *gofpdf.Fpdf, result ComplianceResult) {
 	// Framework Title with Level Detection
 	frameworkLabel := "Multi-Framework Compliance Report"
 	if result.Framework != "" && result.Framework != "all" {
-		if result.Framework == "cmmc" {
-			// Detect CMMC level based on control count
+		switch strings.ToLower(result.Framework) {
+		case "cmmc":
 			if result.TotalControls <= 17 {
 				frameworkLabel = "CMMC Level 1 Compliance Report"
 			} else {
 				frameworkLabel = "CMMC Level 2 Compliance Report"
 			}
-		} else {
+		case "800-53", "nist800-53":
+			frameworkLabel = "NIST 800-53 Rev 5 Compliance Report"
+		case "pci", "pci-dss":
+			frameworkLabel = "PCI-DSS Compliance Report"
+		case "hipaa":
+			frameworkLabel = "HIPAA Security Rule Compliance Report"
+		case "soc2":
+			frameworkLabel = "SOC2 Type II Compliance Report"
+		default:
 			frameworkLabel = strings.ToUpper(result.Framework) + " Compliance Report"
 		}
 	}
@@ -413,18 +421,21 @@ func generateCriticalIssues(pdf *gofpdf.Fpdf, result ComplianceResult) {
 	
 	// Dynamic title based on framework and level
 	criticalTitle := "Critical Findings"
-	if result.Framework == "cmmc" {
+	switch strings.ToLower(result.Framework) {
+	case "cmmc":
 		if result.TotalControls <= 17 {
 			criticalTitle = "CMMC Level 1 Critical Findings"
 		} else {
 			criticalTitle = "CMMC Level 2 Critical Findings"
 		}
-	} else if result.Framework == "pci" {
+	case "pci", "pci-dss":
 		criticalTitle = "PCI-DSS Critical Violations"
-	} else if result.Framework == "hipaa" {
+	case "hipaa":
 		criticalTitle = "HIPAA Security Rule Violations"
-	} else if result.Framework == "soc2" {
+	case "soc2":
 		criticalTitle = "SOC2 Critical Control Failures"
+	case "800-53", "nist800-53":
+		criticalTitle = "NIST 800-53 Critical Findings"
 	}
 	
 	pdf.CellFormat(0, 12, criticalTitle, "", 1, "L", false, 0, "")
@@ -462,10 +473,16 @@ func generateControlCard(pdf *gofpdf.Fpdf, control ControlResult, number int, fr
 	pdf.SetFillColor(254, 242, 242)
 	pdf.Rect(15, startY, 180, 0, "F")
 	
-	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFont("Arial", "B", 11)
 	pdf.SetTextColor(220, 53, 69)
 	
-	controlLabel := fmt.Sprintf("%d. [%s] %s", number, control.ID, control.Name)
+	// Truncate long control IDs for better display
+	displayID := control.ID
+	if len(displayID) > 70 {
+		displayID = displayID[:67] + "..."
+	}
+	
+	controlLabel := fmt.Sprintf("%d. [%s] %s", number, displayID, control.Name)
 	
 	pdf.SetXY(20, startY+3)
 	pdf.MultiCell(170, 6, controlLabel, "", "L", false)
@@ -512,12 +529,15 @@ func generateEvidenceGuideComplete(pdf *gofpdf.Fpdf, result ComplianceResult) {
 	pdf.SetTextColor(108, 117, 125)
 	
 	evidenceNote := "Your auditor requires evidence for ALL controls. Follow these steps:"
-	if result.Framework == "cmmc" {
+	switch strings.ToLower(result.Framework) {
+	case "cmmc":
 		if result.TotalControls <= 17 {
 			evidenceNote = "C3PAO assessor requires evidence for ALL CMMC Level 1 practices:"
 		} else {
 			evidenceNote = "C3PAO assessor requires evidence for ALL CMMC Level 2 practices:"
 		}
+	case "800-53", "nist800-53":
+		evidenceNote = "Your auditor requires evidence for ALL NIST 800-53 controls. Follow these steps:"
 	}
 	
 	pdf.MultiCell(0, 5, evidenceNote, "", "L", false)
@@ -601,17 +621,18 @@ func generateEvidenceCard(pdf *gofpdf.Fpdf, control ControlResult, number int) {
 	pdf.SetDrawColor(222, 226, 230)
 	pdf.Rect(15, startY, 180, 0, "FD")
 	
-	pdf.SetFont("Arial", "B", 11)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetTextColor(0, 0, 0)
 	pdf.SetXY(20, startY+3)
 	
-	// Clean ALL special characters including unicode arrows
-	cleanID := strings.ReplaceAll(control.ID, "→", "->")
-	cleanID = strings.ReplaceAll(cleanID, "•", "-")
-	cleanName := strings.ReplaceAll(control.Name, "→", "->")
-	cleanName = strings.ReplaceAll(cleanName, "•", "-")
+	// Clean ALL special characters and truncate long IDs
+	cleanID := cleanString(control.ID)
+	if len(cleanID) > 60 {
+		cleanID = cleanID[:57] + "..."
+	}
+	cleanName := cleanString(control.Name)
 	
-	pdf.CellFormat(0, 6, fmt.Sprintf("%d. %s - %s", number, cleanID, cleanName), "", 1, "L", false, 0, "")
+	pdf.MultiCell(170, 5, fmt.Sprintf("%d. %s - %s", number, cleanID, cleanName), "", "L", false)
 	
 	if control.ConsoleURL != "" {
 		pdf.SetFont("Arial", "", 9)
@@ -624,11 +645,7 @@ func generateEvidenceCard(pdf *gofpdf.Fpdf, control ControlResult, number int) {
 		pdf.SetFont("Arial", "", 9)
 		pdf.SetTextColor(73, 80, 87)
 		
-		// Clean ALL unicode characters
-		cleanGuide := strings.ReplaceAll(control.ScreenshotGuide, "→", "->")
-		cleanGuide = strings.ReplaceAll(cleanGuide, "•", "-")
-		cleanGuide = strings.ReplaceAll(cleanGuide, "â†'", "->")  // Corrupted encoding
-		cleanGuide = strings.ReplaceAll(cleanGuide, "â", "")       // Remove remaining artifacts
+		cleanGuide := cleanString(control.ScreenshotGuide)
 		
 		steps := strings.Split(cleanGuide, "\n")
 		for _, step := range steps {
@@ -658,41 +675,31 @@ func generateInfoCard(pdf *gofpdf.Fpdf, control ControlResult, number int) {
 	pdf.SetDrawColor(3, 102, 214)
 	pdf.SetLineWidth(0.3)
 	
-	pdf.SetFont("Arial", "B", 11)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetTextColor(3, 102, 214)
 	pdf.SetXY(20, startY+3)
 	
-	// Clean ALL special characters including unicode arrows
-	cleanID := strings.ReplaceAll(control.ID, "→", "->")
-	cleanID = strings.ReplaceAll(cleanID, "•", "-")
-	cleanID = strings.ReplaceAll(cleanID, "â†'", "->")
-	cleanID = strings.ReplaceAll(cleanID, "â", "")
-	cleanName := strings.ReplaceAll(control.Name, "→", "->")
-	cleanName = strings.ReplaceAll(cleanName, "•", "-")
-	cleanName = strings.ReplaceAll(cleanName, "â†'", "->")
-	cleanName = strings.ReplaceAll(cleanName, "â", "")
+	// Clean and truncate
+	cleanID := cleanString(control.ID)
+	if len(cleanID) > 60 {
+		cleanID = cleanID[:57] + "..."
+	}
+	cleanName := cleanString(control.Name)
 	
-	pdf.MultiCell(170, 6, fmt.Sprintf("%d. [INFO] %s - %s", number, cleanID, cleanName), "", "L", false)
+	pdf.MultiCell(170, 5, fmt.Sprintf("%d. [INFO] %s - %s", number, cleanID, cleanName), "", "L", false)
 	
-	// Evidence guidance
 	pdf.SetFont("Arial", "", 10)
 	pdf.SetTextColor(73, 80, 87)
 	pdf.SetX(23)
 	
-	cleanEvidence := strings.ReplaceAll(control.Evidence, "→", "->")
-	cleanEvidence = strings.ReplaceAll(cleanEvidence, "â†'", "->")
-	cleanEvidence = strings.ReplaceAll(cleanEvidence, "â", "")
+	cleanEvidence := cleanString(control.Evidence)
 	pdf.MultiCell(167, 5, fmt.Sprintf("Documentation Required: %s", cleanEvidence), "", "L", false)
 	
-	// Screenshot guide
 	if control.ScreenshotGuide != "" {
 		pdf.SetFont("Arial", "I", 9)
 		pdf.SetTextColor(108, 117, 125)
 		
-		cleanGuide := strings.ReplaceAll(control.ScreenshotGuide, "→", "->")
-		cleanGuide = strings.ReplaceAll(cleanGuide, "•", "-")
-		cleanGuide = strings.ReplaceAll(cleanGuide, "â†'", "->")
-		cleanGuide = strings.ReplaceAll(cleanGuide, "â", "")
+		cleanGuide := cleanString(control.ScreenshotGuide)
 		
 		steps := strings.Split(cleanGuide, "\n")
 		for _, step := range steps {
@@ -704,7 +711,6 @@ func generateInfoCard(pdf *gofpdf.Fpdf, control ControlResult, number int) {
 		}
 	}
 	
-	// Console URL
 	if control.ConsoleURL != "" {
 		pdf.SetFont("Arial", "", 9)
 		pdf.SetTextColor(3, 102, 214)
@@ -720,23 +726,47 @@ func generateInfoCard(pdf *gofpdf.Fpdf, control ControlResult, number int) {
 	pdf.SetY(endY + 3)
 }
 
+// cleanString removes all problematic unicode characters
+func cleanString(s string) string {
+	// Replace common unicode with ASCII equivalents
+	s = strings.ReplaceAll(s, "→", "->")
+	s = strings.ReplaceAll(s, "•", "-")
+	s = strings.ReplaceAll(s, "'", "'")
+	s = strings.ReplaceAll(s, "'", "'")
+	s = strings.ReplaceAll(s, "—", "-")
+	s = strings.ReplaceAll(s, "–", "-")
+	
+	// Remove any remaining non-ASCII characters
+	var result strings.Builder
+	for _, r := range s {
+		if r <= 127 {
+			result.WriteRune(r)
+		}
+	}
+	
+	return result.String()
+}
+
 func generateEvidenceChecklist(pdf *gofpdf.Fpdf, result ComplianceResult) {
 	pdf.AddPage()
 	
 	// Dynamic title based on framework
 	checklistTitle := "Evidence Checklist"
-	if result.Framework == "cmmc" {
+	switch strings.ToLower(result.Framework) {
+	case "cmmc":
 		if result.TotalControls <= 17 {
 			checklistTitle = "CMMC Level 1 Evidence Checklist"
 		} else {
 			checklistTitle = "CMMC Level 2 Evidence Checklist"
 		}
-	} else if result.Framework == "pci" {
+	case "pci", "pci-dss":
 		checklistTitle = "PCI-DSS Evidence Checklist"
-	} else if result.Framework == "hipaa" {
+	case "hipaa":
 		checklistTitle = "HIPAA Evidence Checklist"
-	} else if result.Framework == "soc2" {
+	case "soc2":
 		checklistTitle = "SOC2 Evidence Checklist"
+	case "800-53", "nist800-53":
+		checklistTitle = "NIST 800-53 Evidence Checklist"
 	}
 	
 	pdf.SetFont("Arial", "B", 20)
@@ -755,8 +785,7 @@ func generateEvidenceChecklist(pdf *gofpdf.Fpdf, result ComplianceResult) {
 	
 	for _, item := range checklistItems {
 		pdf.SetX(20)
-		// Clean special characters
-		cleanItem := strings.ReplaceAll(item, "->", "->")
+		cleanItem := cleanString(item)
 		pdf.MultiCell(170, 6, cleanItem, "", "L", false)
 	}
 }
@@ -795,7 +824,6 @@ func getFrameworkChecklist(framework string, totalControls int) []string {
 		}
 	case "cmmc":
 		if totalControls <= 17 {
-			// CMMC Level 1
 			return []string{
 				"[ ] Access Control Policy (AC.L1-3.1.1 - 3.1.2)",
 				"[ ] Identification and Authentication (IA.L1-3.5.1 - 3.5.2)",
@@ -808,24 +836,48 @@ func getFrameworkChecklist(framework string, totalControls int) []string {
 				"For CMMC Level 2 (CUI Protection - 110 additional practices):",
 				"Visit auditkit.io/pro",
 			}
-		} else {
-			// CMMC Level 2
-			return []string{
-				"[ ] Access Control Policy (AC.L2-3.1.1 - 3.1.22)",
-				"[ ] Awareness and Training Records (AT.L2-3.2.1 - 3.2.3)",
-				"[ ] Audit and Accountability Logs (AU.L2-3.3.1 - 3.3.9)",
-				"[ ] Configuration Management Documentation (CM.L2-3.4.1 - 3.4.9)",
-				"[ ] Identification and Authentication (IA.L2-3.5.1 - 3.5.11)",
-				"[ ] Incident Response Plan (IR.L2-3.6.1 - 3.6.3)",
-				"[ ] Maintenance Documentation (MA.L2-3.7.1 - 3.7.6)",
-				"[ ] Media Protection Procedures (MP.L2-3.8.1 - 3.8.9)",
-				"[ ] Personnel Security (PS.L2-3.9.1 - 3.9.2)",
-				"[ ] Physical Protection (PE.L2-3.10.1 - 3.10.6)",
-				"[ ] Risk Assessment Documentation (RA.L2-3.11.1 - 3.11.4)",
-				"[ ] Security Assessment Reports (CA.L2-3.12.1 - 3.12.5)",
-				"[ ] System and Communications Protection (SC.L2-3.13.1 - 3.13.16)",
-				"[ ] System and Information Integrity (SI.L2-3.14.1 - 3.14.7)",
-			}
+		}
+		return []string{
+			"[ ] Access Control Policy (AC.L2-3.1.1 - 3.1.22)",
+			"[ ] Awareness and Training Records (AT.L2-3.2.1 - 3.2.3)",
+			"[ ] Audit and Accountability Logs (AU.L2-3.3.1 - 3.3.9)",
+			"[ ] Configuration Management Documentation (CM.L2-3.4.1 - 3.4.9)",
+			"[ ] Identification and Authentication (IA.L2-3.5.1 - 3.5.11)",
+			"[ ] Incident Response Plan (IR.L2-3.6.1 - 3.6.3)",
+			"[ ] Maintenance Documentation (MA.L2-3.7.1 - 3.7.6)",
+			"[ ] Media Protection Procedures (MP.L2-3.8.1 - 3.8.9)",
+			"[ ] Personnel Security (PS.L2-3.9.1 - 3.9.2)",
+			"[ ] Physical Protection (PE.L2-3.10.1 - 3.10.6)",
+			"[ ] Risk Assessment Documentation (RA.L2-3.11.1 - 3.11.4)",
+			"[ ] Security Assessment Reports (CA.L2-3.12.1 - 3.12.5)",
+			"[ ] System and Communications Protection (SC.L2-3.13.1 - 3.13.16)",
+			"[ ] System and Information Integrity (SI.L2-3.14.1 - 3.14.7)",
+		}
+	case "800-53", "nist800-53":
+		return []string{
+			"[ ] System Security Plan (SSP) Documentation",
+			"[ ] Access Control Policy and Procedures (AC family)",
+			"[ ] Awareness and Training Records (AT family)",
+			"[ ] Audit and Accountability Logs (AU family)",
+			"[ ] Security Assessment and Authorization (CA family)",
+			"[ ] Configuration Management Records (CM family)",
+			"[ ] Contingency Planning Documentation (CP family)",
+			"[ ] Identification and Authentication Settings (IA family)",
+			"[ ] Incident Response Plan and Records (IR family)",
+			"[ ] System Maintenance Documentation (MA family)",
+			"[ ] Media Protection Procedures (MP family)",
+			"[ ] Physical and Environmental Protection (PE family)",
+			"[ ] Planning Documents (PL family)",
+			"[ ] Program Management Records (PM family)",
+			"[ ] Personnel Security Documentation (PS family)",
+			"[ ] Risk Assessment Reports (RA family)",
+			"[ ] System and Services Acquisition (SA family)",
+			"[ ] System and Communications Protection (SC family)",
+			"[ ] System and Information Integrity (SI family)",
+			"",
+			"Note: This is FREE version with about 150 controls.",
+			"For complete 1000 plus control coverage integrate with Prowler:",
+			"  prowler aws -c 800-53-r5 -M json -o prowler.json",
 		}
 	default:
 		return []string{

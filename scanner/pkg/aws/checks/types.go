@@ -148,7 +148,6 @@ func FormatFrameworkRequirements(frameworks map[string]string) string {
 	return result
 }
 
-// Priority definitions - NO EMOJIS, professional text only
 var (
 	PriorityCritical = Priority{
 		Level:     "CRITICAL",
@@ -186,7 +185,6 @@ var (
 	}
 )
 
-// Common evidence messages without emojis
 const (
 	CriticalViolation = "CRITICAL VIOLATION:"
 	HighRisk          = "HIGH RISK:"

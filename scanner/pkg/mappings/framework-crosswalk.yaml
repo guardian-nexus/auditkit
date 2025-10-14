@@ -1,0 +1,244 @@
+# Framework Crosswalk - Maps existing framework controls to NIST 800-53 Rev 5
+# This enables 800-53 scanning without modifying individual check files
+#
+# Usage: When a user runs -framework 800-53, scanner uses this crosswalk to
+# determine which checks map to 800-53 controls
+
+# SOC2 Common Criteria → NIST 800-53 Rev 5
+soc2_to_800_53:
+  # Control Environment (CC1)
+  CC1.1: [PM-1, PM-9]           # Governance and risk management
+  CC1.2: [CA-7, PM-14]          # Board oversight
+  CC1.3: [PM-11]                # Organizational structure
+  CC1.4: [AT-2, AT-3]           # Personnel competence
+  CC1.5: [PS-7]                 # Accountability
+  
+  # Communication (CC2)
+  CC2.1: [SI-5]                 # Security alerts and advisories
+  CC2.2: [AT-2]                 # Internal communication
+  CC2.3: [SI-5]                 # External communication
+  
+  # Risk Assessment (CC3)
+  CC3.1: [RA-1, RA-3]           # Risk assessment process
+  CC3.2: [RA-3]                 # Risk identification
+  CC3.3: [RA-3]                 # Risk analysis
+  CC3.4: [RA-3, PM-9]           # Risk management
+  
+  # Monitoring (CC4)
+  CC4.1: [CA-7, SI-4]           # Continuous monitoring
+  CC4.2: [CA-5]                 # Deficiency evaluation
+  
+  # Control Activities (CC5)
+  CC5.1: [CM-1]                 # Configuration management
+  CC5.2: [SC-7]                 # Technology controls
+  CC5.3: [CM-2]                 # Policy implementation
+  
+  # Logical Access (CC6)
+  CC6.1: [AC-2, AC-3, AC-17]    # Access controls
+  CC6.2: [SC-7, AC-4]           # Network security / boundary protection
+  CC6.3: [SC-13, SC-28]         # Encryption at rest
+  CC6.6: [IA-2, IA-2(1), IA-5]  # MFA and authentication
+  CC6.7: [IA-5, IA-5(1)]        # Password policy
+  CC6.8: [IA-5(1)]              # Credential management / key rotation
+  
+  # System Operations (CC7)
+  CC7.1: [AU-2, AU-3, AU-12]    # Audit logging
+  CC7.2: [SI-4, IR-4]           # Incident detection
+  CC7.3: [SI-4]                 # Security event analysis
+  CC7.4: [AU-6]                 # Performance monitoring
+  CC7.5: [RA-5]                 # Vulnerability management
+  
+  # Change Management (CC8)
+  CC8.1: [CM-3, SA-10]          # Change management
+  
+  # Risk Mitigation (CC9)
+  CC9.1: [CP-9, CP-10]          # Backup and recovery
+  CC9.2: [SA-9]                 # Third-party risk
+
+# PCI-DSS v4.0 → NIST 800-53 Rev 5
+pci_to_800_53:
+  # Requirement 1: Network Security
+  PCI-1.2.1: [SC-7, SC-7(3)]    # Network segmentation
+  PCI-1.3.1: [AC-4, SC-7(5)]    # No direct public access to CDE
+  PCI-1.3.2: [SC-7(11)]         # Restrict inbound traffic
+  
+  # Requirement 2: Secure Configuration
+  PCI-2.2.2: [CM-6, CM-7]       # Remove default accounts
+  
+  # Requirement 3: Protect Cardholder Data
+  PCI-3.4: [SC-13, SC-28]       # Encryption at rest
+  PCI-3.5: [SC-12]              # Cryptographic key management
+  PCI-3.4.1: [SC-28(1)]         # Disk encryption
+  
+  # Requirement 4: Encryption in Transit
+  PCI-4.1: [SC-8, SC-8(1)]      # TLS/encryption in transit
+  
+  # Requirement 7: Access Control
+  PCI-7.1: [AC-6]               # Least privilege
+  
+  # Requirement 8: Authentication
+  PCI-8.1.4: [AC-2(3)]          # Remove inactive users
+  PCI-8.1.8: [AC-12]            # Session timeout
+  PCI-8.2.3: [IA-5(1)]          # Password complexity
+  PCI-8.2.4: [IA-5(1)]          # Password rotation (90 days)
+  PCI-8.2.5: [IA-5(1)]          # Password reuse prevention
+  PCI-8.3.1: [IA-2(1), IA-2(2)] # MFA for all access
+  
+  # Requirement 10: Logging
+  PCI-10.1: [AU-2, AU-3]        # Audit trail
+  PCI-10.2: [AU-2]              # Log critical events
+  PCI-10.2.1: [AU-3]            # Audit record content
+  PCI-10.5.3: [AU-11]           # Log retention (12 months)
+  PCI-10.5.5: [AU-9]            # Log integrity protection
+  
+  # Requirement 11: Security Testing
+  PCI-11.2.2: [RA-5]            # Quarterly vulnerability scans
+
+# CMMC → NIST 800-53 Rev 5
+# CMMC is based on NIST SP 800-171, which derives from 800-53
+cmmc_to_800_53:
+  # Access Control (AC)
+  AC.L1-3.1.1: [AC-2, AC-3]             # Authorized access
+  AC.L1-3.1.2: [AC-3]                   # Transaction authorization
+  AC.L1-3.1.20: [AC-20]                 # External connections
+  AC.L1-3.1.22: [AC-22]                 # Publicly accessible content
+  AC.L2-3.1.3: [AC-2, AC-5]             # Information flow enforcement
+  AC.L2-3.1.5: [AC-6]                   # Least privilege
+  AC.L2-3.1.6: [AC-6(1)]                # Non-privileged account use
+  
+  # Awareness and Training (AT)
+  AT.L2-3.2.1: [AT-2]                   # Security awareness
+  AT.L2-3.2.2: [AT-3]                   # Role-based training
+  AT.L2-3.2.3: [AT-3(3)]                # Insider threat training
+  
+  # Audit and Accountability (AU)
+  AU.L2-3.3.1: [AU-2, AU-12]            # System auditing
+  AU.L2-3.3.2: [AU-3]                   # Audit content
+  AU.L2-3.3.3: [AU-6]                   # Audit review
+  AU.L2-3.3.4: [AU-4]                   # Audit storage
+  AU.L2-3.3.5: [AU-5]                   # Audit failure response
+  AU.L2-3.3.6: [AU-6(3)]                # Audit correlation
+  AU.L2-3.3.7: [AU-7]                   # Audit reduction
+  AU.L2-3.3.8: [AU-9]                   # Audit information protection
+  AU.L2-3.3.9: [AU-11]                  # Audit retention
+  
+  # Configuration Management (CM)
+  CM.L2-3.4.1: [CM-2]                   # Baseline configuration
+  CM.L2-3.4.2: [CM-6]                   # Configuration settings
+  CM.L2-3.4.3: [CM-3]                   # Configuration change control
+  CM.L2-3.4.4: [SI-7]                   # Security impact analysis
+  CM.L2-3.4.5: [CM-5]                   # Access restrictions
+  CM.L2-3.4.6: [CM-7]                   # Least functionality
+  CM.L2-3.4.7: [CM-7(1)]                # Prohibited functions
+  CM.L2-3.4.8: [CM-7(2)]                # Unauthorized software
+  CM.L2-3.4.9: [CM-11]                  # User-installed software
+  
+  # Identification and Authentication (IA)
+  IA.L1-3.5.1: [IA-2]                   # User identification
+  IA.L1-3.5.2: [IA-2(1), IA-5]          # MFA and authentication
+  IA.L2-3.5.3: [IA-2(1)]                # MFA for privileged accounts
+  IA.L2-3.5.4: [IA-2(2)]                # MFA for non-privileged
+  IA.L2-3.5.5: [IA-4]                   # Identifier management
+  IA.L2-3.5.6: [IA-5]                   # Authenticator management
+  IA.L2-3.5.7: [IA-5(1)]                # Password complexity
+  IA.L2-3.5.8: [IA-5(1)]                # Password reuse
+  IA.L2-3.5.9: [IA-5(11)]               # Hardware tokens
+  IA.L2-3.5.10: [IA-8]                  # Non-org users
+  IA.L2-3.5.11: [AC-12]                 # Session lock
+  
+  # Incident Response (IR)
+  IR.L2-3.6.1: [IR-1, IR-2]             # Incident response plan
+  IR.L2-3.6.2: [IR-6]                   # Incident reporting
+  IR.L2-3.6.3: [IR-4(1)]                # Automated response
+  
+  # Maintenance (MA)
+  MA.L2-3.7.1: [MA-2]                   # Controlled maintenance
+  MA.L2-3.7.2: [MA-3]                   # Maintenance tools
+  MA.L2-3.7.3: [MA-4]                   # Non-local maintenance
+  MA.L2-3.7.4: [MA-5]                   # Maintenance personnel
+  MA.L2-3.7.5: [MA-6]                   # Timely maintenance
+  
+  # Media Protection (MP)
+  MP.L1-3.8.3: [MP-6]                   # Media sanitization
+  MP.L1-3.8.2: [MP-2]                   # Media access control
+  MP.L2-3.8.1: [MP-3]                   # Media marking
+  MP.L2-3.8.4: [MP-4]                   # Media storage
+  MP.L2-3.8.5: [MP-5]                   # Media transport
+  MP.L2-3.8.6: [MP-6(1)]                # Sanitization techniques
+  MP.L2-3.8.7: [MP-7]                   # Media use
+  MP.L2-3.8.8: [MP-4]                   # Media downgrading
+  MP.L2-3.8.9: [MP-8]                   # Media accountability
+  
+  # Physical Protection (PE)
+  PE.L1-3.10.1: [PE-2]                  # Physical access
+  PE.L1-3.10.3: [PE-3]                  # Escort visitors
+  PE.L1-3.10.4: [PE-8]                  # Access logs
+  PE.L1-3.10.5: [PE-3]                  # Physical access devices
+  PE.L2-3.10.2: [PE-2]                  # Physical access control
+  PE.L2-3.10.6: [PE-6]                  # Monitoring physical access
+  
+  # Recovery (RE)
+  RE.L2-3.13.1: [CP-6, CP-7]            # Alternate processing site
+  RE.L2-3.13.2: [CP-2]                  # Contingency plan
+  RE.L2-3.13.3: [CP-3]                  # Contingency training
+  RE.L2-3.13.4: [CP-4]                  # Contingency testing
+  
+  # Risk Assessment (RA)
+  RA.L2-3.11.1: [RA-3]                  # Risk assessments
+  RA.L2-3.11.2: [RA-5]                  # Vulnerability scanning
+  RA.L2-3.11.3: [IR-8]                  # Incident response plan
+  
+  # Security Assessment (CA)
+  CA.L2-3.12.1: [CA-2]                  # Security assessments
+  CA.L2-3.12.2: [CA-5]                  # Plan of action
+  CA.L2-3.12.3: [CA-7]                  # Continuous monitoring
+  CA.L2-3.12.4: [CA-7]                  # Security status
+  
+  # System and Communications Protection (SC)
+  SC.L1-3.13.1: [SC-7]                  # Boundary protection
+  SC.L1-3.13.5: [AC-17, SC-7(3)]        # Deny by default
+  SC.L1-3.13.16: [SC-28]                # Data at rest protection
+  SC.L1-3.13.17: [SC-23]                # Session identifiers
+  SC.L2-3.13.2: [SC-2]                  # Separate functions
+  SC.L2-3.13.3: [SC-4]                  # Shared resources
+  SC.L2-3.13.4: [SC-7(4)]               # External boundary
+  SC.L2-3.13.6: [SC-7(7)]               # Split tunneling
+  SC.L2-3.13.7: [SC-8]                  # Transmission confidentiality
+  SC.L2-3.13.8: [SC-13]                 # Cryptographic protection
+  SC.L2-3.13.9: [SC-15]                 # Collaborative devices
+  SC.L2-3.13.10: [SC-17]                # Public key infrastructure
+  SC.L2-3.13.11: [SC-18]                # Mobile code
+  SC.L2-3.13.12: [SC-20]                # Network disconnect
+  SC.L2-3.13.13: [SC-21]                # Session authenticity
+  SC.L2-3.13.14: [SC-23]                # Session integrity
+  SC.L2-3.13.15: [SC-28]                # Protection of info at rest
+  
+  # System and Information Integrity (SI)
+  SI.L1-3.14.1: [SI-2]                  # Flaw remediation
+  SI.L1-3.14.2: [SI-3]                  # Malicious code protection
+  SI.L1-3.14.4: [SI-3(1)]               # Update malicious code
+  SI.L1-3.14.5: [SI-4]                  # System monitoring
+  SI.L2-3.14.3: [SI-3]                  # Malicious code at entry/exit
+  SI.L2-3.14.6: [SI-4]                  # Monitor communications
+  SI.L2-3.14.7: [SI-4(2)]               # Automated tools
+
+# HIPAA Security Rule → NIST 800-53 Rev 5 (Experimental)
+hipaa_to_800_53:
+  "164.308(a)(1)": [RA-1, RA-3]         # Risk assessment
+  "164.308(a)(3)": [AC-1, AC-2]         # Workforce access
+  "164.308(a)(4)": [AT-2, AT-3]         # Training
+  "164.308(a)(5)": [SI-4, IR-4]         # Security awareness
+  "164.308(a)(6)": [IR-4, IR-8]         # Incident response
+  "164.308(a)(7)": [CP-2, CP-9]         # Contingency planning
+  "164.312(a)(1)": [AC-2, IA-2]         # Access control
+  "164.312(a)(2)(i)": [IA-2, IA-2(1)]   # Unique user identification
+  "164.312(a)(2)(ii)": [AC-11, AC-12]   # Emergency access
+  "164.312(a)(2)(iii)": [AC-11]         # Automatic logoff
+  "164.312(a)(2)(iv)": [SC-13, SC-28]   # Encryption
+  "164.312(b)": [AU-2, AU-3, AU-12]     # Audit controls
+  "164.312(c)(1)": [SI-7, SC-8]         # Integrity controls
+  "164.312(c)(2)": [SC-13]              # Encryption mechanisms
+  "164.312(d)": [IA-5, IA-5(1)]         # Person authentication
+  "164.312(e)(1)": [SC-8, SC-8(1)]      # Transmission security
+  "164.312(e)(2)(i)": [SI-7]            # Integrity controls
+  "164.312(e)(2)(ii)": [SC-13, SC-8]    # Encryption
