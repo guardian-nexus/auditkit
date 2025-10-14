@@ -6,6 +6,12 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Version](https://img.shields.io/badge/version-v0.6.8-green.svg)](https://github.com/guardian-nexus/auditkit/releases)
 [![Newsletter](https://img.shields.io/badge/Newsletter-Subscribe-orange)](https://auditkit.substack.com)
+
+---
+
+> **DoD Contractors:** CMMC requirements are now appearing in DoD contracts. Level 2 certification requires 110 practices for CUI handling.  
+> Free version includes Level 1 (17 practices). **[Try Pro Free for 14 Days →](https://auditkit.io/pro.html)**
+
 ---
 
 ## Quick Start
@@ -85,7 +91,26 @@ Interactive HTML reports with compliance scores, automated vs manual check break
 | **CMMC Level 1** | 17 practices | 17 practices | Mapped | Production |
 | **NIST 800-53 Rev 5** | ~150 controls | ~150 controls | Mapped | **NEW** |
 | **HIPAA** | ~10 controls | ~10 controls | Basic | Experimental |
-| **CMMC Level 2** | 110 practices | 110 practices | Mapped | [Pro Only](https://auditkit.io/pro) |
+| **CMMC Level 2** | 110 practices | 110 practices | Mapped | [Pro - 14 Day Trial](https://auditkit.io/pro.html) |
+
+---
+
+## Need CMMC Level 2?
+
+**CMMC requirements are now appearing in DoD contracts.**
+
+DoD contractors handling **Controlled Unclassified Information (CUI)** need all 110 CMMC Level 2 practices.
+
+**What's in Pro:**
+- All 110 Level 2 practices (vs 17 in Free)
+- CUI-specific security requirements
+- NIST SP 800-171 Rev 2 mapping
+- Priority fixes for C3PAO assessment
+- 14-day free trial, no credit card required
+
+**$297/month** vs $25,000+ for consultants.
+
+**[Start Free Trial →](https://auditkit.io/pro.html)** | [Learn More](https://auditkit.io/pro.html)
 
 ---
 
@@ -111,6 +136,10 @@ AuditKit now maps your SOC2, PCI-DSS, and CMMC controls to NIST 800-53 control f
 
 **What's not included:** Organizational controls like policies, procedures, and training (~850 controls that require manual documentation)
 
+### CMMC Level 2 in Pro
+
+Need to handle CUI for DoD contracts? Pro now includes all 110 CMMC Level 2 practices with automated scans and fix commands. [14-day free trial →](https://auditkit.io/pro.html)
+
 ---
 
 ## Why Use AuditKit?
@@ -121,9 +150,11 @@ AuditKit now maps your SOC2, PCI-DSS, and CMMC controls to NIST 800-53 control f
 - Most technical issues fixed in hours
 
 ### For DoD Contractors
-- CMMC Level 1 assessment (17 practices)
-- November 10, 2025 deadline compliance
-- Self-assessment before C3PAO review
+- **Free:** Level 1 self-assessment (17 practices for FCI)
+- **Pro:** Level 2 compliance (110 practices for CUI)
+- CMMC requirements appearing in new contracts
+- Self-assessment before expensive C3PAO review
+- [Try Pro free for 14 days →](https://auditkit.io/pro.html)
 
 ### For Federal Contractors
 - NIST 800-53 technical control assessment
@@ -276,7 +307,7 @@ For detailed report with full evidence checklist:
 
 ### CMMC Level 1
 - **17 foundational practices** for Federal Contract Information (FCI)
-- Required for DoD contractors by November 10, 2025
+- Required for DoD contractors
 - Based on NIST SP 800-171 Rev 2
 - Level 2 (110 practices for CUI) available in Pro version
 
@@ -322,7 +353,8 @@ auditkit scan                          # Default: AWS SOC2
 auditkit scan -provider azure          # Azure SOC2
 auditkit scan -framework 800-53        # NIST 800-53
 auditkit scan -framework pci           # PCI-DSS
-auditkit scan -framework cmmc          # CMMC Level 1
+auditkit scan -framework cmmc          # CMMC Level 1 (Free)
+auditkit scan -framework cmmc-l2       # CMMC Level 2 (Pro only)
 auditkit scan -framework all           # All frameworks
 auditkit scan --full                   # Show all controls (no truncation)
 auditkit scan -verbose                 # Detailed output
@@ -334,7 +366,7 @@ auditkit scan -format json             # JSON output
 auditkit scan -output report.pdf       # Save to file
 
 # M365 Integration
-auditkit integrate -source scubagear -file ScubaResults.json
+auditkit integrate -source scubagear -file ScubaResults/ScubaResults.json
 auditkit integrate -source scubagear -file ScubaResults.json -format pdf
 
 # Remediation
@@ -419,8 +451,11 @@ A: No. AuditKit automates technical controls, but you still need a CPA firm for 
 **Q: Is this a security scanner?**  
 A: No. It checks compliance controls, not vulnerabilities. Use Prowler/Scout Suite for security scanning.
 
-**Q: What's the difference between CMMC Level 1 and Level 2?**  
-A: Level 1 (17 practices) protects Federal Contract Information (FCI). Level 2 (110 practices) protects Controlled Unclassified Information (CUI) and is required for most DoD contracts.
+**Q: What's the difference between CMMC Level 1 (Free) and Level 2 (Pro)?**  
+A: Level 1 (17 practices) protects Federal Contract Information (FCI) - basic business info. Level 2 (110 practices) protects Controlled Unclassified Information (CUI) - sensitive DoD data like technical specs, mission plans, etc. If your DoD contract involves CUI, you need Level 2. CMMC requirements are now appearing in new contracts. [Try Pro free →](https://auditkit.io/pro.html)
+
+**Q: How much does CMMC Level 2 Pro cost?**  
+A: $297/month with a 14-day free trial. No credit card required for trial. Compare that to $25,000-$150,000 for traditional compliance consultants.
 
 **Q: What does the NIST 800-53 support include?**  
 A: ~150 automated technical controls mapped from your existing SOC2/PCI/CMMC checks. It does NOT include the ~850 organizational controls (policies, procedures, training) that require manual documentation.
@@ -436,9 +471,6 @@ A: Yes, use different profiles: `auditkit scan -profile production`
 
 **Q: What's the --full flag for?**  
 A: Shows ALL controls in terminal output instead of truncating. PDF/HTML reports always show everything.
-
-**Q: How do I get CMMC Level 2?**  
-A: Check out [AuditKit Pro](https://auditkit.io/pro) for 110 practices covering CUI requirements.
 
 ---
 
@@ -469,7 +501,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
    - Production ready: SOC2, PCI-DSS, CMMC Level 1, NIST 800-53 (technical controls)
    - Experimental: HIPAA, ISO 27001
 4. **Manual verification required** - Some controls need human review (e.g., physical security)
-5. **CMMC Level 2** - Contact us for 110-practice CUI requirements
+5. **CMMC Level 2** - Available in Pro version with 14-day free trial
 
 ---
 
@@ -477,4 +509,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 Apache 2.0 - Use freely, even commercially.
 
-**Built by engineers who've survived too many compliance audits.**
+**Built by engineers who've survived too many compliance audits.**  
+**DoD contractor?** [Try CMMC Level 2 Pro free for 14 days →](https://auditkit.io/pro.html)

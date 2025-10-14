@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuditKit - Multi-Cloud Compliance Scanner</title>
-    <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, CMMC, HIPAA, ISO 27001. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
+    <meta name="description" content="Open-source compliance scanner for SOC2, PCI-DSS, CMMC, HIPAA, NIST 800-53. One scan maps to all frameworks. Shows exactly what evidence auditors need.">
     <style>
         * {
             margin: 0;
@@ -71,6 +71,17 @@
         .badge.pro {
             background: rgba(255, 107, 107, 0.3);
             font-weight: 600;
+        }
+        
+        .badge.new {
+            background: rgba(46, 213, 115, 0.4);
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .cmmc-alert {
@@ -422,12 +433,26 @@
             font-size: 0.9em;
             color: #666;
         }
+        
+        .pro-callout {
+            background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .pro-callout h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="cmmc-alert">
-        CMMC DEADLINE: November 10, 2025 - All new DoD contracts require CMMC compliance. 
-        <a href="#cmmc-pro">CMMC Level 2 Pro available</a> - 110 practices, 30 days to compliant, $297/month
+        ⚠️ CMMC DEADLINE: November 10, 2025 (27 days away) - All new DoD contracts require CMMC compliance. 
+        <a href="#cmmc-pro">CMMC Level 2 Pro available</a> - 110 practices + NIST 800-53, $297/month
     </div>
 
     <header>
@@ -439,42 +464,54 @@
                 <span class="badge success">SOC2 Complete</span>
                 <span class="badge success">PCI-DSS Ready</span>
                 <span class="badge success">CMMC Level 1</span>
-                <span class="badge pro">PRO CMMC Level 2</span>
+                <span class="badge new">NIST 800-53 NEW</span>
+                <span class="badge pro">PRO: CMMC Level 2</span>
                 <span class="badge warning">M365 Complete</span>
                 <span class="badge">HIPAA Beta</span>
             </div>
 
             <div class="cta-buttons">
                 <a href="https://github.com/guardian-nexus/auditkit" class="btn btn-primary">View on GitHub</a>
-                <a href="https://github.com/guardian-nexus/auditkit/releases" class="btn btn-secondary">Download v0.6.6</a>
-                <a href="https://auditkit.io/pro/" class="btn btn-pro">CMMC Level 2 Pro</a>
+                <a href="https://github.com/guardian-nexus/auditkit/releases" class="btn btn-secondary">Download v0.6.8</a>
+                <a href="https://auditkit.io/pro.html" class="btn btn-pro">Get Pro ($297/mo)</a>
             </div>
         </div>
     </header>
 
     <section>
         <div class="container">
+            <div class="pro-callout">
+                <h3>🔒 Need CMMC Level 2 or NIST 800-53 for Federal Contracts?</h3>
+                <p style="font-size: 1.1em; margin-bottom: 20px;">
+                    AuditKit Pro includes CMMC Level 2 (110 practices) + NIST 800-53 Rev 5 (~150 automated controls)
+                </p>
+                <p style="font-size: 1em; opacity: 0.9; margin-bottom: 20px;">
+                    27 days until November 10 deadline. Get assessment-ready in 30 days vs 6+ months traditional.
+                </p>
+                <a href="https://auditkit.io/pro.html" class="btn btn-primary">Start 14-Day Free Trial</a>
+            </div>
+
             <h2>One Scan, All Frameworks</h2>
             
-            <div class="demo-output"><span class="prompt">$</span> auditkit scan -framework all
-<span class="comment"># Scanning AWS account 123456789...</span>
-
-<span class="critical">X CRITICAL: Root account missing MFA</span>
-<span class="arrow">→</span> <span class="framework">SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i)</span>
-  <span class="label">Console URL:</span> <span class="url">https://console.aws.amazon.com/iam/home#/security_credentials</span>
-  <span class="label">Screenshot:</span> Navigate to Security credentials → MFA → Screenshot "Assigned MFA device"
-  <span class="label">Fix:</span> <span class="command">aws iam enable-mfa-device --user-name root --serial-number arn:aws:iam::123456789:mfa/root</span>
-
-<span class="critical">X CRITICAL: S3 bucket 'customer-data' public</span>
-<span class="arrow">→</span> <span class="framework">SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1)</span>
-  <span class="label">Console URL:</span> <span class="url">https://s3.console.aws.amazon.com/s3/buckets/customer-data</span>
-  <span class="label">Screenshot:</span> Permissions tab → Block public access → All 4 settings "On"
-  <span class="label">Fix:</span> <span class="command">aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration
-"BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span>
-
-<span class="prompt">$</span> auditkit evidence -output evidence-tracker.html
-<span class="success">Evidence tracker generated with 23 screenshot requirements</span>
-📋 5 collected | ⏳ 18 remaining | 🎯 SOC2_CC6.6_MFA_Evidence.png needed</div>
+            <div class="demo-output"><span class="prompt">$</span> auditkit scan -framework all<br>
+<span class="comment"># Scanning AWS account 123456789...</span><br>
+<br>
+<span class="critical">X CRITICAL: Root account missing MFA</span><br>
+<span class="arrow">→</span> <span class="framework">SOC2: CC6.6 | PCI: 8.3.1 | CMMC: IA.L1-3.5.2 | HIPAA: §164.312(a)(2)(i) | 800-53: IA-2</span><br>
+  <span class="label">Console URL:</span> <span class="url">https://console.aws.amazon.com/iam/home#/security_credentials</span><br>
+  <span class="label">Screenshot:</span> Navigate to Security credentials → MFA → Screenshot "Assigned MFA device"<br>
+  <span class="label">Fix:</span> <span class="command">aws iam enable-mfa-device --user-name root --serial-number arn:aws:iam::123456789:mfa/root</span><br>
+<br>
+<span class="critical">X CRITICAL: S3 bucket 'customer-data' public</span><br>
+<span class="arrow">→</span> <span class="framework">SOC2: CC6.3 | PCI: 1.3.1 | CMMC: SC.L1-3.13.16 | HIPAA: §164.312(a)(1) | 800-53: SC-7</span><br>
+  <span class="label">Console URL:</span> <span class="url">https://s3.console.aws.amazon.com/s3/buckets/customer-data</span><br>
+  <span class="label">Screenshot:</span> Permissions tab → Block public access → All 4 settings "On"<br>
+  <span class="label">Fix:</span> <span class="command">aws s3api put-public-access-block --bucket customer-data --public-access-block-configuration<br>
+"BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span><br>
+<br>
+<span class="prompt">$</span> auditkit evidence -output evidence-tracker.html<br>
+<span class="success">Evidence tracker generated with 23 screenshot requirements</span><br>
+5 collected | 18 remaining | SOC2_CC6.6_MFA_Evidence.png needed</div>
 
             <div class="privacy-notice">
                 <strong>Privacy:</strong> AuditKit runs entirely on your machine. No data leaves your infrastructure. No telemetry, no phone-home, no BS. Check the source code.
@@ -497,7 +534,8 @@
                             <th>What They Check</th>
                             <th>SOC2</th>
                             <th>PCI-DSS</th>
-                            <th>CMMC Level 1</th>
+                            <th>CMMC L1</th>
+                            <th>NIST 800-53</th>
                             <th>HIPAA</th>
                         </tr>
                     </thead>
@@ -507,6 +545,7 @@
                             <td>CC6.6</td>
                             <td>Req 8.3</td>
                             <td>IA.L1-3.5.2</td>
+                            <td>IA-2</td>
                             <td>§164.312(a)(2)(i)</td>
                         </tr>
                         <tr>
@@ -514,6 +553,7 @@
                             <td>CC6.3</td>
                             <td>Req 3.4</td>
                             <td>SC.L1-3.13.16</td>
+                            <td>SC-28</td>
                             <td>§164.312(a)(2)(iv)</td>
                         </tr>
                         <tr>
@@ -521,6 +561,7 @@
                             <td>CC7.1</td>
                             <td>Req 10.1</td>
                             <td>SI.L1-3.14.6</td>
+                            <td>AU-2</td>
                             <td>§164.312(b)</td>
                         </tr>
                         <tr>
@@ -528,6 +569,7 @@
                             <td>CC6.1</td>
                             <td>Req 7.1</td>
                             <td>AC.L1-3.1.1</td>
+                            <td>AC-2</td>
                             <td>§164.312(a)(1)</td>
                         </tr>
                     </tbody>
@@ -557,7 +599,7 @@
                 
                 <div class="card">
                     <h3>Framework Mapping</h3>
-                    <p>Maps each finding to SOC2, PCI-DSS, CMMC, HIPAA, and ISO 27001 requirements automatically.</p>
+                    <p>Maps each finding to SOC2, PCI-DSS, CMMC, NIST 800-53, HIPAA, and ISO 27001 requirements automatically.</p>
                 </div>
                 
                 <div class="card">
@@ -576,22 +618,22 @@
                 </div>
                 
                 <div class="card">
-                    <h3>CMMC Ready</h3>
-                    <p>Complete Level 1 (17 practices) assessment for DoD contractors. Level 2 (110 practices) in Pro.</p>
+                    <h3>CMMC + 800-53 Ready</h3>
+                    <p>Level 1 (17 practices) free. Pro adds Level 2 (110 practices) + NIST 800-53 Rev 5 (~150 controls).</p>
                 </div>
             </div>
 
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-number">127</div>
-                    <div class="stat-label">CMMC Controls</div>
+                    <div class="stat-number">~150</div>
+                    <div class="stat-label">800-53 Controls</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">64</div>
                     <div class="stat-label">SOC2 Controls</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">5</div>
+                    <div class="stat-number">6</div>
                     <div class="stat-label">Frameworks</div>
                 </div>
                 <div class="stat">
@@ -645,13 +687,15 @@
 
             <div class="code-block"><span style="color: #608b4e;"># Run CISA ScubaGear for M365 assessment</span>
 Invoke-SCuBA -ProductNames aad,exo,defender,sharepoint,teams,powerbi,powerplatform -OutPath ./ScubaResults
-
+<br>
 <span style="color: #608b4e;"># Import into AuditKit with framework mappings</span>
 auditkit integrate -source scubagear -file ScubaResults.json -format pdf -output m365-compliance.pdf
-
+<br>
 <span style="color: #608b4e;"># Combine with AWS/Azure for unified reporting</span>
 auditkit scan -provider aws -framework soc2 -output aws-report.pdf
+
 auditkit scan -provider azure -framework soc2 -output azure-report.pdf
+
 auditkit integrate -source scubagear -file ScubaResults.json -output m365-report.pdf</div>
         </div>
     </section>
@@ -662,22 +706,25 @@ auditkit integrate -source scubagear -file ScubaResults.json -output m365-report
             
             <div class="code-block"><span style="color: #608b4e;"># Quick install (Go required)</span>
 go install github.com/guardian-nexus/auditkit/scanner/cmd/auditkit@latest
-
+<br>
 <span style="color: #608b4e;"># Or build from source</span>
 git clone https://github.com/guardian-nexus/auditkit.git
 cd auditkit/scanner && go build ./cmd/auditkit
-
+<br>
 <span style="color: #608b4e;"># Run CMMC Level 1 assessment</span>
 ./auditkit scan -framework cmmc -format pdf -output cmmc-evidence.pdf
-
+<br>
+<span style="color: #608b4e;"># Run NIST 800-53 assessment (NEW in v0.6.8)</span>
+./auditkit scan -framework 800-53 -format pdf -output 800-53-report.pdf
+<br>
 <span style="color: #608b4e;"># Multi-framework scan</span>
 ./auditkit scan -framework all -format pdf -output compliance-report.pdf
-
+<br>
 <span style="color: #608b4e;"># Azure SOC2 scan</span>
 az login
 export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 ./auditkit scan -provider azure -framework soc2
-
+<br>
 <span style="color: #608b4e;"># Generate interactive HTML report</span>
 ./auditkit scan -framework soc2 -format html -output report.html</div>
         </div>
@@ -691,7 +738,8 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
                 <div class="should-use">
                     <h3 style="color: #28a745; margin-bottom: 20px;">Perfect For</h3>
                     <ul class="features-list">
-                        <li>Defense contractors facing CMMC Level 1/2 by Nov 10, 2025</li>
+                        <li>Defense contractors facing CMMC deadline (Nov 10, 2025 - 27 days!)</li>
+                        <li>Federal contractors needing NIST 800-53 compliance</li>
                         <li>Startups facing multiple compliance requirements</li>
                         <li>Teams juggling SOC2 + PCI + HIPAA + CMMC simultaneously</li>
                         <li>Companies quoted $50K+ per framework for prep</li>
@@ -715,9 +763,9 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 
     <section id="cmmc-pro" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <div class="container">
-            <h2 style="color: white;">CMMC Level 2 Pro - Defense Contractors</h2>
+            <h2 style="color: white;">CMMC Level 2 + NIST 800-53 Pro</h2>
             <p style="text-align: center; font-size: 1.2em; margin-bottom: 40px;">
-                Deadline: November 10, 2025 - All new DoD contracts require CMMC compliance
+                Deadline: November 10, 2025 (27 days away) - Don't risk losing DoD contracts
             </p>
 
             <div class="stats">
@@ -726,28 +774,29 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
                     <div class="stat-label">CMMC Level 2 Practices</div>
                 </div>
                 <div class="stat">
+                    <div class="stat-number">~150</div>
+                    <div class="stat-label">NIST 800-53 Controls</div>
+                </div>
+                <div class="stat">
                     <div class="stat-number">30</div>
-                    <div class="stat-label">Days to Compliant</div>
+                    <div class="stat-label">Days to Assessment-Ready</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">$297</div>
                     <div class="stat-label">Per Month</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-number" style="font-size: 2em;">vs $100K+</div>
-                    <div class="stat-label">Traditional Assessment</div>
-                </div>
             </div>
 
             <div style="text-align: center; margin-top: 40px;">
-                <a href="https://auditkit.io/pro/" class="btn btn-primary">Learn More - CMMC Level 2 Pro</a>
+                <a href="https://auditkit.io/pro.html" class="btn btn-primary" style="font-size: 1.2em; padding: 18px 40px;">Start 14-Day Free Trial - No Credit Card</a>
+                <p style="margin-top: 20px; opacity: 0.9;">vs $100K+ traditional assessment • Assessment-ready in 30 days vs 6 months</p>
             </div>
         </div>
     </section>
 
     <section style="background: #f8f9fa;">
         <div class="container">
-            <h2>Current Status - v0.6.6</h2>
+            <h2>Current Status - v0.6.8</h2>
             
             <div class="card" style="max-width: 800px; margin: 0 auto;">
                 <h3 style="color: #28a745;">Production Ready</h3>
@@ -755,28 +804,31 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
                     <li><strong>SOC2</strong> - Complete (64 controls), AWS + Azure + M365</li>
                     <li><strong>PCI-DSS v4.0</strong> - Complete (30+ technical controls), production ready</li>
                     <li><strong>CMMC Level 1</strong> - Complete (17 practices), AWS + Azure</li>
+                    <li><strong>NIST 800-53 Rev 5</strong> - ~150 automated controls via framework crosswalk</li>
                     <li><strong>M365 Coverage</strong> - All 7 domains via ScubaGear integration</li>
                     <li><strong>Professional Reports</strong> - Enhanced PDF and interactive HTML</li>
-		    <li><strong>Examples</strong> - Real-world sample reports and screenshots</li>
+                    <li><strong>Examples</strong> - Real-world sample reports and screenshots</li>
                 </ul>
 
-                <h3 style="color: #667eea; margin-top: 30px;">What's New in v0.6.6</h3>
+                <h3 style="color: #667eea; margin-top: 30px;">What's New in v0.6.8</h3>
                 <ul class="features-list">
-		        <li>Fixed critical PCI-DSS scanner crash bug</li>
-		        <li>Removed debug paths from release binaries (30% smaller)</li>
-		        <li>Added comprehensive examples directory with sample reports</li>
-		        <li>Real-world use cases documented (startup, DoD contractor, enterprise)</li>
-		        <li>Enhanced build process with path leak detection</li>
-		    </ul>
+                    <li><strong>NIST 800-53 Rev 5 Support</strong> - Framework crosswalk maps existing checks to 800-53</li>
+                    <li>~150 automated controls across 19 control families (AC, AU, IA, SC, SI, etc.)</li>
+                    <li>Source attribution shows which framework provides each 800-53 control</li>
+                    <li>Works with both AWS and Azure infrastructure</li>
+                    <li>Same crosswalk available in Pro version</li>
+                </ul>
 
-		 <p style="margin-top: 20px; text-align: center;">
-		        <a href="https://github.com/guardian-nexus/auditkit/tree/main/docs/examples" style="color: #667eea; font-weight: 600;">View Sample Reports and Examples →</a>
-		    </p>
+                <p style="margin-top: 20px; text-align: center;">
+                    <a href="https://github.com/guardian-nexus/auditkit/tree/main/docs/examples" style="color: #667eea; font-weight: 600;">View Sample Reports and Examples →</a>
+                </p>
 
                 <h3 style="color: #f1c40f; margin-top: 30px;">Pro Features</h3>
                 <ul class="features-list">
                     <li><strong>CMMC Level 2</strong> - 110 practices for CUI handling</li>
-                    <li>Priority support</li>
+                    <li><strong>NIST 800-53 Rev 5</strong> - Same ~150 controls as FREE</li>
+                    <li>14-day free trial, $297/month</li>
+                    <li>Priority support (24-48 hour response)</li>
                 </ul>
 
                 <h3 style="color: #95a5a6; margin-top: 30px;">Coming Soon (v0.7.0)</h3>
@@ -803,13 +855,17 @@ export AZURE_SUBSCRIPTION_ID="your-subscription-id"
                 <a href="https://github.com/guardian-nexus/auditkit/discussions">Discussions</a> · 
                 <a href="mailto:support@auditkit.io">Email</a> · 
                 <a href="https://www.buymeacoffee.com/auditkit">Buy Me Coffee</a> · 
-                <a href="https://auditkit.substack.com">Newsletter</a>
+                <a href="https://auditkit.substack.com">Newsletter</a> ·
+                <a href="https://auditkit.io/pro.html" style="color: #ff6b6b; font-weight: 600;">Get Pro</a>
             </p>
             <p style="font-size: 0.9em; color: #95a5a6;">
                 We use privacy-friendly analytics (Plausible). No cookies, no tracking, just page views.
             </p>
             <p style="margin-top: 30px; font-size: 0.9em; color: #95a5a6;">
                 Huge thanks to our community contributors for M365 domain mappings that make AuditKit the first truly unified multi-cloud compliance tool!
+            </p>
+            <p style="margin-top: 20px; font-size: 0.9em; color: #95a5a6;">
+                AuditKit v0.6.8 • October 2025
             </p>
         </div>
     </footer>
