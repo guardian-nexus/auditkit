@@ -488,5 +488,122 @@
             </p>
         </div>
     </footer>
+<div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 20px; box-shadow: 0 -4px 6px rgba(0,0,0,0.1); z-index: 9999;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+        <div style="flex: 1; min-width: 300px;">
+            <strong style="font-size: 1.1em;">Privacy & Cookies</strong>
+            <p style="margin: 10px 0; font-size: 0.95em; line-height: 1.5;">
+                We use privacy-friendly analytics (Plausible) to understand how visitors use our site. 
+                No personal data is collected or shared. No cookies are used for tracking. 
+                <a href="#privacy-details" onclick="togglePrivacyDetails(); return false;" style="color: #667eea; text-decoration: underline;">Learn more</a>
+            </p>
+            <div id="privacy-details" style="display: none; margin-top: 10px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.9em;">
+                <p style="margin-bottom: 10px;"><strong>What we collect:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 10px;">
+                    <li>Page views and referrers (anonymous)</li>
+                    <li>Browser type and device (aggregated)</li>
+                    <li>Country (based on IP, not stored)</li>
+                </ul>
+                <p style="margin-bottom: 10px;"><strong>What we don't collect:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 10px;">
+                    <li>Personal information</li>
+                    <li>IP addresses</li>
+                    <li>Cross-site tracking</li>
+                    <li>Cookies for advertising</li>
+                </ul>
+                <p><strong>Your rights (GDPR/CCPA):</strong> You can opt-out anytime by clicking "Decline" below. We don't sell your data because we don't collect personal data.</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <button onclick="acceptCookies()" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 1em; font-weight: 600; cursor: pointer;">
+                Accept
+            </button>
+            <button onclick="declineCookies()" style="background: transparent; color: white; border: 2px solid white; padding: 12px 30px; border-radius: 6px; font-size: 1em; font-weight: 600; cursor: pointer;">
+                Decline
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+// Cookie Consent Management
+function getCookieConsent() {
+    return localStorage.getItem('auditkit_cookie_consent');
+}
+
+function setCookieConsent(value) {
+    localStorage.setItem('auditkit_cookie_consent', value);
+    localStorage.setItem('auditkit_cookie_consent_date', new Date().toISOString());
+}
+
+function acceptCookies() {
+    setCookieConsent('accepted');
+    hideCookieBanner();
+    loadAnalytics();
+}
+
+function declineCookies() {
+    setCookieConsent('declined');
+    hideCookieBanner();
+    // Do not load analytics
+}
+
+function hideCookieBanner() {
+    document.getElementById('cookie-consent-banner').style.display = 'none';
+}
+
+function showCookieBanner() {
+    document.getElementById('cookie-consent-banner').style.display = 'block';
+}
+
+function togglePrivacyDetails() {
+    const details = document.getElementById('privacy-details');
+    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+}
+
+function loadAnalytics() {
+    // Only load if user accepted
+    if (getCookieConsent() === 'accepted') {
+        // Plausible Analytics (privacy-friendly, no cookies)
+        var script = document.createElement('script');
+        script.defer = true;
+        script.dataset.domain = 'auditkit.io';
+        script.src = 'https://plausible.io/js/script.js';
+        document.head.appendChild(script);
+    }
+}
+
+// Check consent on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const consent = getCookieConsent();
+    
+    if (consent === 'accepted') {
+        // User previously accepted
+        loadAnalytics();
+    } else if (consent === 'declined') {
+        // User previously declined, don't show banner
+        // Banner will reappear after 90 days (optional)
+        const consentDate = localStorage.getItem('auditkit_cookie_consent_date');
+        if (consentDate) {
+            const daysSince = (new Date() - new Date(consentDate)) / (1000 * 60 * 60 * 24);
+            if (daysSince > 90) {
+                // Ask again after 90 days
+                showCookieBanner();
+            }
+        }
+    } else {
+        // No preference yet, show banner
+        showCookieBanner();
+    }
+});
+
+// Add function to manually reset consent (for testing or privacy policy page)
+function resetCookieConsent() {
+    localStorage.removeItem('auditkit_cookie_consent');
+    localStorage.removeItem('auditkit_cookie_consent_date');
+    showCookieBanner();
+}
+</script>
+ <a href="#" onclick="resetCookieConsent(); return false;" style="color: #95a5a6; font-size: 0.9em;">
+    Cookie Preferences</a>
 </body>
 </html>
